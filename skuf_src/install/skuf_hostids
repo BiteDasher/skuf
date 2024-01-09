@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+build() {
+    local grepresult grepdata dhcpcd_uid dhcpcd_gid wheel_gid
+
+    local wheel_fallback=998 dhcpcd_fallback=751
+
+    (
+    grepresult="$(grep -o "^dhcpcd:.*" /etc/passwd)"
+    if [ -z "$grepresult" ]; then
+        dhcpcd_uid="$dhcpcd_fallback"
+        dhcpcd_gid="$dhcpcd_fallback"
+    else
+        grepdata="${grepresult#*:}"
+        grepdata="${grepdata#*:}"
+        grepdata="${grepdata%%:*}"
+        dhcpcd_uid="$grepdata"
+
+        grepdata="${grepresult#*:}"
+        grepdata="${grepdata#*:}"
+        grepdata="${grepdata#*:}"
+        grepdata="${grepdata%%:*}"
+        dhcpcd_gid="$grepdata"
+    fi
+
+    grepresult="$(grep -o "^wheel:.*" /etc/group)"
+    if [ -z "$grepresult" ]; then
+        wheel_gid="$wheel_fallback"
+    else
+        grepdata="${grepresult#*:}"
+        grepdata="${grepdata#*:}"
+        grepdata="${grepdata%%:*}"
+        wheel_gid="$grepdata"
+    fi
+
+    echo "dhcpcd:x:$dhcpcd_uid:$dhcpcd_gid:dhcpcd privilege separation:/:/usr/bin/nologin" >> "$BUILDROOT/etc/.to_passwd"
+
+    echo "dhcpcd:x:$dhcpcd_gid:" >> "$BUILDROOT/etc/.to_group"
+    echo "wheel:x:$wheel_gid:" >> "$BUILDROOT/etc/.to_group"
+    ) && add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+This hook adds some UIDs and GIDs from the host to
+initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

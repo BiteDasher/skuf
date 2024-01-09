@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+build() {
+    add_file "/usr/lib/initcpio/skuf_data/banner_kexec" "/banner_kexec"
+}
+
+help() {
+    cat <<HELPEOF
+Adds colorful rainbow banner to initramfs (kexecd).
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

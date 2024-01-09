@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+build() {
+    add_binary base64
+    add_binary openssl
+    # install exists in busybox
+    add_binary tty
+    add_binary stty
+    # sed exists in busybox
+    add_binary grep
+    add_binary ip
+    add_binary ping
+    add_binary sysctl
+}
+
+help() {
+    cat <<HELPEOF
+Adds needed binaries for SKUF to initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

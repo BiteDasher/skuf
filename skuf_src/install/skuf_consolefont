@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+build() {
+    # prevent conflicting variables from affecting vconsole.conf values
+    # shellcheck disable=SC2034
+    local KEYMAP KEYMAP_TOGGLE FONT FONT_MAP FONT_UNIMAP XKBLAYOUT XKBMODEL XKBVARIANT XKBOPTIONS ifoundit=0
+
+    add_binary setfont
+
+    # subshell to avoid namespace pollution
+    (
+        for FONT in ter-v16n ter-v20n ter-v32n; do
+            ifoundit=0
+            for file in "/usr/share/kbd/consolefonts/$FONT".@(fnt|psf?(u))?(.gz|.zst); do
+                if [[ -e "$file" ]]; then
+                    [[ "$file" =~ (\.(fnt|psfu?))(\.gz|\.zst)?$ ]] && ext="${BASH_REMATCH[2]}"
+                    if [[ "$file" == *'.gz' ]]; then
+                        gzip -cd "$file" >"$BUILDROOT/${FONT}_consolefont.$ext"
+                        ifoundit=1
+                    elif [[ "$file" == *'.zst' ]]; then
+                        zstd -qd "$file" -o "$BUILDROOT/${FONT}_consolefont.$ext"
+                        ifoundit=1
+                    else
+                        add_file "$file" "/${FONT}_consolefont.$ext"
+                        ifoundit=1
+                    fi
+                    continue
+                fi
+            done
+            if [ $ifoundit == 0 ]; then
+                error "consolefont: requested font not found: '%s'" "$FONT"
+                exit 1
+            fi
+        done
+    ) && add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+This hook loads consolefont specified in vconsole.conf during early userspace.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

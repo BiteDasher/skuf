@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+build() {
+    add_module cifs
+    add_binary mount.cifs
+    add_dir '/samba'
+}
+
+help() {
+    cat <<HELPEOF
+Adds SAMBA/CIFS module to initramfs.
+HELPEOF
+}

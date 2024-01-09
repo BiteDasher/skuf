@@ -1,0 +1,99 @@
+#!/usr/bin/bash
+
+skuf_version="3.0+37.1"
+
+display_version() {
+    local letter1="$(( RANDOM % 7 ))"
+    local letter2="$(( RANDOM % 7 ))"
+    local letter3="$(( RANDOM % 7 ))"
+    local letter4="$(( RANDOM % 7 ))"
+
+    echo -e "\e[1;3${letter1}mS\e[0m\e[1;3${letter2}mK\e[0m\e[1;3${letter3}mU\e[0m\e[1;3${letter4}mF\e[0m v${skuf_version}"
+}
+
+export PATH='/usr/local/sbin:/usr/local/bin:/usr/bin'
+
+udevd_running=0
+mount_handler=default_mount_handler
+init=/sbin/init
+rd_logmask=0
+
+. /init_functions
+
+mount_setup
+
+# parse the kernel command line
+parse_cmdline </proc/cmdline
+
+# setup logging as early as possible
+rdlogger_start
+
+# busybox ash supports string replacements
+# shellcheck disable=SC3060
+# assigned by parse_cmdline
+# shellcheck disable=SC2154
+for d in ${disablehooks//,/ }; do
+    [ -e "/hooks/$d" ] && chmod 644 "/hooks/$d"
+done
+
+# shellcheck disable=SC1091
+. /config
+
+###
+sleep 1
+###
+
+# We rely on word splitting
+# shellcheck disable=SC2086
+run_hookfunctions 'run_earlyhook' 'early hook' $EARLYHOOKS
+
+if [ -n "$earlymodules$MODULES" ]; then
+    # busybox ash supports string replacements
+    # shellcheck disable=SC3060,SC2086
+    modprobe -qab ${earlymodules//,/ } $MODULES
+fi
+
+# We rely on word splitting
+# shellcheck disable=SC2086
+run_hookfunctions 'run_hook' 'hook' $HOOKS
+
+# honor the old behavior of break=y as a synonym for break=premount
+# assigned by parse_cmdline
+# shellcheck disable=SC2154
+if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    echo ":: Pre-mount break requested, type 'exit' to resume operation"
+    launch_interactive_shell
+fi
+
+###
+sleep 2
+###
+
+exec 0</dev/console 1>/dev/console 2>/dev/console
+
+display_version
+
+# We rely on word splitting
+# shellcheck disable=SC2086
+run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
+
+mount -t tmpfs faketmpfs /new_root
+
+# shellcheck disable=SC2086
+run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS
+
+umount /new_root
+
+# shellcheck disable=SC2086
+run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+
+# this should always be the last thing we do before the switch_root.
+rdlogger_stop
+
+echo -e "\e[1;31mERROR! Empty initramfs was created\e[0m"
+echo -e "\e[1mYou need to rebuild initramfs using superuser rights.\e[0m"
+launch_interactive_shell --exec
+
+# vim: set ft=sh ts=4 sw=4 et:

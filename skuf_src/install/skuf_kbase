@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+build() {
+    local applet
+
+    add_binary /usr/lib/initcpio/busybox /bin/busybox
+
+    for applet in $(/usr/lib/initcpio/busybox --list); do
+        add_symlink "/usr/bin/$applet" busybox
+    done
+
+    # add kmod with applet symlinks
+    add_binary kmod
+    for applet in {dep,ins,rm,ls}mod mod{probe,info}; do
+        add_symlink "/usr/bin/$applet" kmod
+    done
+
+    add_binary blkid
+    add_binary mount
+    add_binary switch_root
+
+    # kexec exists in rootfs.tar
+    # tar exists in busybox
+    # killall exists in busybox
+
+    add_file "/usr/lib/initcpio/init_functions" "/init_functions"
+    if [ -r "/usr/lib/initcpio/skuf_data/kinit" ]; then
+        add_file "/usr/lib/initcpio/skuf_data/kinit" "/init"
+    else
+        error "%s is not readable. Creating empty initramfs..." "kinit"
+        add_file "/usr/lib/initcpio/skuf_data/notinit" "/init"
+    fi
+    add_file "/usr/lib/initcpio/skuf_data/rootfs.tar" "/rootfs.tar"
+
+    add_dir "/switch"
+}
+
+help() {
+    cat <<HELPEOF
+This hook provides crucial runtime necessities for kexec booting.
+DO NOT remove this hook unless you know what you're doing.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

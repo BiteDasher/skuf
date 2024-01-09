@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+build() {
+    # subshell to avoid namespace pollution
+    (
+        add_full_dir "/usr/lib/locale/C.utf8"
+        add_file "/usr/lib/initcpio/skuf_data/locale.conf" "/etc/locale.conf"
+    ) && add_runscript
+}
+
+help() {
+    cat <<HELPEOF
+Adds glibc locales to initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

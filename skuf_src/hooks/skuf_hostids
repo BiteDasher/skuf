@@ -1,0 +1,13 @@
+#!/usr/bin/ash
+
+run_hook() {
+    if [ -f "/etc/.to_passwd" ]; then
+        cat /etc/.to_passwd >> /etc/passwd
+    fi
+
+    if [ -f "/etc/.to_group" ]; then
+        cat /etc/.to_group >> /etc/group
+    fi
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

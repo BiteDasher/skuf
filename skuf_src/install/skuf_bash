@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+build() {
+    add_binary bash
+    add_file "/usr/share/terminfo/l/linux"
+}
+
+help() {
+    cat <<HELPEOF
+Adds bash to initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

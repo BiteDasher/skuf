@@ -1,0 +1,10 @@
+[Trigger]
+Type = Path
+Operation = Upgrade
+Operation = Remove
+Target = etc/resolv.conf
+
+[Action]
+Description = Preserving resolv.conf...
+When = PreTransaction
+Exec = /usr/share/libalpm/scripts/skuf_resolvconf save

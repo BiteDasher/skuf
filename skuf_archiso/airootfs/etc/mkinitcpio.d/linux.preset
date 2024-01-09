@@ -1,0 +1,8 @@
+# mkinitcpio preset file for the 'linux' package on archiso
+
+PRESETS=('skufiso')
+
+ALL_kver='/boot/vmlinuz-linux'
+skufiso_config='/etc/mkinitcpio.conf.d/kmkinitcpio.conf'
+
+skufiso_image="/boot/initramfs-linux.img"

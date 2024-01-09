@@ -1,0 +1,9 @@
+[Trigger]
+Type = Path
+Operation = Upgrade
+Target = etc/resolv.conf
+
+[Action]
+Description = Restoring resolv.conf...
+When = PostTransaction
+Exec = /usr/share/libalpm/scripts/skuf_resolvconf restore

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+build() {
+    add_binary swapon
+    add_binary mkswap
+    # losetup exists in busybox BUT missing features
+    add_binary losetup
+}
+
+help() {
+    cat <<HELPEOF
+Adds swapon, mkswap and losetup to initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

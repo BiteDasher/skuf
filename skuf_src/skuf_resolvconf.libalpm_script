@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+case "$1" in
+	save)
+        [ -L /etc/resolv.conf ] && exit 0
+        rm -f /tmp/bkp.resolv.conf
+        cp -a /etc/resolv.conf /tmp/bkp.resolv.conf
+    ;;
+    restore)
+        mv -f /tmp/bkp.resolv.conf /etc/resolv.conf
+    ;;
+esac
+
+# vim: set ft=bash ts=4 sw=4 et:

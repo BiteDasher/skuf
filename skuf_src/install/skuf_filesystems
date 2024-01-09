@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+build() {
+    local mount
+
+    if (( fs_autodetect_failed )) || [ -z ${rootfstype+x} ]; then
+        add_all_modules '/kernel/fs/ext4'
+        add_all_modules '/kernel/fs/btrfs'
+        add_all_modules '/kernel/fs/xfs'
+        add_all_modules '/kernel/fs/fscache'
+        add_all_modules '/kernel/fs/cachefiles'
+        add_all_modules '/kernel/fs/f2fs'
+        add_all_modules '/kernel/fs/fat'
+        add_all_modules '/kernel/fs/exfat'
+        add_all_modules '/kernel/fs/isofs'
+        add_all_modules '/kernel/fs/nfs'
+    else
+        add_checked_modules -f 'nls' '/kernel/fs'
+    fi
+
+    if (( ! fs_autodetect_failed )) && [[ -n "${rootfstype}" ]]; then
+        if command -v "mount.${rootfstype}" &>/dev/null; then
+            add_binary "mount.${rootfstype}"
+        fi
+    else
+        for mount in $(compgen -c mount.); do
+            add_binary "$mount"
+        done
+    fi
+
+    if (( fs_autodetect_failed )) || \
+       [ -z ${rootfstype+x} ]; then
+        add_binary btrfs   || true
+        add_binary btrfsck || true
+    elif [ "$rootfstype" == "btrfs" ]; then
+        add_binary btrfs   || return 1
+        add_binary btrfsck || return 1
+    fi
+}
+
+help() {
+    cat <<HELPEOF
+This hook adds filesystems modules to the image. If you would like to minimize
+the modules installed in the image, add the autodetect hook too.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

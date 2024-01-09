@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+build() {
+    add_binary "dhcpcd"
+    add_binary "nologin"
+
+    add_binary "renice"
+    # pidof exists in busybox
+    # pgrep exists in busybox (v. 2)
+
+    add_dir "/var/lib/dhcpcd" 750
+    add_dir "/usr/lib/dhcpcd" 755
+    add_dir "/usr/lib/dhcpcd/dev" 755
+    add_dir "/usr/lib/dhcpcd/dhcpcd-hooks" 755
+
+    add_binary "/usr/lib/initcpio/skuf_data/dhcp/dhcpcd-run-hooks" \
+               "/usr/lib/dhcpcd/dhcpcd-run-hooks"
+
+    add_file "/usr/lib/initcpio/skuf_data/dhcp/hook-01-test" \
+             "/usr/lib/dhcpcd/dhcpcd-hooks/01-test" 444
+    add_file "/usr/lib/initcpio/skuf_data/dhcp/hook-20-resolv.conf" \
+             "/usr/lib/dhcpcd/dhcpcd-hooks/20-resolv.conf" 444
+    add_file "/usr/lib/initcpio/skuf_data/dhcp/hook-30-hostname" \
+             "/usr/lib/dhcpcd/dhcpcd-hooks/30-hostname" 444
+
+    add_file "/usr/lib/initcpio/skuf_data/dhcp/dhcpcd.conf" \
+             "/etc/dhcpcd.conf" 644
+
+    add_file "/usr/lib/initcpio/skuf_data/dhcp/resolv.conf.tail" \
+	     "/etc/resolv.conf.tail" 644
+
+    add_file "/usr/lib/initcpio/skuf_data/passwd" \
+	     "/etc/passwd" 644
+
+    add_file "/usr/lib/initcpio/skuf_data/group" \
+	     "/etc/group" 644
+
+    echo "passwd: files" >> "$BUILDROOT/etc/nsswitch.conf"
+    echo "group: files" >> "$BUILDROOT/etc/nsswitch.conf"
+}
+
+help() {
+    cat <<HELPEOF
+Adds dhcpcd package to initramfs.
+HELPEOF
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+build() {
+    add_file "/usr/lib/initcpio/skuf_data/inputrc" "/etc/inputrc"
+}
+
+help() {
+    cat <<HELPEOF
+This hook adds inputrc file for readline library.
+Necessary for Unicode input in bash.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
