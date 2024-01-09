@@ -158,6 +158,10 @@ Table of SKUF variables:
 
 - If you enter something incorrectly while entering SMB address, user credentials, etc. at [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and fall into the interactive shell, write `reboot -f`. No, **you cannot restart the script**. Train your attention.
 
+## Demonstration
+
+https://github.com/BiteDasher/skuf/assets/48867887/79a5b40d-7a48-4046-a857-aa300a57e137
+
 ## Afterword
 Huge thanks to the Arch Linux development team for their awesome distribution and [mkarchiso](https://gitlab.archlinux.org/archlinux/archiso) and [mkinitcpio](https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio) utilities. They made the creation of this project much easier.
 
