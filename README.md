@@ -150,11 +150,13 @@ Table of SKUF variables:
 |`PATH_TO_NEW_INITRAMFS`|Path to the new initramfs that will be loaded using kexec alongside kernel. The new initramfs must be in the Arch Linux image that is lies on SMB server|
 
 ## Tips and Tricks
-- You can place a swap file next to the Arch Linux volume image so you can use it on your system. The swap file will be connected over the network as a loop device.
+- You can place a swap file next to the Arch Linux image volume so you can use it on your system. The swap file will be connected over the network as a loop device.
 
-- In [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server), you can write `@u@` and `@fu@` in the path to the client(your) directory and in the path to the volume image file. If you login as `john@corp.domain`, `@u@` will be `john` and `@fu@` will be `john@corp.domain`.
+- In [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server), you can write `@u@` and `@fu@` in the path to the client(your) directory and in the path to the image volume file. If you login as `john@corp.domain`, `@u@` will be `john` and `@fu@` will be `john@corp.domain`.
 
 - After building the ISO image and creating a file system image with Arch Linux you can execute `sudo ./clean.sh` to remove unnedeed files.
+
+- Password for `root` and `test` users in `arch.ext4` is `0000`
 
 - If you enter something incorrectly while entering SMB address, user credentials, etc. at [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and fall into the interactive shell, write `reboot -f`. No, **you cannot restart the script**. Train your attention.
 
