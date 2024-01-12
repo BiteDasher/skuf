@@ -9,7 +9,7 @@ build() {
 
     # subshell to avoid namespace pollution
     (
-        for FONT in cyr-sun16 ter-v20n ter-v32n; do
+        for FONT in ter-k16n ter-k20n ter-k32n; do
             ifoundit=0
             for file in "/usr/share/kbd/consolefonts/$FONT".@(fnt|psf?(u))?(.gz|.zst); do
                 if [[ -e "$file" ]]; then

@@ -282,7 +282,7 @@ user_read() {
     local ylw="$(echo -e '\e[1;33m')"
     local blu="$(echo -e '\e[1;36m')"
 
-    echo -e "To change the keyboard layout, press \e[1mAlt+Shift\e[0m" # SKUF_RU #
+    echo -e "To change the keyboard layout, press \e[1mAlt+Shift\e[0m (ru)" # SKUF_RU #
 
     while ! check_smbaddr; do
         read -e -p "SAMBA server address:   $ylw" \
