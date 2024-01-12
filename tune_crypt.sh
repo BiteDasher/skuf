@@ -35,18 +35,20 @@ while read -r pair; do
     fi
     echo "$from -> $to"
     cat <<EOF >> ./.tune_crypt_pattern_enc
-    sambaoptsx="\${sambaoptsx//$from/^}" # SKUF_ENC_TUNE
-    sambaoptsx="\${sambaoptsx//$to/$from}" # SKUF_ENC_TUNE
-    sambaoptsx="\${sambaoptsx//^/$to}" # SKUF_ENC_TUNE
+    sambaoptsx="\${sambaoptsx//$from/^}" # SKUF_ENC_TUNED #
+    sambaoptsx="\${sambaoptsx//$to/$from}" # SKUF_ENC_TUNED #
+    sambaoptsx="\${sambaoptsx//^/$to}" # SKUF_ENC_TUNED #
 EOF
 
     cat <<EOF >> ./.tune_crypt_pattern_dec
-        _sambaopts="\${_sambaopts//$to/^}" # SKUF_DEC_TUNE
-        _sambaopts="\${_sambaopts//$from/$to}" # SKUF_DEC_TUNE
-        _sambaopts="\${_sambaopts//^/$from}" # SKUF_DEC_TUNE
+        _sambaopts="\${_sambaopts//$to/^}" # SKUF_DEC_TUNED #
+        _sambaopts="\${_sambaopts//$from/$to}" # SKUF_DEC_TUNED #
+        _sambaopts="\${_sambaopts//^/$from}" # SKUF_DEC_TUNED #
 EOF
 done < ./tune.crypt
 
+sed -i "/# SKUF_ENC_TUNED #/d" ./skuf_src/kinit
+sed -i "/# SKUF_DEC_TUNED #/d" ./skuf_src/init
 sed -i '/# SKUF_ENC_TUNE #/r .tune_crypt_pattern_enc' ./skuf_src/kinit
 sed -i '/# SKUF_DEC_TUNE #/r .tune_crypt_pattern_dec' ./skuf_src/init
 

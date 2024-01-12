@@ -38,16 +38,16 @@ run_hook() {
             fi
         fi
     else
-        if [ -e /ter-v16n_consolefont.psfu ]; then
+        if [ -e /cyr-sun16_consolefont.psfu ]; then
             # Supported in ash
             # shellcheck disable=SC3036
             echo -en "a\010 \010"
-            setfont -C /dev/console /ter-v16n_consolefont.psfu
-        elif [ -e /ter-v16n_consolefont.psf ]; then
+            setfont -C /dev/console /cyr-sun16_consolefont.psfu
+        elif [ -e /cyr-sun16_consolefont.psf ]; then
             # Supported in ash
             # shellcheck disable=SC3036
             echo -en "a\010 \010"
-            setfont -C /dev/console /ter-v16n_consolefont.psf
+            setfont -C /dev/console /cyr-sun16_consolefont.psf
         else
             msg "No consolefont found despite added hook."
             return 0

@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-skuf_version="3.0+37.1"
+skuf_version="3.1+37.1"
 
 display_version() {
     local letter1="$(( RANDOM % 7 ))"
@@ -378,24 +378,6 @@ if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
     echo ":: Pre-mount break requested, type 'exit' to resume operation"
     launch_interactive_shell
 fi
-
-###
-#if rootdev="$(resolve_device "$root")"; then
-#    # If the tag is supported by util-linux mount, pass it as is.
-#    # Otherwise, use the resolved device path.
-#    case "$root" in
-#        'UUID='* | 'LABEL='* | 'PARTUUID='* | 'PARTLABEL='*) : ;;
-#        *) root="$rootdev" ;;
-#    esac
-#fi
-###
-unset rootdev
-
-#fsck_root
-
-# Mount root at /new_root
-#"$mount_handler" /new_root
-###
 
 ###
 sleep 2

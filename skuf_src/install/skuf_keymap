@@ -31,7 +31,7 @@ build() {
 
 help() {
     cat <<HELPEOF
-This hook loads keymap(s) specified in vconsole.conf during early userspace.
+This hook loads keymap(s) specified in SKUF source code during early userspace.
 HELPEOF
 }
 
