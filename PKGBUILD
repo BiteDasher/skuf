@@ -1,7 +1,7 @@
 # Maintainer: Artemy Sudakov <finziyr@yandex.ru>
 
 pkgname=skuf
-pkgver=3.1
+pkgver=3.2
 __mkinitcpio_base=37.1
 pkgrel=1
 pkgdesc="SKUF Network Boot System"
