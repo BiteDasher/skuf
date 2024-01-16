@@ -2,8 +2,8 @@
 
 pkgname=skuf
 pkgver=3.2
-__mkinitcpio_base=37.1
-pkgrel=1
+__mkinitcpio_base=37.2
+pkgrel=2
 pkgdesc="SKUF Network Boot System"
 arch=('any')
 url='https://github.com/BiteDasher/skuf'
@@ -24,7 +24,7 @@ backup=('etc/mkinitcpio.conf' 'etc/kmkinitcpio.conf')
 source=("file:///tmp/mkinitcpio.tar"
         "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.gz")
 sha512sums=('SKIP'
-            '68fd36eb95317977dfb389be8bd1f6f09d455ca81b55cde8f64245fc59ceee74afa64b55dbb7e8b2e28abe8274397dbba2f4b021499f9ad6d662175ced678585')
+            '66a608857e845de92ca15e14787e413a343f1cf3480d2fa09daa85f71cb03c3d3cf1171c46de9d788baf7e34c8233df324a442529d9ce477b13c16dd09465fb9')
 
 package() {
     # mkinitcpio
