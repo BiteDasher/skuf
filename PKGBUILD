@@ -1,9 +1,9 @@
 # Maintainer: Artemy Sudakov <finziyr@yandex.ru>
 
 pkgname=skuf
-pkgver=3.2
+pkgver=3.3
 __mkinitcpio_base=37.2
-pkgrel=2
+pkgrel=1
 pkgdesc="SKUF Network Boot System"
 arch=('any')
 url='https://github.com/BiteDasher/skuf'
