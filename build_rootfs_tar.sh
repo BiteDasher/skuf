@@ -81,7 +81,7 @@ install -d -m 755 ./work/rootfs/run
 install -d -m 755 ./work/rootfs/sys
 install -d -m 755 ./work/rootfs/tmp
 install -d -m 755 ./work/rootfs/var
-install -d -m 755 ./work/rootfs/var/run
+ln -s /run ./work/rootfs/var/run
 
 > ./work/rootfs/init
 chmod 755 ./work/rootfs/init
