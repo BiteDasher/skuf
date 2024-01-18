@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-skuf_version="3.3+37.2"
+skuf_version="3.4+37.2"
 
 smbaddr='###'
 smbport='###'
