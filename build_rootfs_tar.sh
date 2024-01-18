@@ -48,7 +48,7 @@ rm -r -f ./work/{busybox,kexec,rootfs}
 rm -f ./skuf_src/rootfs.tar
 
 ver_busybox=1.36.1
-ver_kexec=2.0.27
+ver_kexec=2.0.28
 
 if [ -n "$CC" ]; then
     if ! command -v "$CC" &>/dev/null; then
