@@ -653,13 +653,10 @@ kill_dhcp_client() {
     killall -SIGTERM dhcpcd 2>/dev/null
     sleep 2
     killall -SIGKILL dhcpcd 2>/dev/null
-    sleep 1
 }
 
 perform_kexec() {
     echo "[!] Executing new kernel"
-
-    sleep 1
 
     exec env -i TERM="$TERM" SHELL=/bin/ash switch_root \
          /switch /init

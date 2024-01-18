@@ -67,10 +67,6 @@ if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
     launch_interactive_shell
 fi
 
-###
-sleep 2
-###
-
 exec 0</dev/console 1>/dev/console 2>/dev/console
 
 display_version
