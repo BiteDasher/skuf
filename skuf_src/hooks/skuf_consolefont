@@ -1,11 +1,25 @@
 #!/usr/bin/ash
 
 run_hook() {
-    termsize="$(stty size)"
-    termsize="${termsize##* }"
-
     msg -n ":: Loading console font..."
+
+    if [ -e /ter-k16n_consolefont.psfu ]; then
+        # Supported in ash
+        # shellcheck disable=SC3036
+        echo -en "a\010 \010"
+        setfont -C /dev/console /ter-k16n_consolefont.psfu
+    elif [ -e /ter-k16n_consolefont.psf ]; then
+        # Supported in ash
+        # shellcheck disable=SC3036
+        echo -en "a\010 \010"
+        setfont -C /dev/console /ter-k16n_consolefont.psf
+    else
+        msg "No consolefont (ter-k16n) found despite added hook."
+    fi
+
     if [ -e /sys/firmware/efi ]; then
+        termsize="$(stty size)"
+        termsize="${termsize##* }"
         if [ $termsize -gt 240 ]; then
             if [ -e /ter-k32n_consolefont.psfu ]; then
                 # Supported in ash
@@ -18,7 +32,7 @@ run_hook() {
                 echo -en "a\010 \010"
                 setfont -C /dev/console /ter-k32n_consolefont.psf
             else
-                msg "No consolefont found despite added hook."
+                msg "No consolefont (ter-k32n) found despite added hook."
                 return 0
             fi
         else
@@ -33,24 +47,9 @@ run_hook() {
                 echo -en "a\010 \010"
                 setfont -C /dev/console /ter-k20n_consolefont.psf
             else
-                msg "No consolefont found despite added hook."
+                msg "No consolefont (ter-k20n) found despite added hook."
                 return 0
             fi
-        fi
-    else
-        if [ -e /ter-k16n_consolefont.psfu ]; then
-            # Supported in ash
-            # shellcheck disable=SC3036
-            echo -en "a\010 \010"
-            setfont -C /dev/console /ter-k16n_consolefont.psfu
-        elif [ -e /ter-k16n_consolefont.psf ]; then
-            # Supported in ash
-            # shellcheck disable=SC3036
-            echo -en "a\010 \010"
-            setfont -C /dev/console /ter-k16n_consolefont.psf
-        else
-            msg "No consolefont found despite added hook."
-            return 0
         fi
     fi
     msg "done."

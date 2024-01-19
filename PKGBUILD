@@ -37,7 +37,7 @@ package() {
     install -m644 98-skuf-save-resolvconf.libalpm_hook "$pkgdir"/usr/share/libalpm/hooks/98-skuf-save-resolvconf.hook
     install -m644 99-skuf-restore-resolvconf.libalpm_hook "$pkgdir"/usr/share/libalpm/hooks/99-skuf-restore-resolvconf.hook
     install -m755 skuf_resolvconf.libalpm_script "$pkgdir"/usr/share/libalpm/scripts/skuf_resolvconf
-	install -m644 -t "$pkgdir"/usr/lib/initcpio/skuf_data banner_usb banner_kexec vconsole.conf locale.conf rootfs.tar inputrc passwd group
+    install -m644 -t "$pkgdir"/usr/lib/initcpio/skuf_data banner_usb banner_kexec vconsole.conf locale.conf rootfs.tar inputrc passwd group
     install -dm755 "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp
     install -m555 -t "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp ./dhcp/dhcpcd-run-hooks
     install -m644 -t "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp ./dhcp/dhcpcd.conf
@@ -46,16 +46,16 @@ package() {
     install -m444 -t "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp ./dhcp/hook-30-hostname
     install -m644 -t "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp ./dhcp/kdhcpcd.conf
     install -m644 -t "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp ./dhcp/resolv.conf.tail
-	install -m700 -t "$pkgdir"/usr/lib/initcpio/skuf_data init kinit
-	install -m755 -t "$pkgdir"/usr/lib/initcpio/skuf_data notinit
+    install -m700 -t "$pkgdir"/usr/lib/initcpio/skuf_data init kinit
+    install -m755 -t "$pkgdir"/usr/lib/initcpio/skuf_data notinit
     for __xfile in ./hooks/*; do
         install -m644 -t "$pkgdir"/usr/lib/initcpio/hooks "$__xfile"
     done
     for __xfile in ./install/*; do
         install -m644 -t "$pkgdir"/usr/lib/initcpio/install "$__xfile"
     done
-	install -m644 mkinitcpio.conf "$pkgdir"/etc/mkinitcpio.conf
-	install -m644 kmkinitcpio.conf "$pkgdir"/etc/kmkinitcpio.conf
+    install -m644 mkinitcpio.conf "$pkgdir"/etc/mkinitcpio.conf
+    install -m644 kmkinitcpio.conf "$pkgdir"/etc/kmkinitcpio.conf
     install -m644 hook.preset "$pkgdir"/usr/share/mkinitcpio/hook.preset
 
     set +x
