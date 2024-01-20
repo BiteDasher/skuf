@@ -81,9 +81,6 @@ asshole_parse() {
         sambaopts="${sambaopts#*:}" # cut
 
     smbmode="rw"
-    # addr > port > version > domain > user > pass
-    # volumedir > volumefile > swapfile > samba mount opts
-    # new root mount opts > new root fsck?
 }
 
 bring_lo_up() {
@@ -154,7 +151,6 @@ renice_dhcpcd() {
 
 mount_samba() {
     finalusername="username=$smbusername,"
-    #finalpassword="password=$smbpassword,"
     [ "$smbdomain" == "@n@" ] || finaldomain="domain=$smbdomain,"
     [ "$smbport" == "@n@" ] || finalport="port=$smbport,"
     [ "$smbmountopts" == "@n@" ] || finalmountopts="$smbmountopts,"
@@ -384,7 +380,7 @@ exec 0</dev/console 1>/dev/console 2>/dev/console
 set -o emacs
 
 echo ''
-for i in 1 2 3 4 5; do
+for i in 1 2 3; do
 	echo -ne '\rHello! \e[1;32m|\e[0m'
 	sleep 0.1
 	echo -ne '\rHello! \e[1;32m/\e[0m'

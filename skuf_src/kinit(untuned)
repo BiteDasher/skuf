@@ -455,7 +455,6 @@ get_dhcp() {
 
 mount_samba() {
     finalusername="username=$smbusername,"
-    #finalpassword="password=$smbpassword,"
     [ "$smbdomain" == "@n@" ] || finaldomain="domain=$smbdomain,"
     [ "$smbport" == "@n@" ] || finalport="port=$smbport,"
     [ "$smbmountopts" == "@n@" ] || finalmountopts="$smbmountopts,"
@@ -732,7 +731,7 @@ exec 0</dev/console 1>/dev/console 2>/dev/console
 set -o emacs
 
 echo ''
-for i in 1 2 3 4 5; do
+for i in 1 2 3; do
 	echo -ne '\rHello! \e[1;32m|\e[0m'
 	sleep 0.1
 	echo -ne '\rHello! \e[1;32m/\e[0m'
@@ -776,11 +775,12 @@ kill_dhcp_client
 
 shutdown_interfaces
 
+echo "[] Finishing some late work"
 # We rely on word splitting
 # shellcheck disable=SC2086
 run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
 
-echo "[] Finishing some work"
+echo "[] Doing some cleanup"
 # We rely on word splitting
 # shellcheck disable=SC2086
 run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS
