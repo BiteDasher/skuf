@@ -94,10 +94,9 @@ get_dhcp() {
 	    interface="${i##*/}"
 
         case "$interface" in
-            *eth*) : ;;
-            *enp*) : ;;
-            *ens*) : ;;
-            *)     continue ;;
+            eth*) : ;;
+            en*)  : ;;
+            *)    continue ;;
         esac
 
         ethernets="$ethernets $interface"
