@@ -130,8 +130,15 @@ get_dhcp() {
     fi
 
     if ! dhcpcd "$to_dhcp"; then
-        echo "Failed to acquire DHCP address."
-        launch_interactive_shell
+        # We should try again (for buggy IPv6 RA)
+        echo "-> dhcpcd failed. Trying again..."
+        sleep 3
+        sed -i 's/^# ipv6ra_fork #$/ipv6ra_fork/' /etc/dhcpcd.conf
+        if ! dhcpcd "$to_dhcp"; then
+            sed -i 's/^ipv6ra_fork$/# ipv6ra_fork #/' /etc/dhcpcd.conf
+            echo "Failed to acquire DHCP address."
+            launch_interactive_shell
+        fi
     fi
 
     echo "-> Sleeping 5 seconds..."
