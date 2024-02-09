@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+build() {
+    add_udev_rule 80-net-setup-link.rules
+    add_udev_rule 75-net-description.rules
+    add_file "/usr/lib/systemd/network/99-default.link"
+}
+
+help() {
+    cat <<HELPEOF
+Adds udev rules and networkd configuration file for
+Predictable Network Interface Names to initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:

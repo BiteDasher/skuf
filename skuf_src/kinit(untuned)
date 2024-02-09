@@ -21,6 +21,7 @@ kernelopts='###'
 kernelpath='###'
 initramfspath='###'
 
+netiface=
 sambaopts=
 
 display_version() {
@@ -368,7 +369,7 @@ setup_sambaopts() {
 
     echo "[] Building and encrypting /proc/cmdline"
 
-    sambaoptsx="$smbaddr,,,$smbport,,,$smbversion,,,$smbdomain,,,$smbusername,,,$smbpassword,,,$smbvolumepath,,,$smbvolumefilename,,,$smbswapfilename,,,$smbmountopts,,,$newrootmountopts,,,$newrootfsck"
+    sambaoptsx="$smbaddr,,,$smbport,,,$smbversion,,,$smbdomain,,,$smbusername,,,$smbpassword,,,$smbvolumepath,,,$smbvolumefilename,,,$smbswapfilename,,,$smbmountopts,,,$newrootmountopts,,,$newrootfsck,,,$netiface"
     # SKUF_OPENSSL_ENC #
     sambaoptsx="$(echo "$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)" # SKUF_OPENSSL_ENC_RM #
     sambaoptsx="${sambaoptsx//=/%}"
@@ -407,6 +408,7 @@ get_dhcp() {
 	    interface="${i##*/}"
 
         case "$interface" in
+            "")   continue ;;
             eth*) : ;;
             en*)  : ;;
             *)    continue ;;
@@ -416,6 +418,11 @@ get_dhcp() {
         ethernetone="$interface"
 	    x=$(( x + 1 ))
 	done
+
+    if [ $x -eq 0 ]; then
+        echo "Error: no wired network interface found."
+        launch_interactive_shell --exec
+    fi
 
     if [ $x -gt 1 ]; then
         echo "There is more than one network interface. Select one from the list:"
@@ -443,12 +450,16 @@ get_dhcp() {
 
     echo "[] Obtaining IP-address via DHCP"
 
-    if ! dhcpcd "$to_dhcp"; then
+    if dhcpcd "$to_dhcp"; then
+        netiface="$to_dhcp"
+    else
         # We should try again (for buggy IPv6 RA)
         echo "-> dhcpcd failed. Trying again..."
         sleep 3
         sed -i 's/^# ipv6ra_fork #$/ipv6ra_fork/' /etc/dhcpcd.conf
-        if ! dhcpcd "$to_dhcp"; then
+        if dhcpcd "$to_dhcp"; then
+            netiface="$to_dhcp"
+        else
             sed -i 's/^ipv6ra_fork$/# ipv6ra_fork #/' /etc/dhcpcd.conf
             echo "Failed to acquire DHCP address."
             launch_interactive_shell

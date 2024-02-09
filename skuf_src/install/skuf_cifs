@@ -11,3 +11,5 @@ help() {
 Adds SAMBA/CIFS module to initramfs.
 HELPEOF
 }
+
+# vim: set ft=sh ts=4 sw=4 et:
