@@ -405,7 +405,7 @@ get_dhcp() {
     local x="0" c="0"
 
     for i in /sys/class/net/*; do
-	    interface="${i##*/}"
+        interface="${i##*/}"
 
         case "$interface" in
             "")   continue ;;
@@ -416,8 +416,8 @@ get_dhcp() {
 
         ethernets="$ethernets $interface"
         ethernetone="$interface"
-	    x=$(( x + 1 ))
-	done
+        x=$(( x + 1 ))
+    done
 
     if [ $x -eq 0 ]; then
         echo "Error: no wired network interface found."
@@ -641,7 +641,7 @@ while [ "$yyy" != 8 ]; do
         zzz="$(( zzz + 1 ))"
         echo -n " "
     done
-	eval 'echo "$funmsg'$yyy'"'
+    eval 'echo "$funmsg'$yyy'"'
 done
 
 ccc=0
@@ -749,14 +749,14 @@ set -o emacs
 
 echo ''
 for i in 1 2 3; do
-	echo -ne '\rHello! \e[1;32m|\e[0m'
-	sleep 0.1
-	echo -ne '\rHello! \e[1;32m/\e[0m'
-	sleep 0.1
-	echo -ne '\rHello! \e[1;32m-\e[0m'
-	sleep 0.1
-	echo -ne '\rHello! \e[1;32m\\\e[0m'
-	sleep 0.1
+    echo -ne '\rHello! \e[1;32m|\e[0m'
+    sleep 0.1
+    echo -ne '\rHello! \e[1;32m/\e[0m'
+    sleep 0.1
+    echo -ne '\rHello! \e[1;32m-\e[0m'
+    sleep 0.1
+    echo -ne '\rHello! \e[1;32m\\\e[0m'
+    sleep 0.1
 done
 echo -ne '\r        '
 echo ''
