@@ -21,7 +21,7 @@ kernelopts='###'
 kernelpath='###'
 initramfspath='###'
 
-netiface=
+interface_list=
 sambaopts=
 
 display_version() {
@@ -369,7 +369,7 @@ setup_sambaopts() {
 
     echo "[] Building and encrypting /proc/cmdline"
 
-    sambaoptsx="$smbaddr,,,$smbport,,,$smbversion,,,$smbdomain,,,$smbusername,,,$smbpassword,,,$smbvolumepath,,,$smbvolumefilename,,,$smbswapfilename,,,$smbmountopts,,,$newrootmountopts,,,$newrootfsck,,,$netiface"
+    sambaoptsx="$smbaddr,,,$smbport,,,$smbversion,,,$smbdomain,,,$smbusername,,,$smbpassword,,,$smbvolumepath,,,$smbvolumefilename,,,$smbswapfilename,,,$smbmountopts,,,$newrootmountopts,,,$newrootfsck"
     # SKUF_OPENSSL_ENC #
     sambaoptsx="$(echo "$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)" # SKUF_OPENSSL_ENC_RM #
     sambaoptsx="${sambaoptsx//=/%}"
@@ -394,15 +394,21 @@ bring_lo_up() {
 }
 
 shutdown_interfaces() {
+    local i
+
     echo "[] Bringing DOWN network interfaces"
+
     ip addr flush dev lo
     ip link set lo down
-    ip addr flush dev "$to_dhcp"
-    ip link set "$to_dhcp" down
+
+    for i in $interface_list; do
+        ip addr flush dev "$i"
+        ip link set "$i" down
+    done
 }
 
 get_dhcp() {
-    local x="0" c="0"
+    local i interface x="0"
 
     for i in /sys/class/net/*; do
         interface="${i##*/}"
@@ -414,8 +420,7 @@ get_dhcp() {
             *)    continue ;;
         esac
 
-        ethernets="$ethernets $interface"
-        ethernetone="$interface"
+        interface_list="$interface_list $interface"
         x=$(( x + 1 ))
     done
 
@@ -424,42 +429,14 @@ get_dhcp() {
         launch_interactive_shell --exec
     fi
 
-    if [ $x -gt 1 ]; then
-        echo "There is more than one network interface. Select one from the list:"
-
-        for i in $ethernets; do
-            c=$(( c + 1 ))
-            eval 'ether'$c'='$i''
-            echo "$c. $i"
-        done
-
-        while case "$choice_dhcp" in
-                ''|*[!0-9]*) true  ;;
-                0*)          true  ;;
-                *)           false ;;
-              esac; do
-            read -p "> " choice_dhcp
-        done
-        if [ $choice_dhcp -gt $c ]; then
-            choice_dhcp=$c
-        fi
-        eval 'to_dhcp=$ether'$choice_dhcp''
-    else
-        to_dhcp="$ethernetone"
-    fi
-
     echo "[] Obtaining IP-address via DHCP"
 
-    if dhcpcd "$to_dhcp"; then
-        netiface="$to_dhcp"
-    else
+    if ! dhcpcd --allowinterfaces 'eth* en*'; then
         # We should try again (for buggy IPv6 RA)
         echo "-> dhcpcd failed. Trying again..."
         sleep 3
         sed -i 's/^# ipv6ra_fork #$/ipv6ra_fork/' /etc/dhcpcd.conf
-        if dhcpcd "$to_dhcp"; then
-            netiface="$to_dhcp"
-        else
+        if ! dhcpcd --allowinterfaces 'eth* en*'; then
             sed -i 's/^ipv6ra_fork$/# ipv6ra_fork #/' /etc/dhcpcd.conf
             echo "Failed to acquire DHCP address."
             launch_interactive_shell
@@ -665,10 +642,8 @@ unmount_stuff() {
 }
 
 kill_dhcp_client() {
-    echo "[] Attempt to kill dhcpcd"
-    killall -SIGTERM dhcpcd 2>/dev/null
-    sleep 2
-    killall -SIGKILL dhcpcd 2>/dev/null
+    echo "[] Shutting down dhcpcd"
+    dhcpcd -x
 }
 
 perform_kexec() {

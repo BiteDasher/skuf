@@ -21,7 +21,6 @@ build() {
 
     # kexec exists in rootfs.tar
     # tar exists in busybox
-    # killall exists in busybox
 
     add_file "/usr/lib/initcpio/init_functions" "/init_functions"
     if [ -r "/usr/lib/initcpio/skuf_data/kinit" ]; then
