@@ -497,7 +497,7 @@ fsck_in_samba() {
             echo "fsck tells you need to reboot"
             launch_interactive_shell
         elif bitfield_has_bit "$fsckreturn" 8; then
-            echo "Something went wrong..."
+            echo "Something went wrong while fsck..."
             launch_interactive_shell
         elif bitfield_has_bit "$fsckreturn" 16; then
             echo "Syntax error in fsck"
@@ -506,7 +506,7 @@ fsck_in_samba() {
             echo "Somehow you canceled fsck"
             launch_interactive_shell
         elif bitfield_has_bit "$fsckreturn" 128; then
-            echo "FATAL ERROR xD"
+            echo "fsck FATAL ERROR xD"
             launch_interactive_shell
         fi
 
