@@ -15,7 +15,7 @@ asshole_parse() {
     while read -r line; do
         _sambaopts="$(echo "$line" | grep -o 'fuckmyass=.*:')"
         if [ -n "$sambaopts" ]; then
-            echo "Found mount options in cmdline"
+            msg "Found mount options in cmdline"
             break
         else
             continue
@@ -121,18 +121,18 @@ get_dhcp() {
         fi
     fi
 
-    echo "-> Sleeping 5 seconds..."
+    msg "-> Sleeping 5 seconds..."
     sleep 5
 }
 
 renice_dhcpcd() {
     local pid pids
 
-    renice -15 -u dhcpcd 2>/dev/null
+    renice -15 -u dhcpcd >/dev/null 2>&1
 
-    pids="$(pidof dhcpcd)" || pids="$(pgrep dhcpcd)"
+    pids="$(pidof dhcpcd 2>/dev/null)" || pids="$(pgrep dhcpcd)"
     for pid in $pids; do
-        renice -15 -p "$pid"
+        renice -15 -p "$pid" >/dev/null 2>&1
     done
 }
 
@@ -362,23 +362,27 @@ if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
     launch_interactive_shell
 fi
 
-exec 0</dev/console 1>/dev/console 2>/dev/console
+# Something strange happens when we return to console after kexec.
+# For some reason on legacy bios (VGA) piece of text
+# from old initramfs return to the screen
+# Also, this behavior will be correct if we using rdlogger
+#exec 0</dev/console 1>/dev/console 2>/dev/console
 
 set -o emacs
 
 echo ''
 for i in 1 2 3; do
-    echo -ne '\rHello! \e[1;32m|\e[0m'
+    msg -ne '\rHello! \e[1;32m|\e[0m'
     sleep 0.1
-    echo -ne '\rHello! \e[1;32m/\e[0m'
+    msg -ne '\rHello! \e[1;32m/\e[0m'
     sleep 0.1
-    echo -ne '\rHello! \e[1;32m-\e[0m'
+    msg -ne '\rHello! \e[1;32m-\e[0m'
     sleep 0.1
-    echo -ne '\rHello! \e[1;32m\\\e[0m'
+    msg -ne '\rHello! \e[1;32m\\\e[0m'
     sleep 0.1
 done
-echo -ne '\r        '
-echo ''
+msg -ne '\r         '
+msg -ne '\r'
 [ -f /banner_kexec ] && cat /banner_kexec
 ###
 display_version

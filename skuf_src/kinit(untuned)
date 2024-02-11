@@ -576,11 +576,12 @@ sleep 1
 kill -SIGKILL -1
 sleep 1
 
+clear
+echo -ne '\e[3J'
+
 exec 0</dev/console
 exec 1>/dev/console
-exec 2>&1
-
-sleep 1
+exec 2>/dev/console
 
 _soterm="$(stty size)"
 
@@ -602,6 +603,7 @@ funmsg7="                                        __/ |        "
 funmsg8="                                       |___/         "
 
 clear
+echo -ne '\e[3J'
 
 xxx=0
 while [ "$xxx" != "$_udc" ]; do
@@ -733,8 +735,8 @@ for i in 1 2 3; do
     echo -ne '\rHello! \e[1;32m\\\e[0m'
     sleep 0.1
 done
-echo -ne '\r        '
-echo ''
+echo -ne '\r         '
+echo -ne '\r'
 [ -f /banner_usb ] && cat /banner_usb
 ###
 display_version
