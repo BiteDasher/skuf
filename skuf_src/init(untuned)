@@ -128,11 +128,11 @@ get_dhcp() {
 renice_dhcpcd() {
     local pid pids
 
-    renice -15 -u dhcpcd >/dev/null 2>&1
+    renice -15 -u dhcpcd >/dev/null
 
     pids="$(pidof dhcpcd 2>/dev/null)" || pids="$(pgrep dhcpcd)"
     for pid in $pids; do
-        renice -15 -p "$pid" >/dev/null 2>&1
+        renice -15 -p "$pid" >/dev/null
     done
 }
 
