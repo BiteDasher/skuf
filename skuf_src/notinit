@@ -68,6 +68,7 @@ if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
 fi
 
 exec 0</dev/console 1>/dev/console 2>/dev/console
+echo -ne '\e[J'
 
 display_version
 
