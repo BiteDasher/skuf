@@ -320,6 +320,12 @@ mount_setup
 # parse the kernel command line
 parse_cmdline </proc/cmdline
 
+###
+sleep 1
+clear
+echo -ne '\e[3J'
+###
+
 # setup logging as early as possible
 rdlogger_start
 
@@ -333,10 +339,6 @@ done
 
 # shellcheck disable=SC1091
 . /config
-
-###
-sleep 1
-###
 
 # We rely on word splitting
 # shellcheck disable=SC2086
