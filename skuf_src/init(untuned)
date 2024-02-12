@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-skuf_version="4.5+37.3"
+skuf_version="4.6+37.3"
 
 display_version() {
     local letter1="$(( RANDOM % 7 ))"
