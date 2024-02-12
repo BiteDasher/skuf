@@ -4,7 +4,6 @@ build() {
     add_binary base64
     add_binary openssl
     # install exists in busybox
-    # clear exists in busybox
     add_binary tty
     add_binary stty
     # sed exists in busybox

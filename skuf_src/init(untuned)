@@ -322,7 +322,7 @@ parse_cmdline </proc/cmdline
 
 ###
 sleep 1
-clear
+clear || echo -ne '\e[H\e[J'
 echo -ne '\e[3J'
 ###
 
