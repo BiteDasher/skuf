@@ -21,7 +21,7 @@ optdepends=('gzip: Use gzip compression for the initramfs image'
             'mkinitcpio-nfs-utils: Support for root filesystem on NFS')
 provides=("initramfs" "skuf-rd=$pkgver" "skuf-nbs=$pkgver" "mkinitcpio=$__mkinitcpio_base")
 conflicts=('mkinitcpio')
-backup=('etc/mkinitcpio.conf' 'etc/kmkinitcpio.conf')
+backup=('etc/mkinitcpio.conf')
 source=("file:///tmp/mkinitcpio.tar"
         "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.gz")
 sha512sums=('SKIP'
@@ -56,7 +56,6 @@ package() {
         install -m644 -t "$pkgdir"/usr/lib/initcpio/install "$__xfile"
     done
     install -m644 mkinitcpio.conf "$pkgdir"/etc/mkinitcpio.conf
-    install -m644 kmkinitcpio.conf "$pkgdir"/etc/kmkinitcpio.conf
     install -m644 hook.preset "$pkgdir"/usr/share/mkinitcpio/hook.preset
 
     set +x
