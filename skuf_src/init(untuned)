@@ -364,10 +364,7 @@ if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
     launch_interactive_shell
 fi
 
-# Something strange happens when we return to console after kexec.
-# For some reason on legacy bios (VGA) piece of text
-# from old initramfs return to the screen
-# Also, this behavior will be correct if we using rdlogger
+# In case we using rdlogger
 #exec 0</dev/console 1>/dev/console 2>/dev/console
 
 set -o emacs
