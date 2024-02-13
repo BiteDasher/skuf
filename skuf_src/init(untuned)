@@ -271,8 +271,7 @@ swapon_samba() {
         case "$smbswapfilename" in
             "/"*) smbswapfilename="${smbswapfilename#/}" ;;
         esac
-        devloop="$(losetup --show --find -- /samba/"${smbswapfilename}")"
-        if [ "$?" != 0 ]; then
+        if ! devloop="$(losetup --show --find -- /samba/"${smbswapfilename}")"; then
             echo "Failed to setup loop on /samba/${smbswapfilename}!"
             launch_interactive_shell
         fi

@@ -19,7 +19,10 @@ if [ ! -f "./skuf_src/kinit(untuned)" ]; then
     exit 1
 fi
 
+# ???
+# shellcheck disable=SC2188
 > ./.tune_crypt_pattern_enc
+# shellcheck disable=SC2188
 > ./.tune_crypt_pattern_dec
 
 [ -f ./skuf_src/init ]  || cp -a "./skuf_src/init(untuned)" "./skuf_src/init"

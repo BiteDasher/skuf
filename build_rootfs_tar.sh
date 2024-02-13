@@ -83,6 +83,8 @@ install -d -m 755 ./work/rootfs/tmp
 install -d -m 755 ./work/rootfs/var
 ln -s /run ./work/rootfs/var/run
 
+# ????
+# shellcheck disable=SC2188
 > ./work/rootfs/init
 chmod 755 ./work/rootfs/init
 cat <<EOF > ./work/rootfs/init

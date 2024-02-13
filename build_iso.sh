@@ -60,7 +60,7 @@ else
     echo "Missing line:"
     echo 'mksquashfs "$@" "${image_path}" -noappend "${airootfs_image_tool_options[@]}" "${mksquashfs_options[@]}"'
     echo "Problem file:"
-    echo "$(command -v mkarchiso)"
+    command -v mkarchiso
     sleep 15
     cp -a -- "$(command -v mkarchiso)" ./work/mkarchiso
 fi

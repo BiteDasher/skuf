@@ -120,6 +120,8 @@ else
     sed -i 's|# PATH_TO_NEW_INITRAMFS #|initramfspath|' ./skuf_src/kinit
 fi
 
+# ???
+# shellcheck disable=SC2188
 > ./.defaults_mark
 
 echo "Done."
