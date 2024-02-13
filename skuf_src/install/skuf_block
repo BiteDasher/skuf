@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+build() {
+    add_all_modules '/drivers/block/'
+}
+
+help() {
+    cat <<HELPEOF
+Adds minimum block modules to initramfs.
+HELPEOF
+}
+
+# vim: set ft=sh ts=4 sw=4 et:
