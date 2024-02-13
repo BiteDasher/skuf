@@ -121,7 +121,7 @@ get_dhcp() {
         fi
     fi
 
-    msg "-> Sleeping 5 seconds..."
+    msg "-> IP address received. Sleeping 5 seconds..."
     sleep 5
 }
 

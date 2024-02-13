@@ -429,7 +429,7 @@ get_dhcp() {
         launch_interactive_shell --exec
     fi
 
-    echo "[] Obtaining IP-address via DHCP"
+    echo "[] Obtaining IP address via DHCP"
 
     if ! dhcpcd --allowinterfaces 'eth* en*'; then
         # We should try again (for buggy IPv6 RA)
@@ -443,7 +443,7 @@ get_dhcp() {
         fi
     fi
 
-    echo "-> Sleeping 5 seconds..."
+    echo "-> IP address received. Sleeping 5 seconds..."
     sleep 5
 }
 
