@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 build() {
+    add_module 'loop?'
     add_all_modules '/drivers/block/'
 }
 
