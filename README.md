@@ -101,7 +101,7 @@ Build SKUF:
 ./build_package.sh
 ./setup_repo.sh
 ./build_iso.sh
-./create_image.sh SIZE_IN_GIGABYTES
+./create_image.sh SIZE_IN_GIGABYTES additional_packages
 ```
 
 > [!NOTE]
@@ -152,7 +152,7 @@ Table of SKUF variables:
 ## Tips and Tricks
 - You can place a swap file next to the Arch Linux image volume so you can use it on your system. The swap file will be connected over the network as a loop device.
 
-- You can use [Plymouth](https://wiki.archlinux.org/title/plymouth) in [step 2](#Step-2-Re-mounting-SMB-and-running-system). Add `splash` to `EXTRA_KERNEL_OPTS` in `defaults` file.
+- You can use [Plymouth](https://wiki.archlinux.org/title/plymouth) in [step 2](#Step-2-Re-mounting-SMB-and-running-system). Add `splash` to `EXTRA_KERNEL_OPTS` to the `defaults` file, also don't forget to add `HOOKS=(... plymouth ...)` to the `skuf_src/mkinitcpio.conf` and install `plymouth` package.
 
 - In [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server), you can write `@u@` and `@fu@` in the path to the client(your) directory and in the path to the image volume file. If you login as `john@corp.domain`, `@u@` will be `john` and `@fu@` will be `john@corp.domain`.
 
