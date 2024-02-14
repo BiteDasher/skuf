@@ -450,6 +450,7 @@ copy_resolvconf
 plymouth_show_msg "Copying dhcpcd data"
 copy_dhcpcd_data
 
+plymouth_show_msg "Checking if the swap needs to be activated"
 swapon_samba
 
 plymouth_show_msg "Booting..."
