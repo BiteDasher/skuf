@@ -743,8 +743,9 @@ for i in 1 2 3; do
 done
 echo -ne '\r         '
 echo -ne '\r'
+
 [ -f /banner_usb ] && cat /banner_usb
-###
+
 display_version
 
 user_read

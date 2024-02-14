@@ -2,6 +2,9 @@
 
 skuf_version="4.9+37.3"
 
+_nl='
+'
+
 display_version() {
     local letter1="$(( RANDOM % 7 ))"
     local letter2="$(( RANDOM % 7 ))"
@@ -14,11 +17,11 @@ display_version() {
 plymouth_show_msg() {
     command -v plymouth >/dev/null 2>&1 || return 0
     if plymouth --ping; then
-        plymouth display-message --text="$*"
+        plymouth display-message --text="${*//\\n/${_nl}}"
     fi
 
     if [ -z "$PLY_NOSAVE" ]; then
-        _ply_last_msg="$*"
+        _ply_last_msg="${*//\\n/${_nl}}"
     else
         _ply_last_msg=""
     fi
@@ -40,6 +43,11 @@ plymouth_continue() {
         plymouth show-splash
         plymouth display-message --text="$_ply_last_msg"
     fi
+}
+
+silence() {
+    [ "${quiet}" == "y" ] && return 0
+    command -v plymouth >/dev/null 2>&1 && plymouth --ping
 }
 
 asshole_parse() {
@@ -144,7 +152,7 @@ get_dhcp() {
 
     if ! dhcpcd -q --allowinterfaces 'eth* en*'; then
         # We should try again (for buggy IPv6 RA)
-        echo "-> dhcpcd failed. Trying again..."
+        msg "-> dhcpcd failed. Trying again..."
         sleep 3
         sed -i 's/^# ipv6ra_fork #$/ipv6ra_fork/' /etc/dhcpcd.conf
         if ! dhcpcd -q --allowinterfaces 'eth* en*'; then
@@ -301,7 +309,7 @@ swapon_samba() {
     if [ "$smbswapfilename" == "@n@" ]; then
         return 0
     else
-        plymouth_show_msg "Connecting swap file"
+        plymouth_show_msg "Connecting swap file\n95%"
         case "$smbswapfilename" in
             "/"*) smbswapfilename="${smbswapfilename#/}" ;;
         esac
@@ -419,41 +427,44 @@ for i in 1 2 3; do
 done
 msg -ne '\r         '
 msg -ne '\r'
-[ -f /banner_kexec ] && cat /banner_kexec
-###
-display_version
 
-plymouth_show_msg "Processing kernel command line"
+silence || {
+    [ -f /banner_kexec ] && cat /banner_kexec
+}
+
+silence || display_version
+
+plymouth_show_msg "Processing kernel command line\n10%"
 asshole_parse </proc/cmdline
 
-plymouth_show_msg "Bringing UP 'lo' network interface"
+plymouth_show_msg "Bringing UP 'lo' network interface\n20%"
 bring_lo_up
 
-plymouth_show_msg "Obtaining IP address via DHCP"
+plymouth_show_msg "Obtaining IP address via DHCP\n30%"
 get_dhcp
 
-plymouth_show_msg "Changing the process priority of dhcpcd"
+plymouth_show_msg "Changing the process priority of dhcpcd\n40%"
 renice_dhcpcd
 
-plymouth_show_msg "Mounting SAMBA"
+plymouth_show_msg "Mounting SAMBA\n50%"
 mount_samba
 
-plymouth_show_msg "Checking the root file system for errors"
+plymouth_show_msg "Checking the root file system for errors\n60%"
 fsck_in_samba
 
-plymouth_show_msg "Mounting root file system"
+plymouth_show_msg "Mounting root file system\n70%"
 mount_newroot
 
-plymouth_show_msg "Copying resolv.conf"
+plymouth_show_msg "Copying resolv.conf\n75%"
 copy_resolvconf
 
-plymouth_show_msg "Copying dhcpcd data"
+plymouth_show_msg "Copying dhcpcd data\n80%"
 copy_dhcpcd_data
 
-plymouth_show_msg "Checking if the swap needs to be activated"
+plymouth_show_msg "Checking if the swap needs to be activated\n90%"
 swapon_samba
 
-plymouth_show_msg "Booting..."
+plymouth_show_msg "Booting...\n100%"
 
 # We rely on word splitting
 # shellcheck disable=SC2086
