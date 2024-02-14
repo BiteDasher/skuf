@@ -162,7 +162,7 @@ Table of SKUF variables:
 
 - If you enter something incorrectly while entering SMB address, user credentials, etc. at [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and fall into the interactive shell, write `reboot -f`. No, **you cannot restart the script**. Train your attention.
 
-- If the client computer has `UEFI`, you can install `SKUF` on a `FAT32 EFI` partition so you don't have to use a USB flash drive/CD/DVD. To do this, mount `skuflinux-smth.iso` somewhere (like /mnt), then copy `/mnt/skuf/boot/x86_64/vmlinuz-linux` and `/mnt/skuf/boot/x86_64/initramfs-linux.img` to `FAT32 EFI` partition and execute `efibootmgr -c -d /dev/sdX -p Y -u 'initrd=\initramfs-linux.img' -l '\vmlinuz-linux' -L 'SKUF'` where */dev/sdX* is the target disk and *Y* is the target `FAT32 EFI` partition number.
+- If the client computer has `UEFI`, you can install `SKUF` on a `FAT32 EFI` partition so you don't have to use a USB flash drive/CD/DVD. To do this, mount `skuflinux-smth.iso` somewhere (like /mnt), then copy `/mnt/skuf/boot/x86_64/{vmlinuz-linux,initramfs-linux.img}` to `FAT32 EFI` partition and execute `efibootmgr -c -d /dev/sdX -p Y -u 'initrd=\initramfs-linux.img' -l '\vmlinuz-linux' -L 'SKUF'` where */dev/sdX* is the target disk and *Y* is the target `FAT32 EFI` partition number.
 
 ## Demonstration
 
