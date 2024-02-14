@@ -14,10 +14,19 @@ display_version() {
     echo -e "\e[1;3${letter1}mS\e[0m\e[1;3${letter2}mK\e[0m\e[1;3${letter3}mU\e[0m\e[1;3${letter4}mF\e[0m v${skuf_version}"
 }
 
+itsquiet() {
+    [ "${quiet}" == "y" ]
+}
+
+silence() {
+    [ "${quiet}" == "y" ] && return 0
+    command -v plymouth >/dev/null 2>&1 && plymouth --ping
+}
+
 plymouth_show_msg() {
     command -v plymouth >/dev/null 2>&1 || return 0
     if plymouth --ping; then
-        plymouth display-message --text="${*//\\n/${_nl}}"
+        itsquiet || plymouth display-message --text="${*//\\n/${_nl}}"
     fi
 
     if [ -z "$PLY_NOSAVE" ]; then
@@ -41,13 +50,8 @@ plymouth_continue() {
     if plymouth --ping; then
         plymouth reactivate
         plymouth show-splash
-        plymouth display-message --text="$_ply_last_msg"
+        itsquiet || plymouth display-message --text="$_ply_last_msg"
     fi
-}
-
-silence() {
-    [ "${quiet}" == "y" ] && return 0
-    command -v plymouth >/dev/null 2>&1 && plymouth --ping
 }
 
 asshole_parse() {
