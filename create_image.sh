@@ -87,6 +87,7 @@ if [ ! -d /mnt ]; then
 fi
 
 image_size="$1"
+shift
 
 set -e
 set -x
@@ -133,7 +134,7 @@ ln -sf /tmp/repo/"$thispkgname" -- "${pacman_cachedir}${thispkgname}"
 ##################################################
 echo "[] Installing packages to image"
 sleep 3
-pacstrap -c -C ./work/pacman.conf /mnt base sudo linux linux-firmware skuf vim
+pacstrap -c -C ./work/pacman.conf /mnt base sudo linux linux-firmware skuf vim "$@"
 rm -f -- "${pacman_cachedir}${thispkgname}"
 rm -f ./work/pacman.conf
 ##################################################
