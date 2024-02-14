@@ -403,6 +403,8 @@ copy_resolvconf
 
 copy_dhcpcd_data
 
+swapon_samba
+
 # We rely on word splitting
 # shellcheck disable=SC2086
 run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
@@ -438,10 +440,6 @@ if [ "${break}" = "postmount" ]; then
     echo ":: Post-mount break requested, type 'exit' to resume operation"
     launch_interactive_shell
 fi
-
-###
-swapon_samba
-###
 
 # this should always be the last thing we do before the switch_root.
 rdlogger_stop
