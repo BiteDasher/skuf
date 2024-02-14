@@ -685,6 +685,10 @@ parse_cmdline </proc/cmdline
 # setup logging as early as possible
 rdlogger_start
 
+if [ -e "/hooks/plymouth" ]; then
+    echo -e '\e[1;31m!\e[0m Plymouth is not supported here'
+    rm -f "/hooks/plymouth"
+fi
 # busybox ash supports string replacements
 # shellcheck disable=SC3060
 # assigned by parse_cmdline
