@@ -426,6 +426,8 @@ get_dhcp() {
 
     if [ $x -eq 0 ]; then
         echo "Error: no wired network interface found."
+        # shellcheck disable=SC2086
+        run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
         launch_interactive_shell --exec
     fi
 
