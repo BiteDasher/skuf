@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
-skuf_version="5.0+37.3"
+readonly skuf_version="5.0+37.3"
+readonly sep="$(echo -ne '\x1F')"
 
 _nl='
 '
