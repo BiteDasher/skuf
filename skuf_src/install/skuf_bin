@@ -3,10 +3,10 @@
 build() {
     add_binary base64
     add_binary openssl
-    # install exists in busybox
+    [ -x "$BUILDROOT/usr/bin/install" ] || add_binary install
     add_binary tty
     add_binary stty
-    # sed exists in busybox
+    [ -x "$BUILDROOT/usr/bin/sed" ] || add_binary sed
     add_binary grep
     add_binary ip
     add_binary ping
