@@ -3,24 +3,24 @@
 readonly skuf_version="6.0+37.3"
 readonly sep="$(echo -ne '\x1F')"
 
-smbaddr='###'
-smbport='###'
-smbversion='###'
-smbdomain='###'
-smbusername='###'
-smbpassword='###'
-smbvolumepath='###'
-smbvolumefilename='###'
-smbswapfilename='###'
-smbmountopts='###'
-newrootmountopts='###'
-newrootfsck='###'
+smbaddr="$sep"
+smbport="$sep"
+smbversion="$sep"
+smbdomain="$sep"
+smbusername="$sep"
+smbpassword="$sep"
+smbvolumepath="$sep"
+smbvolumefilename="$sep"
+smbswapfilename="$sep"
+smbmountopts="$sep"
+newrootmountopts="$sep"
+newrootfsck="$sep"
 smbmode="ro"
 
-kernelopts='###'
+kernelopts="$sep"
 
-kernelpath='###'
-initramfspath='###'
+kernelpath="$sep"
+initramfspath="$sep"
 
 interface_list=
 sambaopts=
@@ -43,7 +43,7 @@ ___() {
 }
 
 check_smbaddr() {
-    if [ "$smbaddr" == '###' ]; then
+    if [ "$smbaddr" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbaddr" ]; then
@@ -55,7 +55,7 @@ check_smbaddr() {
 }
 
 check_smbport() {
-    if [ "$smbport" == '###' ]; then
+    if [ "$smbport" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbport" ]; then
@@ -70,7 +70,7 @@ check_smbport() {
 }
 
 check_smbversion() {
-    if [ "$smbversion" == '###' ]; then
+    if [ "$smbversion" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbversion" ]; then
@@ -79,7 +79,7 @@ check_smbversion() {
 }
 
 check_smbdomain() {
-    if [ "$smbdomain" == '###' ]; then
+    if [ "$smbdomain" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbdomain" ]; then
@@ -88,7 +88,7 @@ check_smbdomain() {
 }
 
 check_smbusername() {
-    if [ "$smbusername" == '###' ]; then
+    if [ "$smbusername" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbusername" ]; then
@@ -128,7 +128,7 @@ read_smbpassword() {
 }
 
 check_smbpassword() {
-    if [ "$smbpassword" == '###' ]; then
+    if [ "$smbpassword" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbpassword" ]; then
@@ -140,7 +140,7 @@ check_smbpassword() {
 }
 
 check_smbvolumepath() {
-    if [ "$smbvolumepath" == '###' ]; then
+    if [ "$smbvolumepath" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbvolumepath" ]; then
@@ -149,7 +149,7 @@ check_smbvolumepath() {
 }
 
 check_smbvolumefilename() {
-    if [ "$smbvolumefilename" == '###' ]; then
+    if [ "$smbvolumefilename" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbvolumefilename" ]; then
@@ -167,7 +167,7 @@ check_smbvolumefilename() {
 }
 
 check_smbswapfilename() {
-    if [ "$smbswapfilename" == '###' ]; then
+    if [ "$smbswapfilename" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbswapfilename" ]; then
@@ -184,7 +184,7 @@ check_smbswapfilename() {
 }
 
 check_smbmountopts() {
-    if [ "$smbmountopts" == '###' ]; then
+    if [ "$smbmountopts" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbmountopts" ]; then
@@ -193,7 +193,7 @@ check_smbmountopts() {
 }
 
 check_newrootmountopts() {
-    if [ "$newrootmountopts" == '###' ]; then
+    if [ "$newrootmountopts" == "$sep" ]; then
         return 1
     fi
     if [ -z "$newrootmountopts" ]; then
@@ -202,7 +202,7 @@ check_newrootmountopts() {
 }
 
 check_newrootfsck() {
-    if [ "$newrootfsck" == '###' ]; then
+    if [ "$newrootfsck" == "$sep" ]; then
         return 1
     fi
     case "$newrootfsck" in
@@ -225,7 +225,7 @@ check_newrootfsck() {
 }
 
 check_kernelopts() {
-    if [ "$kernelopts" == '###' ]; then
+    if [ "$kernelopts" == "$sep" ]; then
         return 1
     fi
     if [ -z "$kernelopts" ]; then
@@ -234,7 +234,7 @@ check_kernelopts() {
 }
 
 check_kernelpath() {
-    if [ "$kernelpath" == '###' ]; then
+    if [ "$kernelpath" == "$sep" ]; then
         return 1
     fi
     if [ -z "$kernelpath" ]; then
@@ -253,7 +253,7 @@ check_kernelpath() {
 }
 
 check_initramfspath() {
-    if [ "$initramfspath" == '###' ]; then
+    if [ "$initramfspath" == "$sep" ]; then
         return 1
     fi
     if [ -z "$initramfspath" ]; then
