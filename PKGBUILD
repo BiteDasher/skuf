@@ -11,7 +11,7 @@ license=('custom:GPL AND NO LICENSE')
 depends=('awk' 'mkinitcpio-busybox>=1.19.4-2' 'kmod' 'util-linux>=2.23' 'libarchive' 'coreutils'
         'bash' 'binutils' 'diffutils' 'findutils' 'grep' 'filesystem>=2011.10-1' 'zstd' 'systemd'
         'dhcpcd' 'iproute2' 'iputils' 'cifs-utils' 'procps-ng'
-        'openssl' 'kbd' 'terminus-font' 'sed')
+        'openssl' 'kbd' 'terminus-font' 'sed' 'tar')
 makedepends=('asciidoc')
 optdepends=('gzip: Use gzip compression for the initramfs image'
             'xz: Use lzma or xz compression for the initramfs image'
