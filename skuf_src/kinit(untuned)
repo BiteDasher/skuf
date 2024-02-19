@@ -61,12 +61,12 @@ check_smbport() {
     if [ -z "$smbport" ]; then
         return 0
     fi
-    if [ -n "$smbport" ] && [ -z "${smbport//[0-9]/}" ]; then
-        return 0
-    else
+    if [ -n "$smbport" ] && [ -n "${smbport//[0-9]/}" ]; then
         echo -e "  \e[1;31m! This does not look like SAMBA port\e[0m"
         return 1
     fi
+
+    return 0
 }
 
 check_smbversion() {
