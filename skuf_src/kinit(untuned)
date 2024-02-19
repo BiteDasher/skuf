@@ -541,7 +541,7 @@ unpack_switch() {
 
     mount -t tmpfs switch /switch -o size=5M
 
-    tar -x -f /rootfs.tar -C /switch
+    tar -x -f /rootfs.tar -C /switch || launch_interactive_shell
 }
 
 prepare_kexec() {
