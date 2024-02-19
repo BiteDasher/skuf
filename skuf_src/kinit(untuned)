@@ -112,7 +112,7 @@ read_smbpassword() {
         if [[ $char == $'\0' ]] ; then
             break
         fi
-        if [[ $char == $'\177' ]] ; then
+        if [[ $char == $'\177' ]] || [[ $char == $'\010' ]]; then
             if [ $charcount -gt 0 ] ; then
                 charcount=$((charcount-1))
                 prompt=$'\b \b'
@@ -123,7 +123,7 @@ read_smbpassword() {
         else
             charcount=$((charcount+1))
             prompt='*'
-            password+="$char"
+            password="${password}${char}"
         fi
     done
 
