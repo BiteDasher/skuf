@@ -3,10 +3,10 @@
 build() {
     add_binary base64
     add_binary openssl
-    [ -x "$BUILDROOT/usr/bin/install" ] || add_binary install
+    [ -x "$BUILDROOT/usr/bin/install" ] || add_binary install || return 1
     add_binary tty
     add_binary stty
-    [ -x "$BUILDROOT/usr/bin/sed" ] || add_binary sed
+    [ -x "$BUILDROOT/usr/bin/sed" ] || add_binary sed || return 1
     add_binary grep
     add_binary ip
     add_binary ping
