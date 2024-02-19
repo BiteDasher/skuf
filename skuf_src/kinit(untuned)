@@ -59,7 +59,6 @@ check_smbport() {
         return 1
     fi
     if [ -z "$smbport" ]; then
-        smbport="@n@"
         return 0
     fi
     if [ -n "$smbport" ] && [ -z "${smbport//[0-9]/}" ]; then
@@ -75,7 +74,6 @@ check_smbversion() {
         return 1
     fi
     if [ -z "$smbversion" ]; then
-        smbversion="@n@"
         return 0
     fi
 }
@@ -85,7 +83,6 @@ check_smbdomain() {
         return 1
     fi
     if [ -z "$smbdomain" ]; then
-        smbdomain="@n@"
         return 0
     fi
 }
@@ -147,7 +144,6 @@ check_smbvolumepath() {
         return 1
     fi
     if [ -z "$smbvolumepath" ]; then
-        smbvolumepath="@n@"
         return 0
     fi
 }
@@ -175,7 +171,6 @@ check_smbswapfilename() {
         return 1
     fi
     if [ -z "$smbswapfilename" ]; then
-        smbswapfilename="@n@"
         return 0
     fi
     case "$smbswapfilename" in
@@ -193,7 +188,6 @@ check_smbmountopts() {
         return 1
     fi
     if [ -z "$smbmountopts" ]; then
-        smbmountopts="@n@"
         return 0
     fi
 }
@@ -203,7 +197,6 @@ check_newrootmountopts() {
         return 1
     fi
     if [ -z "$newrootmountopts" ]; then
-        newrootmountopts="@n@"
         return 0
     fi
 }
@@ -222,7 +215,6 @@ check_newrootfsck() {
             return 0
         ;;
         "")
-            newrootfsck="@n@"
             return 0
         ;;
         *)
@@ -237,7 +229,6 @@ check_kernelopts() {
         return 1
     fi
     if [ -z "$kernelopts" ]; then
-        kernelopts="@n@"
         return 0
     fi
 }
@@ -370,9 +361,9 @@ setup_sambaopts() {
 
     echo "[] Building and encrypting /proc/cmdline"
 
-    sambaoptsx="$smbaddr,,,$smbport,,,$smbversion,,,$smbdomain,,,$smbusername,,,$smbpassword,,,$smbvolumepath,,,$smbvolumefilename,,,$smbswapfilename,,,$smbmountopts,,,$newrootmountopts,,,$newrootfsck"
+    sambaoptsx="${smbaddr}${sep}${smbport}${sep}${smbversion}${sep}${smbdomain}${sep}${smbusername}${sep}${smbpassword}${sep}${smbvolumepath}${sep}${smbvolumefilename}${sep}${smbswapfilename}${sep}${smbmountopts}${sep}${newrootmountopts}${sep}${newrootfsck}"
     # SKUF_OPENSSL_ENC #
-    sambaoptsx="$(echo "$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)" # SKUF_OPENSSL_ENC_RM #
+    sambaoptsx="$(echo -n "$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)" # SKUF_OPENSSL_ENC_RM #
     sambaoptsx="${sambaoptsx//=/%}"
     sambaoptsx="${sambaoptsx:10}"
 
@@ -382,9 +373,7 @@ setup_sambaopts() {
 }
 
 setup_kernelopts() {
-    if [ "$kernelopts" == "@n@" ]; then
-        kernelopts=
-    else
+    if [ -n "$kernelopts" ]; then
         kernelopts="$kernelopts "
     fi
 }
@@ -452,9 +441,9 @@ get_dhcp() {
 
 mount_samba() {
     finalusername="username=$smbusername,"
-    [ "$smbdomain" == "@n@" ] || finaldomain="domain=$smbdomain,"
-    [ "$smbport" == "@n@" ] || finalport="port=$smbport,"
-    [ "$smbmountopts" == "@n@" ] || finalmountopts="$smbmountopts,"
+    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
+    [ -z "$smbport"      ] || finalport="port=$smbport,"
+    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
     smbvolumepath="${smbvolumepath/@u@/${smbusername/@*/}}"
     smbvolumepath="${smbvolumepath/@fu@/${smbusername}}"
     case "$smbvolumepath" in
@@ -462,7 +451,7 @@ mount_samba() {
         "/"*"/") : ;;
         "/"*) smbvolumepath="${smbvolumepath}/" ;;
         *"/") smbvolumepath="/${smbvolumepath}" ;;
-        "@n@") smbvolumepath="/" ;;
+        "") smbvolumepath="/" ;;
         *) smbvolumepath="/${smbvolumepath}/" ;;
     esac
     smbvolumefilename="${smbvolumefilename/@u@/${smbusername/@*/}}"
@@ -470,7 +459,7 @@ mount_samba() {
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
-    [ "$smbversion" == "@n@" ] || finalversion="vers=$smbversion,"
+    [ -z "$smbversion" ] || finalversion="vers=$smbversion,"
 
     echo "[] Mounting SAMBA"
 
@@ -519,7 +508,7 @@ fsck_in_samba() {
     No|no|N|n)
         :
     ;;
-    "@n@")
+    "")
         :
     ;;
     esac
@@ -530,9 +519,7 @@ mount_newroot() {
 
     echo "[] Mounting volume"
 
-    if [ "$newrootmountopts" == "@n@" ]; then
-        newrootmountoptsx=
-    else
+    if [ -n "$newrootmountopts" ]; then
         newrootmountoptsx=",$newrootmountopts"
     fi
 

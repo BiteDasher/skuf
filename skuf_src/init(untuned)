@@ -56,72 +56,56 @@ plymouth_continue() {
 }
 
 asshole_parse() {
-    while read -r line; do
-        _sambaopts="$(echo "$line" | grep -o 'fuckmyass=.*:')"
-        if [ -n "$sambaopts" ]; then
-            msg "Found mount options in cmdline"
-            break
-        else
-            continue
-        fi
-    done
-
+    _sambaopts="$(grep -o 'fuckmyass=.*:')"
     if [ -z "$_sambaopts" ]; then
         echo "Something went wrong. Failed to fetch mount options with cmdline."
-        echo "Write options yourself to /_sambaopts in following format:"
-        echo "IP,,,port,,,SAMBA version,,,domain,,,username,,,password,,,volume dir,,,volume file,,,swap file,,,samba mount opts,,,volume mount opts,,,fsck volume or not"
-        echo "use @n@ for nothing"
         launch_interactive_shell
         _sambaopts="fuckmyass=$(cat /_sambaopts):"
+    fi
+
+    _sambaopts="${_sambaopts/fuckmyass=/}"
+    _sambaopts="${_sambaopts//:/}"
+    _sambaopts="${_sambaopts//%/=}"
+
+    # SKUF_DEC_TUNE #
+
+    _sambaopts="U2FsdGVkX1${_sambaopts}"
+
+    # SKUF_OPENSSL_DEC #
+    if _sambaopts="$(echo -n "$_sambaopts" | openssl enc -d -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)"; then # SKUF_OPENSSL_DEC_RM #
+        _sambaopts="fuckmyass=${_sambaopts}:"
     else
-        _sambaopts="${_sambaopts/fuckmyass=/}"
-        _sambaopts="${_sambaopts//:/}"
-        _sambaopts="${_sambaopts//%/=}"
-
-        # SKUF_DEC_TUNE #
-
-        _sambaopts="U2FsdGVkX1${_sambaopts}"
-
-        # SKUF_OPENSSL_DEC #
-        if _sambaopts="$(echo "$_sambaopts" | openssl enc -d -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)"; then # SKUF_OPENSSL_DEC_RM #
-            _sambaopts="fuckmyass=${_sambaopts}:"
-        else
-            echo "Failed to decrypt options!"
-            echo "Write options yourself to /_sambaopts in following format:"
-            echo "IP,,,port,,,SAMBA version,,,domain,,,username,,,password,,,volume dir,,,volume file,,,swap file,,,samba mount opts,,,volume mount opts,,,fsck volume or not"
-            echo "use @n@ for nothing"
-            launch_interactive_shell
-            _sambaopts="fuckmyass=$(cat /_sambaopts):"
-        fi
-
+        echo "Failed to decrypt options!"
+        launch_interactive_shell
+        _sambaopts="fuckmyass=$(cat /_sambaopts):"
     fi
 
     sambaopts="${_sambaopts#*=}"
 
-    smbaddr="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbport="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbversion="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbdomain="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbusername="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbpassword="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbvolumepath="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbvolumefilename="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbswapfilename="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    smbmountopts="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
-    newrootmountopts="${sambaopts%%,,,*}"
-        sambaopts="${sambaopts#*,,,}" # cut
+    smbaddr="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbport="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbversion="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbdomain="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbusername="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbpassword="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbvolumepath="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbvolumefilename="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbswapfilename="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    smbmountopts="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
+    newrootmountopts="${sambaopts%%${sep}*}"
+        sambaopts="${sambaopts#*${sep}}" # cut
     newrootfsck="${sambaopts%%:*}"
-        #sambaopts="${sambaopts#*,,,}" # cut
+        #sambaopts="${sambaopts#*${sep}}" # cut
         sambaopts="${sambaopts#*:}" # cut
 
     smbmode="rw"
@@ -184,9 +168,9 @@ renice_dhcpcd() {
 
 mount_samba() {
     finalusername="username=$smbusername,"
-    [ "$smbdomain" == "@n@" ] || finaldomain="domain=$smbdomain,"
-    [ "$smbport" == "@n@" ] || finalport="port=$smbport,"
-    [ "$smbmountopts" == "@n@" ] || finalmountopts="$smbmountopts,"
+    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
+    [ -z "$smbport"      ] || finalport="port=$smbport,"
+    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
     smbvolumepath="${smbvolumepath/@u@/${smbusername/@*/}}"
     smbvolumepath="${smbvolumepath/@fu@/${smbusername}}"
     case "$smbvolumepath" in
@@ -194,7 +178,7 @@ mount_samba() {
         "/"*"/") : ;;
         "/"*) smbvolumepath="${smbvolumepath}/" ;;
         *"/") smbvolumepath="/${smbvolumepath}" ;;
-        "@n@") smbvolumepath="/" ;;
+        "") smbvolumepath="/" ;;
         *) smbvolumepath="/${smbvolumepath}/" ;;
     esac
     smbvolumefilename="${smbvolumefilename/@u@/${smbusername/@*/}}"
@@ -202,7 +186,7 @@ mount_samba() {
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
-    [ "$smbversion" == "@n@" ] || finalversion="vers=$smbversion,"
+    [ -z "$smbversion" ] || finalversion="vers=$smbversion,"
 
     if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finaldomain}${finalport}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
         echo "Failed to mount SAMBA share!"
@@ -249,14 +233,14 @@ fsck_in_samba() {
     No|no|N|n)
         :
     ;;
-    "@n@")
+    "")
         :
     ;;
     esac
 }
 
 mount_newroot() {
-    if [ "$newrootmountopts" == "@n@" ]; then
+    if [ -z "$newrootmountopts" ]; then
         if ! mount /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
             launch_interactive_shell
@@ -311,7 +295,7 @@ copy_dhcpcd_data() {
 swapon_samba() {
     local devloop
 
-    if [ "$smbswapfilename" == "@n@" ]; then
+    if [ -z "$smbswapfilename" ]; then
         return 0
     else
         plymouth_show_msg "Connecting swap file\n95%"
