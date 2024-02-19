@@ -277,6 +277,15 @@ user_read() {
 
     echo -e "To change the keyboard layout, press \e[1mAlt+Shift\e[0m (ru)" # SKUF_RU #
 
+    while ! check_smbusername; do
+        read -e -p "Login:                  $ylw" \
+                smbusername
+        ___
+    done
+    while ! check_smbpassword; do
+                read_smbpassword
+        ___ _
+    done
     while ! check_smbaddr; do
         read -e -p "SAMBA server address:   $ylw" \
                 # SAMBA_ADDRESS #
@@ -296,15 +305,6 @@ user_read() {
         read -e -p "SAMBA server domain:    $ylw" \
                 # SAMBA_DOMAIN #
         ___
-    done
-    while ! check_smbusername; do
-        read -e -p "Login:                  $ylw" \
-                smbusername
-        ___
-    done
-    while ! check_smbpassword; do
-                read_smbpassword
-        ___ _
     done
     while ! check_smbvolumepath; do
         read -e -p "Path to your folder:    $ylw" \
