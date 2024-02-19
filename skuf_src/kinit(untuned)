@@ -548,7 +548,7 @@ prepare_kexec() {
     echo "[] Preparing kexec"
     echo "[] Loading kernel and initramfs into RAM"
 
-    /switch/bin/kexec -l "/new_root${kernelpath}" --initrd="/new_root${initramfspath}" --command-line="${kernelopts}${sambaopts}" --console-vga --reset-vga
+    /switch/bin/kexec -l "/new_root${kernelpath}" --initrd="/new_root${initramfspath}" --command-line="${kernelopts}${sambaopts}" --console-vga --reset-vga || launch_interactive_shell
 }
 
 prepare_switch() {
