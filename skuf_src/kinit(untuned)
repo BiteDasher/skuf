@@ -448,8 +448,8 @@ get_dhcp() {
 quirk_vars() {
     echo "[] Quirking variables"
 
-    smbvolumepath="${smbvolumepath/@u@/${smbusername/@*/}}"
-    smbvolumepath="${smbvolumepath/@fu@/${smbusername}}"
+    smbvolumepath="${smbvolumepath//@u@/${smbusername/@*/}}"
+    smbvolumepath="${smbvolumepath//@fu@/${smbusername}}"
     case "$smbvolumepath" in
         "/")     : ;;
         "/"*"/") : ;;
@@ -459,8 +459,8 @@ quirk_vars() {
         *)       smbvolumepath="/${smbvolumepath}/" ;;
     esac
 
-    smbvolumefilename="${smbvolumefilename/@u@/${smbusername/@*/}}"
-    smbvolumefilename="${smbvolumefilename/@fu@/${smbusername}}"
+    smbvolumefilename="${smbvolumefilename//@u@/${smbusername/@*/}}"
+    smbvolumefilename="${smbvolumefilename//@fu@/${smbusername}}"
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
