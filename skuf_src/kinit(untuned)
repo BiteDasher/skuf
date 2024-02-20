@@ -102,6 +102,7 @@ check_smbaddr() {
         echo -e "  \e[1;31m! SAMBA server address missing\e[0m"
         return 1
     fi
+    # shellcheck disable=SC1003
     case "$smbaddr" in
         *'/'*|*'\'*)
             echo -e "  \e[1;31m! SAMBA server address cannot be a path\e[0m"

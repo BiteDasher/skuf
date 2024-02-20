@@ -82,30 +82,30 @@ asshole_parse() {
 
     sambaopts="${_sambaopts#*=}"
 
-    smbaddr="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbport="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbversion="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbdomain="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbusername="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbpassword="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbvolumepath="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbvolumefilename="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbswapfilename="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    smbmountopts="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
-    newrootmountopts="${sambaopts%%${sep}*}"
-        sambaopts="${sambaopts#*${sep}}" # cut
+    smbaddr="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbport="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbversion="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbdomain="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbusername="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbpassword="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbvolumepath="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbvolumefilename="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbswapfilename="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    smbmountopts="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
+    newrootmountopts="${sambaopts%%"${sep}"*}"
+        sambaopts="${sambaopts#*"${sep}"}" # cut
     newrootfsck="${sambaopts%%:*}"
-        #sambaopts="${sambaopts#*${sep}}" # cut
+        #sambaopts="${sambaopts#*"${sep}"}" # cut
         sambaopts="${sambaopts#*:}" # cut
 
     smbmode="rw"
