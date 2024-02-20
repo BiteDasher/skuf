@@ -736,7 +736,11 @@ fi
 
 exec 0</dev/console 1>/dev/console 2>/dev/console
 
-set -o emacs
+if [ -e "/etc/inputrc" ]; then
+    set -o emacs
+else
+    :
+fi
 
 echo ''
 for i in 1 2 3; do
