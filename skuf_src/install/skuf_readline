@@ -7,7 +7,6 @@ build() {
 help() {
     cat <<HELPEOF
 This hook adds inputrc file for readline library.
-Necessary for Unicode input in bash.
 HELPEOF
 }
 
