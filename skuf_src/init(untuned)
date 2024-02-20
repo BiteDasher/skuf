@@ -175,7 +175,7 @@ mount_samba() {
 
     if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
         echo "Failed to mount SAMBA share!"
-        echo "PASSWD=$smbpassword mount -t cifs -o ${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode} //${smbaddr}${smbvolumepath} /samba"
+        echo "PASSWD=\"$smbpassword\" mount -t cifs -o \"${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}\" \"//${smbaddr}${smbvolumepath}\" /samba"
         launch_interactive_shell
     fi
 }
@@ -228,11 +228,13 @@ mount_newroot() {
     if [ -z "$newrootmountopts" ]; then
         if ! mount /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
+            echo "mount /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     else
         if ! mount -o "${newrootmountopts}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
+            echo "mount -o \"${newrootmountopts}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     fi
