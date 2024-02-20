@@ -184,6 +184,12 @@ quirk_vars() {
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
 
+    smbswapfilename="${smbswapfilename//@u@/${smbusername/@*/}}"
+    smbswapfilename="${smbswapfilename//@fu@/${smbusername}}"
+    case "$smbswapfilename" in
+        "/"*) smbswapfilename="${smbswapfilename#/}" ;;
+    esac
+
     return 0
 }
 
@@ -305,9 +311,6 @@ swapon_samba() {
         return 0
     else
         plymouth_show_msg "Connecting swap file\n95%"
-        case "$smbswapfilename" in
-            "/"*) smbswapfilename="${smbswapfilename#/}" ;;
-        esac
         if ! devloop="$(losetup --show --find -- /samba/"${smbswapfilename}")"; then
             echo "Failed to setup loop on /samba/${smbswapfilename}!"
             launch_interactive_shell

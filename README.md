@@ -154,7 +154,7 @@ Table of SKUF variables:
 
 - You can use [Plymouth](https://wiki.archlinux.org/title/plymouth) in [step 2](#Step-2-Re-mounting-SMB-and-running-system). Add `splash` to `EXTRA_KERNEL_OPTS` to the `defaults` file, also don't forget to add `HOOKS=(... plymouth ...)` to the `skuf_src/mkinitcpio.conf` and install `plymouth` package.
 
-- In [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server), you can write `@u@` and `@fu@` in the path to the client(your) directory and in the path to the image volume file. If you login as `john@corp.domain`, `@u@` will be `john` and `@fu@` will be `john@corp.domain`.
+- In [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server), you can write `@u@` and `@fu@` in the path to the client(your) directory, in the path to the image volume file and in the swap file. If you login as `john@corp.domain`, `@u@` will be `john` and `@fu@` will be `john@corp.domain`.
 
 - After building the ISO image and creating a file system image with Arch Linux you can execute `sudo ./clean.sh` to remove unnedeed files.
 
