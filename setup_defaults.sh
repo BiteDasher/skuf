@@ -28,6 +28,7 @@ CHECK_FS=""
 EXTRA_KERNEL_OPTS=""
 PATH_TO_NEW_KERNEL=""
 PATH_TO_NEW_INITRAMFS=""
+MAX_SMB_RETRY_COUNT=""
 
 if [ -f ./defaults ]; then
     if [ -r ./defaults ]; then
@@ -119,6 +120,10 @@ if [ -n "$PATH_TO_NEW_INITRAMFS" ]; then
     sed -i 's|# PATH_TO_NEW_INITRAMFS #|-i "'"$PATH_TO_NEW_INITRAMFS"'" initramfspath|' ./skuf_src/kinit
 else
     sed -i 's|# PATH_TO_NEW_INITRAMFS #|initramfspath|' ./skuf_src/kinit
+fi
+##################################################
+if [ -n "$MAX_SMB_RETRY_COUNT" ]; then
+    sed -i 's|if ! retry_samba 2; then$|if ! retry_samba '"$MAX_SMB_RETRY_COUNT"'; then|' ./skuf_src/kinit
 fi
 
 # ???

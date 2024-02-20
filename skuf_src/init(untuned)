@@ -166,6 +166,33 @@ renice_dhcpcd() {
     done
 }
 
+quirk_vars() {
+    smbvolumepath="${smbvolumepath//@u@/${smbusername/@*/}}"
+    smbvolumepath="${smbvolumepath//@fu@/${smbusername}}"
+    case "$smbvolumepath" in
+        "/")     : ;;
+        "/"*"/") : ;;
+        "/"*)    smbvolumepath="${smbvolumepath}/" ;;
+        *"/")    smbvolumepath="/${smbvolumepath}" ;;
+        "")      smbvolumepath="/" ;;
+        *)       smbvolumepath="/${smbvolumepath}/" ;;
+    esac
+
+    smbvolumefilename="${smbvolumefilename//@u@/${smbusername/@*/}}"
+    smbvolumefilename="${smbvolumefilename//@fu@/${smbusername}}"
+    case "$smbvolumefilename" in
+        "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
+    esac
+
+    smbswapfilename="${smbswapfilename//@u@/${smbusername/@*/}}"
+    smbswapfilename="${smbswapfilename//@fu@/${smbusername}}"
+    case "$smbswapfilename" in
+        "/"*) smbswapfilename="${smbswapfilename#/}" ;;
+    esac
+
+    return 0
+}
+
 mount_samba() {
     finalusername="username=$smbusername,"
     [ -z "$smbport"      ] || finalport="port=$smbport,"
@@ -422,6 +449,9 @@ get_dhcp
 
 plymouth_show_msg "Changing the process priority of dhcpcd\n40%"
 renice_dhcpcd
+
+plymouth_show_msg "Quirking variables\n45%"
+quirk_vars
 
 plymouth_show_msg "Mounting SAMBA\n50%"
 mount_samba

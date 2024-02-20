@@ -148,6 +148,7 @@ Table of SKUF variables:
 |`EXTRA_KERNEL_OPTS`|Additional linux kernel options|
 |`PATH_TO_NEW_KERNEL`|Path to the new kernel that will be loaded using kexec. The new kernel must be in the Arch Linux image that is lies on SMB server|
 |`PATH_TO_NEW_INITRAMFS`|Path to the new initramfs that will be loaded using kexec alongside kernel. The new initramfs must be in the Arch Linux image that is lies on SMB server|
+|`MAX_SMB_RETRY_COUNT`|Maximum number of attempts to re-enter SMB credentials if the first mount attempt failed. Applies only to [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server). (default value: `2`)|
 
 ## Tips and Tricks
 - You can place a swap file next to the Arch Linux image volume so you can use it on your system. The swap file will be connected over the network as a loop device.
@@ -160,7 +161,7 @@ Table of SKUF variables:
 
 - Password for `root` and `test` users in `arch.ext4` is `0000`
 
-- If you enter something incorrectly while entering SMB address, user credentials, etc. at [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and fall into the interactive shell, write `reboot -f`. No, **you cannot restart the script**. Train your attention.
+- If you enter something incorrectly while entering SMB address, kernel path, etc. at [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and fall into the interactive shell, write `reboot -f`. No, **you cannot restart the script**. Train your attention.
 
 - If the client computer has `UEFI`, you can install `SKUF` on a `FAT32 EFI` partition so you don't have to use a USB flash drive/CD/DVD. To do this, mount `skuflinux-smth.iso` somewhere (like /mnt), then copy `/mnt/skuf/boot/x86_64/{vmlinuz-linux,initramfs-linux.img}` to `FAT32 EFI` partition and execute `efibootmgr -c -d /dev/sdX -p Y -u 'initrd=\initramfs-linux.img' -l '\vmlinuz-linux' -L 'SKUF'` where */dev/sdX* is the target disk and *Y* is the target `FAT32 EFI` partition number.
 
