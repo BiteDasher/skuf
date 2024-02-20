@@ -166,31 +166,37 @@ renice_dhcpcd() {
     done
 }
 
-mount_samba() {
-    finalusername="username=$smbusername,"
-    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
-    [ -z "$smbport"      ] || finalport="port=$smbport,"
-    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
+quirk_vars() {
     smbvolumepath="${smbvolumepath/@u@/${smbusername/@*/}}"
     smbvolumepath="${smbvolumepath/@fu@/${smbusername}}"
     case "$smbvolumepath" in
-        "/") : ;;
+        "/")     : ;;
         "/"*"/") : ;;
-        "/"*) smbvolumepath="${smbvolumepath}/" ;;
-        *"/") smbvolumepath="/${smbvolumepath}" ;;
-        "") smbvolumepath="/" ;;
-        *) smbvolumepath="/${smbvolumepath}/" ;;
+        "/"*)    smbvolumepath="${smbvolumepath}/" ;;
+        *"/")    smbvolumepath="/${smbvolumepath}" ;;
+        "")      smbvolumepath="/" ;;
+        *)       smbvolumepath="/${smbvolumepath}/" ;;
     esac
+
     smbvolumefilename="${smbvolumefilename/@u@/${smbusername/@*/}}"
     smbvolumefilename="${smbvolumefilename/@fu@/${smbusername}}"
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
-    [ -z "$smbversion" ] || finalversion="vers=$smbversion,"
 
-    if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finaldomain}${finalport}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
+    return 0
+}
+
+mount_samba() {
+    finalusername="username=$smbusername,"
+    [ -z "$smbport"      ] || finalport="port=$smbport,"
+    [ -z "$smbversion"   ] || finalversion="vers=$smbversion,"
+    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
+    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
+
+    if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
         echo "Failed to mount SAMBA share!"
-        echo "PASSWD=$smbpassword mount -t cifs -o ${finalusername}${finaldomain}${finalport}${finalmountopts}${finalversion}${smbmode} //${smbaddr}${smbvolumepath} /samba"
+        echo "PASSWD=$smbpassword mount -t cifs -o ${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode} //${smbaddr}${smbvolumepath} /samba"
         launch_interactive_shell
     fi
 }
@@ -434,6 +440,9 @@ get_dhcp
 
 plymouth_show_msg "Changing the process priority of dhcpcd\n40%"
 renice_dhcpcd
+
+plymouth_show_msg "Quirking variables\n45%"
+quirk_vars
 
 plymouth_show_msg "Mounting SAMBA\n50%"
 mount_samba

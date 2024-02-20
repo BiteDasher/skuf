@@ -42,57 +42,24 @@ ___() {
     fi
 }
 
-check_smbaddr() {
-    if [ "$smbaddr" == "$sep" ]; then
-        return 1
-    fi
-    if [ -z "$smbaddr" ]; then
-        echo -e "  \e[1;31m! SAMBA server address missing\e[0m"
-        return 1
-    fi
-
-    return 0
-}
-
-check_smbport() {
-    if [ "$smbport" == "$sep" ]; then
-        return 1
-    fi
-    if [ -z "$smbport" ]; then
-        return 0
-    fi
-    if [ -n "$smbport" ] && [ -n "${smbport//[0-9]/}" ]; then
-        echo -e "  \e[1;31m! This does not look like SAMBA port\e[0m"
-        return 1
-    fi
-
-    return 0
-}
-
-check_smbversion() {
-    if [ "$smbversion" == "$sep" ]; then
-        return 1
-    fi
-    if [ -z "$smbversion" ]; then
-        return 0
-    fi
-}
-
-check_smbdomain() {
-    if [ "$smbdomain" == "$sep" ]; then
-        return 1
-    fi
-    if [ -z "$smbdomain" ]; then
-        return 0
-    fi
-}
-
 check_smbusername() {
     if [ "$smbusername" == "$sep" ]; then
         return 1
     fi
     if [ -z "$smbusername" ]; then
         echo -e "  \e[1;31m! Login missing\e[0m"
+        return 1
+    fi
+
+    return 0
+}
+
+check_smbpassword() {
+    if [ "$smbpassword" == "$sep" ]; then
+        return 1
+    fi
+    if [ -z "$smbpassword" ]; then
+        echo -e "  \e[1;31m! Password missing\e[0m"
         return 1
     fi
 
@@ -127,16 +94,55 @@ read_smbpassword() {
     smbpassword="$password"
 }
 
-check_smbpassword() {
-    if [ "$smbpassword" == "$sep" ]; then
+check_smbaddr() {
+    if [ "$smbaddr" == "$sep" ]; then
         return 1
     fi
-    if [ -z "$smbpassword" ]; then
-        echo -e "  \e[1;31m! Password missing\e[0m"
+    if [ -z "$smbaddr" ]; then
+        echo -e "  \e[1;31m! SAMBA server address missing\e[0m"
         return 1
     fi
+    case "$smbaddr" in
+        *'/'*|*'\'*)
+            echo -e "  \e[1;31m! SAMBA server address cannot be a path\e[0m"
+            return 1
+        ;;
+    esac
 
     return 0
+}
+
+check_smbport() {
+    if [ "$smbport" == "$sep" ]; then
+        return 1
+    fi
+    if [ -z "$smbport" ]; then
+        return 0
+    fi
+    if [ -n "$smbport" ] && [ -z "${smbport//[0-9]/}" ]; then
+        return 0
+    else
+        echo -e "  \e[1;31m! This does not look like SAMBA port\e[0m"
+        return 1
+    fi
+}
+
+check_smbversion() {
+    if [ "$smbversion" == "$sep" ]; then
+        return 1
+    fi
+    if [ -z "$smbversion" ]; then
+        return 0
+    fi
+}
+
+check_smbdomain() {
+    if [ "$smbdomain" == "$sep" ]; then
+        return 1
+    fi
+    if [ -z "$smbdomain" ]; then
+        return 0
+    fi
 }
 
 check_smbvolumepath() {
@@ -439,33 +445,41 @@ get_dhcp() {
     sleep 5
 }
 
-mount_samba() {
-    finalusername="username=$smbusername,"
-    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
-    [ -z "$smbport"      ] || finalport="port=$smbport,"
-    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
+quirk_vars() {
+    echo "[] Quirking variables"
+
     smbvolumepath="${smbvolumepath/@u@/${smbusername/@*/}}"
     smbvolumepath="${smbvolumepath/@fu@/${smbusername}}"
     case "$smbvolumepath" in
-        "/") : ;;
+        "/")     : ;;
         "/"*"/") : ;;
-        "/"*) smbvolumepath="${smbvolumepath}/" ;;
-        *"/") smbvolumepath="/${smbvolumepath}" ;;
-        "") smbvolumepath="/" ;;
-        *) smbvolumepath="/${smbvolumepath}/" ;;
+        "/"*)    smbvolumepath="${smbvolumepath}/" ;;
+        *"/")    smbvolumepath="/${smbvolumepath}" ;;
+        "")      smbvolumepath="/" ;;
+        *)       smbvolumepath="/${smbvolumepath}/" ;;
     esac
+
     smbvolumefilename="${smbvolumefilename/@u@/${smbusername/@*/}}"
     smbvolumefilename="${smbvolumefilename/@fu@/${smbusername}}"
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
-    [ -z "$smbversion" ] || finalversion="vers=$smbversion,"
+
+    return 0
+}
+
+mount_samba() {
+    finalusername="username=$smbusername,"
+    [ -z "$smbport"      ] || finalport="port=$smbport,"
+    [ -z "$smbversion"   ] || finalversion="vers=$smbversion,"
+    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
+    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
 
     echo "[] Mounting SAMBA"
 
-    if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finaldomain}${finalport}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
+    if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
         echo "Failed to mount SAMBA share!"
-        echo "PASSWD=$smbpassword mount -t cifs -o ${finalusername}${finaldomain}${finalport}${finalmountopts}${finalversion}${smbmode} //${smbaddr}${smbvolumepath} /samba"
+        echo "PASSWD=$smbpassword mount -t cifs -o ${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode} //${smbaddr}${smbvolumepath} /samba"
         launch_interactive_shell
     fi
 }
@@ -741,6 +755,8 @@ user_read
 bring_lo_up
 
 get_dhcp
+
+quirk_vars
 
 mount_samba
 
