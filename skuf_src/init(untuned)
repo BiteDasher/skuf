@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-readonly skuf_version="14.0+37.3"
+readonly skuf_version="15.0+37.3"
 readonly sep="$(echo -ne '\x1F')"
 
 readonly _nl='
