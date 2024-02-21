@@ -148,7 +148,7 @@ Table of SKUF variables:
 |`EXTRA_KERNEL_OPTS`|Additional linux kernel options|
 |`PATH_TO_NEW_KERNEL`|Path to the new kernel that will be loaded using kexec. The new kernel must be in the Arch Linux image that is lies on SMB server|
 |`PATH_TO_NEW_INITRAMFS`|Path to the new initramfs that will be loaded using kexec alongside kernel. The new initramfs must be in the Arch Linux image that is lies on SMB server|
-|`MAX_SMB_RETRY_COUNT`|Maximum number of attempts to re-enter SMB credentials if the first mount attempt failed. Applies only to [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server). (default value: `2`)|
+|`MAX_SMB_RETRY_COUNT`|Maximum number of attempts to re-enter SMB credentials if the first mount attempt failed. Applies only to [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server)|
 
 ## Tips and Tricks
 - You can place a swap file next to the Arch Linux image volume so you can use it on your system. The swap file will be connected over the network as a loop device.

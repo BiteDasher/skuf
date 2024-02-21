@@ -490,7 +490,7 @@ retry_samba() {
     i="$1"
 
     if [ -z "$i" ] || [ -n "${i//[0-9-]/}" ]; then
-        i="2"
+        i="0"
     fi
 
     [ $i -gt 0 ] || return 1
@@ -555,7 +555,7 @@ mount_samba() {
     echo "[] Mounting SAMBA"
 
     if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
-        if ! retry_samba 2; then
+        if ! retry_samba; then
             echo "Failed to mount SAMBA share!"
             echo "PASSWD=\"$smbpassword\" mount -t cifs -o \"${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}\" \"//${smbaddr}${smbvolumepath}\" /samba"
             launch_interactive_shell

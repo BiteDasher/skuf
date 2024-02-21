@@ -123,7 +123,7 @@ else
 fi
 ##################################################
 if [ -n "$MAX_SMB_RETRY_COUNT" ]; then
-    sed -i 's|if ! retry_samba 2; then$|if ! retry_samba '"$MAX_SMB_RETRY_COUNT"'; then|' ./skuf_src/kinit
+    sed -i 's|if ! retry_samba; then$|if ! retry_samba '"$MAX_SMB_RETRY_COUNT"'; then|' ./skuf_src/kinit
 fi
 
 # ???
