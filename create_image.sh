@@ -56,11 +56,6 @@ if [ ! -f /tmp/repo/"$thispkgname" ]; then
     exit 1
 fi
 
-if [ -z "$1" ]; then
-    echo "Error: image size not specified (1 argument)" >&2
-    exit 1
-fi
-
 case "$1" in
     '-s'|'-S'|'--sparse'|'--sparse-file')
         SPARSE=1
@@ -72,6 +67,11 @@ case "$1" in
         filetype="empty"
     ;;
 esac
+
+if [ -z "$1" ]; then
+    echo "Error: image size not specified (1 argument)" >&2
+    exit 1
+fi
 
 case "$1" in
     ''|*[!0-9]*)

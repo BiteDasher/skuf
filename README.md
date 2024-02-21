@@ -102,10 +102,10 @@ Build SKUF:
 ./setup_repo.sh
 ./build_iso.sh
 ./create_image.sh SIZE_IN_GIGABYTES additional_packages
+# For sparse file, use ./create_image.sh -s
 ```
 
 > [!NOTE]
-> To create a sparse file instead of a normal completely empty file, use `./create_image.sh -s SIZE_IN_GIGABYTES additional_packages`
 > Basic installation of Arch Linux without GUI or any additional software takes about 1 GB.
 
 Done! 💪🎉 Now write `skuflinux-smth.iso` to your USB drive, put `arch.ext4` into your directory on SMB server and try SKUF Network Boot System.
