@@ -101,7 +101,7 @@ rm -r -f ./arch.ext4
 
 block_size="8M"
 
-count_times=$((image_size * 1000 / 8))
+count_times=$((image_size * 1024 / 8))
 
 backtome="$(realpath .)"
 ##################################################
