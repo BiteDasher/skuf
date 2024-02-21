@@ -66,12 +66,6 @@ case "$1" in
         echo "size containts something other than number!" >&2
         exit 1
     ;;
-    *)
-        :
-    ;;
-esac
-
-case "$1" in
     0*)
         echo "size argument should not start with 0!" >&2
         exit 1
