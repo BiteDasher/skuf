@@ -644,7 +644,7 @@ setup_sambaopts() {
 
     # SKUF_ENC_TUNE #
 
-    sambaopts="fuckmyass=${sambaoptsx}:"
+    sambaopts="skuf=${sambaoptsx}:"
 }
 
 setup_kernelopts() {

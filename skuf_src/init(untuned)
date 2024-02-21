@@ -56,14 +56,14 @@ plymouth_continue() {
 }
 
 asshole_parse() {
-    _sambaopts="$(grep -o 'fuckmyass=.*:')"
+    _sambaopts="$(grep -o 'skuf=.*:')"
     if [ -z "$_sambaopts" ]; then
         echo "Something went wrong. Failed to fetch mount options with cmdline."
+        fail_to_fetch=1
         launch_interactive_shell
-        _sambaopts="fuckmyass=$(cat /_sambaopts):"
     fi
 
-    _sambaopts="${_sambaopts/fuckmyass=/}"
+    _sambaopts="${_sambaopts/skuf=/}"
     _sambaopts="${_sambaopts//:/}"
     _sambaopts="${_sambaopts//%/=}"
 
@@ -71,13 +71,15 @@ asshole_parse() {
 
     _sambaopts="U2FsdGVkX1${_sambaopts}"
 
+    [ -z ${fail_to_fetch+x} ] || _sambaopts="FAILED"
+
     # SKUF_OPENSSL_DEC #
     if _sambaopts="$(echo -n "$_sambaopts" | openssl enc -d -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)"; then # SKUF_OPENSSL_DEC_RM #
-        _sambaopts="fuckmyass=${_sambaopts}:"
+        _sambaopts="skuf=${_sambaopts}:"
     else
         echo "Failed to decrypt options!"
         launch_interactive_shell
-        _sambaopts="fuckmyass=$(cat /_sambaopts):"
+        _sambaopts="skuf=$(cat /_sambaopts):"
     fi
 
     sambaopts="${_sambaopts#*=}"
