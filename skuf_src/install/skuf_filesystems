@@ -13,7 +13,6 @@ build() {
         add_all_modules '/kernel/fs/fat'
         add_all_modules '/kernel/fs/exfat'
         add_all_modules '/kernel/fs/isofs'
-        add_all_modules '/kernel/fs/nfs'
     else
         add_checked_modules -f 'nls' '/kernel/fs'
     fi
