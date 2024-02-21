@@ -62,6 +62,18 @@ if [ -z "$1" ]; then
 fi
 
 case "$1" in
+    '-s'|'-S'|'--sparse'|'--sparse-file')
+        SPARSE=1
+        filetype="sparse"
+        shift
+    ;;
+    *)
+        SPARSE=0
+        filetype="empty"
+    ;;
+esac
+
+case "$1" in
     ''|*[!0-9]*)
         echo "size containts something other than number!" >&2
         exit 1
@@ -93,10 +105,14 @@ count_times=$((image_size * 1000 / 8))
 
 backtome="$(realpath .)"
 ##################################################
-echo "[] Creating empty file"
+echo "[] Creating $filetype file"
 sleep 1
-dd if=/dev/zero of=./arch.ext4 bs="$block_size" count="$count_times" status=progress
-##################################################
+if [ "$SPARSE" == 1 ]; then
+    dd if=/dev/zero of=./arch.ext4 bs="1" count="0" seek="${image_size}G" status=progress
+else
+    dd if=/dev/zero of=./arch.ext4 bs="$block_size" count="$count_times" status=progress
+fi
+#################################################
 echo "[] Creating ext4 filesystem"
 sleep 1
 mkfs.ext4 ./arch.ext4
