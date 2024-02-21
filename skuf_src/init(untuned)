@@ -56,10 +56,12 @@ plymouth_continue() {
 }
 
 asshole_parse() {
+    local cmdline_fetch_failed=0
+
     _sambaopts="$(grep -o 'skuf=.*:')"
     if [ -z "$_sambaopts" ]; then
         echo "Something went wrong. Failed to fetch mount options with cmdline."
-        fail_to_fetch=1
+        cmdline_fetch_failed=1
         launch_interactive_shell
     fi
 
@@ -71,7 +73,7 @@ asshole_parse() {
 
     _sambaopts="U2FsdGVkX1${_sambaopts}"
 
-    [ -z ${fail_to_fetch+x} ] || _sambaopts="FAILED"
+    [ $cmdline_fetch_failed -eq 0 ] || _sambaopts=""
 
     # SKUF_OPENSSL_DEC #
     if _sambaopts="$(echo -n "$_sambaopts" | openssl enc -d -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)"; then # SKUF_OPENSSL_DEC_RM #
