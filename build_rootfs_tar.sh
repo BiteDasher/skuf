@@ -4,8 +4,23 @@ if ! pacman -Q musl &>/dev/null; then
     exit 1
 fi
 
+if ! command -v make &>/dev/null; then
+    echo "Error: command 'make' not found" >&2
+    exit 1
+fi
+
 if ! command -v strip &>/dev/null; then
     echo "Error: package 'binutils' not found" >&2
+    exit 1
+fi
+
+if ! command -v tar &>/dev/null; then
+    echo "Error: command 'tar' not found" >&2
+    exit 1
+fi
+
+if ! command -v curl &>/dev/null; then
+    echo "Error: command 'curl' not found" >&2
     exit 1
 fi
 

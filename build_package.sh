@@ -4,6 +4,11 @@ if ! command -v makepkg &>/dev/null; then
     exit 1
 fi
 
+if ! command -v tar &>/dev/null; then
+    echo "Error: command 'tar' not found" >&2
+    exit 1
+fi
+
 if [ ! -d ./work ]; then
     echo "Error: directory 'work' does not exists" >&2
     exit 1
