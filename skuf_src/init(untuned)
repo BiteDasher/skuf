@@ -57,11 +57,7 @@ plymouth_continue() {
 
 asshole_parse() {
     _sambaopts="$(grep -o 'skuf49=.*:')"
-    if [ -z "$_sambaopts" ]; then
-        echo "Something went wrong. Failed to fetch mount options with cmdline."
-        launch_interactive_shell
-        _sambaopts="skuf49=$(cat /_sambaopts):"
-    else
+    if [ -n "$_sambaopts" ]; then
     ################################
 
     _sambaopts="${_sambaopts/skuf49=/}"
@@ -81,6 +77,10 @@ asshole_parse() {
         _sambaopts="skuf49=$(cat /_sambaopts):"
     fi
     ################################
+    else
+        echo "Something went wrong. Failed to fetch mount options with cmdline."
+        launch_interactive_shell
+        _sambaopts="skuf49=$(cat /_sambaopts):"
     fi
 
     sambaopts="${_sambaopts#*=}"
