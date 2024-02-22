@@ -644,7 +644,7 @@ setup_sambaopts() {
 
     # SKUF_ENC_TUNE #
 
-    sambaopts="skuf=${sambaoptsx}:"
+    sambaopts="skuf49=${sambaoptsx}:"
 }
 
 setup_kernelopts() {
