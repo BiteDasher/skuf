@@ -171,7 +171,7 @@ Table of SKUF variables:
 https://github.com/BiteDasher/skuf/assets/48867887/79a5b40d-7a48-4046-a857-aa300a57e137
 
 ## Afterword
-Huge thanks to the Arch Linux development team for their awesome distribution and [mkarchiso](https://gitlab.archlinux.org/archlinux/archiso) and [mkinitcpio](https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio) utilities. They made the creation of this project much easier.
+Huge thanks to the Arch Linux development team for their awesome distribution, [archiso](https://gitlab.archlinux.org/archlinux/archiso) and [mkinitcpio](https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio) utilities. They made the creation of this project much easier.
 
 [^1]: The registered trademark Linux® is used pursuant to a sublicense from LMI, the exclusive licensee of Linus Torvalds, owner of the mark on a world-wide basis.
 [^2]:Copyright © 2002-2024 Judd Vinet, Aaron Griffin and Levente Polyák.
