@@ -44,11 +44,8 @@ if [ -z "$password" ]; then
     exit 1
 fi
 
-# ???
-# shellcheck disable=SC2188
-> ./.tune_password_pattern_enc
-# shellcheck disable=SC2188
-> ./.tune_password_pattern_dec
+: > ./.tune_password_pattern_enc
+: > ./.tune_password_pattern_dec
 
 [ -f ./skuf_src/init ]  || cp -a "./skuf_src/init(untuned)" "./skuf_src/init"
 [ -f ./skuf_src/kinit ] || cp -a "./skuf_src/kinit(untuned)" "./skuf_src/kinit"

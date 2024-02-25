@@ -126,9 +126,7 @@ if [ -n "$MAX_SMB_RETRY_COUNT" ]; then
     sed -i 's|if ! retry_samba; then$|if ! retry_samba '"$MAX_SMB_RETRY_COUNT"'; then|' ./skuf_src/kinit
 fi
 
-# ???
-# shellcheck disable=SC2188
-> ./.defaults_mark
+: > ./.defaults_mark
 
 echo "Done."
 
