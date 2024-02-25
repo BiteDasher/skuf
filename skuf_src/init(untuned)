@@ -168,7 +168,7 @@ check_dhcpcd() {
         return 1
     fi
 
-    if ! echo "$dump" | grep -q -o "^ifcarrier=[\"']?up[\"']?$"; then
+    if ! echo "$dump" | grep -q -E -o "^ifcarrier=[\"']?up[\"']?$"; then
         echo "dhcpcd failed: no working carrier found"
         return 1
     fi
