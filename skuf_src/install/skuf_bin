@@ -7,7 +7,7 @@ build() {
     add_binary tty
     add_binary stty
     [ -x "$BUILDROOT/usr/bin/sed" ] || add_binary sed || return 1
-    add_binary grep
+    [ -x "$BUILDROOT/usr/bin/grep" ] || add_binary grep || return 1
     add_binary ip
     add_binary ping
     add_binary sysctl
