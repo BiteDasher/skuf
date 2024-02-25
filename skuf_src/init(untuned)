@@ -203,7 +203,15 @@ $dhcpv6_grep
 GREP
 
     case "$type_of_smbaddr" in
-        "ipv4"|"ipv4ll")
+        "ipv4")
+                if [ $ipv4 -gt 0 ]; then
+                    return 0
+                else
+                    echo "dhcpcd failed: IPv4 address not received"
+                    return 1
+                fi
+        ;;
+        "ipv4ll")
                 if [ $ipv4   -gt 0 ] || \
                    [ $ipv4ll -gt 0 ]; then
                     return 0
