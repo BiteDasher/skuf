@@ -55,6 +55,12 @@ plymouth_continue() {
     fi
 }
 
+flush_stdin() {
+    local unused
+    read -d '' -t 0.1 -n 9999 unused
+    unset unused
+}
+
 asshole_parse() {
     _sambaopts="$(grep -o 'skuf49=.*:')"
     if [ -n "$_sambaopts" ]; then

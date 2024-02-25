@@ -48,6 +48,12 @@ ___() {
     fi
 }
 
+flush_stdin() {
+    local unused
+    read -d '' -t 0.1 -n 9999 unused
+    unset unused
+}
+
 check_smbusername() {
     if [ "$smbusername" == "$sep" ]; then
         return 1
@@ -641,6 +647,9 @@ retry_samba() {
         smbvolumepath="$uq_smbvolumepath"
         smbvolumefilename="$uq_smbvolumefilename"
         smbswapfilename="$uq_smbswapfilename"
+
+        flush_stdin
+
         while ! check_smbusername2; do
             read -e -p "Login:                  $ylw" \
                     re_smbusername
