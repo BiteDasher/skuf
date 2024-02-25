@@ -238,7 +238,7 @@ GREP
 }
 
 get_dhcp() {
-    local i interface x="0" sleepsec=5 fail2start=0
+    local i interface x=0 sleepsec=5 fail2start=0
 
     for i in /sys/class/net/*; do
         interface="${i##*/}"
