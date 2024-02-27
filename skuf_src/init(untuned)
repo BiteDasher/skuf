@@ -57,7 +57,7 @@ plymouth_continue() {
 
 flush_stdin() {
     local unused
-    read -d '' -t 0.1 -n 9999 unused
+    read -r -d '' -t 0.1 -n 9999 unused
     unset unused
 }
 
