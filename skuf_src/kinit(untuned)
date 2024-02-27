@@ -184,8 +184,11 @@ check_smbvolumepath() {
         return 1
     fi
     if [ -z "$smbvolumepath" ]; then
-        return 0
+        echo -e "  \e[1;31m! Path to folder missing\e[0m"
+        return 1
     fi
+
+    return 0
 }
 
 check_smbvolumefilename() {
