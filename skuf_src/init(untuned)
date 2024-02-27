@@ -460,6 +460,10 @@ copy_dhcpcd_data() {
     done
 }
 
+save_version() {
+    echo "$skuf_version" | install -Dm644 /dev/stdin /run/skuf_version
+}
+
 swapon_samba() {
     local devloop
 
@@ -626,6 +630,7 @@ plymouth_show_msg "Checking if the swap needs to be activated\n90%"
 swapon_samba
 
 plymouth_show_msg "Booting...\n100%"
+save_version
 
 # We rely on word splitting
 # shellcheck disable=SC2086

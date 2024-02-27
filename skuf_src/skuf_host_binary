@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# SKUF Network Boot System
+gray="$(echo -e "\e[0;37m")"
+blue="$(echo -e "\e[0;34m")"
+redd="$(echo -e "\e[0;31m")"
+grnd="$(echo -e "\e[0;32m")"
+grnb="$(echo -e "\e[1;32m")"
+ylwu="$(echo -e "\e[4;33m")"
+rest="$(echo -e "\e[0m"   )"
+
+lines=()
+lines+=("  $gray          __         ____ $rest  ")
+lines+=("  $gray    _____/ /____  __/ __/ $rest  ")
+lines+=("  $blue   / ___/ //_/ / / / /_   $rest  ")
+lines+=("  $blue  (__  ) ,< / /_/ / __/   $rest  ")
+lines+=("  $redd /____/_/|_|\__,_/_/      $rest  ")
+lines+=("  $redd                          $rest  ")
+
+booted_up_version="$(cat "/run/skuf_version" 2>/dev/null)"
+installed_version="$(cat "/usr/lib/initcpio/skuf_data/skuf_version" 2>/dev/null)"
+
+if [ -t 1 ]; then
+    for line in "${lines[@]}"; do
+        echo "$line"
+    done
+
+    if [ -n "$booted_up_version" ]; then
+        btext="${grnb}${booted_up_version}${rest}"
+    else
+        btext="${ylwu}! Could not find the booted up version${rest}"
+    fi
+
+    if [ -n "$installed_version" ]; then
+        itext="${grnd}${installed_version}${rest}"
+    else
+        itext="${ylwu}! Could not find the installed version${rest}"
+    fi
+
+    echo "Booted up version: ${btext}"
+    echo "Installed version: ${itext}"
+else
+    echo "skuf_booted_up=${booted_up_version}"
+    echo "skuf_installed=${installed_version}"
+fi
+
+# vim: set ft=sh ts=4 sw=4 et:

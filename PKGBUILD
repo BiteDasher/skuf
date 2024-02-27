@@ -49,6 +49,8 @@ package() {
     install -m644 -t "$pkgdir"/usr/lib/initcpio/skuf_data/dhcp ./dhcp/resolv.conf.tail
     install -m700 -t "$pkgdir"/usr/lib/initcpio/skuf_data init kinit
     install -m755 -t "$pkgdir"/usr/lib/initcpio/skuf_data notinit
+    install -Dm755 skuf_host_binary "$pkgdir"/usr/bin/skuf
+    echo "$pkgver" | install -Dm644 /dev/stdin "$pkgdir"/usr/lib/initcpio/skuf_data/skuf_version
     for __xfile in ./hooks/*; do
         install -m644 -t "$pkgdir"/usr/lib/initcpio/hooks "$__xfile"
     done
