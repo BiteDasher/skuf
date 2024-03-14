@@ -464,6 +464,11 @@ save_version() {
     echo "$skuf_version" | install -Dm644 /dev/stdin /run/skuf_version
 }
 
+sysctl_tuning() {
+    sysctl -q -w vm.dirty_background_ratio=10 \
+                 vm.dirty_ratio=40
+}
+
 swapon_samba() {
     local devloop
 
@@ -476,10 +481,7 @@ swapon_samba() {
             launch_interactive_shell
         fi
 
-        sysctl -q -w vm.swappiness=2 \
-                     vm.dirty_writeback_centisecs=1000 \
-                     vm.dirty_background_ratio=3 \
-                     vm.dirty_ratio=40
+        sysctl -q -w vm.swappiness=5
 
         if ! swapon "$devloop"; then
             echo "Failed to swapon $devloop!"
@@ -620,11 +622,12 @@ fsck_in_samba
 plymouth_show_msg "Mounting root file system\n70%"
 mount_newroot
 
-plymouth_show_msg "Copying resolv.conf\n75%"
+plymouth_show_msg "Copying resolv.conf and dhcpcd data\n75%"
 copy_resolvconf
-
-plymouth_show_msg "Copying dhcpcd data\n80%"
 copy_dhcpcd_data
+
+plymouth_show_msg "Tuning sysctl variables\n80%"
+sysctl_tuning
 
 plymouth_show_msg "Checking if the swap needs to be activated\n90%"
 swapon_samba
