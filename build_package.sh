@@ -43,6 +43,7 @@ backtome="$(realpath .)"
 install -d -m 755 ./work/package
 tar --create ./skuf_src --numeric-owner --owner=0 --group=0 --format=ustar -f /tmp/mkinitcpio.tar
 install -m 644 ./PKGBUILD ./work/package/PKGBUILD
+install -m 644 ./skuf.install ./work/package/skuf.install
 pushd ./work/package
 makepkg -sr --noconfirm
 

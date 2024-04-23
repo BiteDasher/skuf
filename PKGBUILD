@@ -26,6 +26,7 @@ conflicts=('mkinitcpio'
            'mdadm<4.3-2'
            'lvm2<2.03.23-3')
 
+install=skuf.install
 backup=('etc/mkinitcpio.conf')
 source=("file:///tmp/mkinitcpio.tar"
         "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.gz")
@@ -64,6 +65,8 @@ package() {
     done
     install -m644 mkinitcpio.conf "$pkgdir"/etc/mkinitcpio.conf
     install -m644 hook.preset "$pkgdir"/usr/share/mkinitcpio/hook.preset
+    install -Dm644 skuf-dummy-network-trigger.service "$pkgdir"/usr/lib/systemd/system/skuf-dummy-network-trigger.service
+    [ -f ./10-skuf.systemd_preset ] && install -Dm644 10-skuf.systemd_preset "$pkgdir"/usr/lib/systemd/system-preset/10-skuf.preset
 
     set +x
     popd

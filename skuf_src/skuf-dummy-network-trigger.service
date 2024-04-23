@@ -1,0 +1,15 @@
+[Unit]
+Description=Dummy trigger for network.target and network-online.target
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=network-pre.target
+Before=network.target network-online.target shutdown.target
+Wants=network.target network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

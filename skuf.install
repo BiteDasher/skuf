@@ -1,0 +1,16 @@
+#!/bin/sh
+
+post_install() {
+	[ -e /etc/skuf_iso ] && return 0
+	systemctl preset skuf-dummy-network-trigger.service
+}
+
+post_upgrade() {
+	[ -e /etc/skuf_iso ] && return 0
+	systemctl preset skuf-dummy-network-trigger.service
+}
+
+pre_remove() {
+	systemctl disable skuf-dummy-network-trigger.service
+	true
+}
