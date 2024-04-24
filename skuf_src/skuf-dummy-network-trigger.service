@@ -4,12 +4,13 @@ DefaultDependencies=no
 Conflicts=shutdown.target
 After=network-pre.target
 Before=network.target network-online.target shutdown.target
-Wants=network.target network-online.target
+ConditionKernelCommandLine=skuf49
+OnSuccess=network.target network-online.target
 
 [Service]
 Type=oneshot
 ExecStart=/bin/true
-RemainAfterExit=yes
+RemainAfterExit=no
 
 [Install]
 WantedBy=multi-user.target
