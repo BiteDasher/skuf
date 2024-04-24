@@ -465,7 +465,7 @@ save_version() {
 }
 
 sysctl_tuning() {
-    sysctl -q -w vm.dirty_background_ratio=10 \
+    sysctl -q -w vm.dirty_background_bytes=67108864 \
                  vm.dirty_ratio=40
 }
 
