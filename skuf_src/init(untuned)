@@ -62,7 +62,7 @@ flush_stdin() {
 }
 
 asshole_parse() {
-    _sambaopts="$(grep -E -o '(^|[[:space:]]+)skuf49=.*:' | sed 's/^[[:space:]]*//')"
+    _sambaopts="$(grep -E -o '(^|[[:space:]]+)skuf49=.*:' | sed 's/^[[:space:]]*//;$!d')"
     if [ -n "$_sambaopts" ]; then
     ################################
 
