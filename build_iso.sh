@@ -52,9 +52,9 @@ rm -f ./work/mkarchiso
 set +e
 set +x
 
-if grep -o '^[[:blank:]]*mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"' -- "$(command -v mkarchiso)" &>/dev/null; then
+if grep -o '^[[:space:]]*mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"' -- "$(command -v mkarchiso)" &>/dev/null; then
     cp -a -- "$(command -v mkarchiso)" ./work/mkarchiso
-    sed -i 's/\(^[[:blank:]]*\)mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"/\1: /' ./work/mkarchiso
+    sed -i 's/\(^[[:space:]]*\)mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"/\1: /' ./work/mkarchiso
 else
     echo "Attention: the 'mkarchiso' executable is missing the line responsible for creating airootfs. The 'mkarchiso' file may have been updated and this line has been replaced with another one. The possible result of this action is in increase the size of the image by approximately 5 times. If you agree to the possible consequences - continue. If not, press Ctrl+C in next 15 seconds."
     echo "Missing line:"
