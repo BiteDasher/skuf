@@ -31,6 +31,28 @@ initramfspath="$sep"
 interface_list=
 sambaopts=
 
+skuf_skip=
+maybe_skip=0
+# SKUF_PRESETS_START #
+preset_smbusername=
+preset_smbpassword=
+preset_smbaddr=
+preset_smbport=
+preset_smbversion=
+preset_smbdomain=
+preset_smbvolumepath=
+preset_smbvolumefilename=
+preset_smbswapfilename=
+preset_smbmountopts=
+preset_newrootmountopts=
+preset_newrootfsck=
+preset_kernelopts=
+preset_kernelpath=
+preset_initramfspath=
+preset_smbretry=
+preset_skip=
+# SKUF_PRESETS_END #
+
 display_version() {
     local letter1="$(( RANDOM % 7 ))"
     local letter2="$(( RANDOM % 7 ))"
@@ -95,25 +117,35 @@ check_smbpassword2() {
 }
 
 read_smbpassword() {
-    local password charcount prompt char
+    local password charcount prompt char i=1
 
     echo -n "Password:               $ylw"
 
-    charcount=0
+    if [ -n "$preset_smbpassword" ] && [ "$1" != "retry" ]; then
+        charcount="${#preset_smbpassword}"
+        password="$preset_smbpassword"
+        while [ $i -le $charcount ]; do
+            prompt="${prompt}*"
+            i=$(( i + 1 ))
+        done
+    else
+        charcount=0
+    fi
+
     while IFS= read -p "$prompt" -r -s -n 1 char; do
         if [[ $char == $'\0' ]]; then
             break
         fi
         if [[ $char == $'\177' ]] || [[ $char == $'\010' ]]; then
             if [ $charcount -gt 0 ]; then
-                charcount=$((charcount-1))
+                charcount=$(( charcount - 1 ))
                 prompt=$'\b \b'
                 password="${password%?}"
             else
                 prompt=''
             fi
         else
-            charcount=$((charcount+1))
+            charcount=$(( charcount + 1 ))
             prompt='*'
             password="${password}${char}"
         fi
@@ -314,6 +346,211 @@ check_initramfspath() {
     esac
 }
 
+translate_preset_var() {
+    case "$1" in
+        "")
+            echo X
+        ;;
+        "SAMBA_USERNAME"|"samba_username")
+            echo "smbusername"
+        ;;
+        "SAMBA_PASSWORD"|"samba_password")
+            echo "smbpassword"
+        ;;
+        "SAMBA_ADDRESS"|"samba_address")
+            echo "smbaddr"
+        ;;
+        "SAMBA_PORT"|"samba_port")
+            echo "smbport"
+        ;;
+        "SAMBA_VERSION"|"samba_version")
+            echo "smbversion"
+        ;;
+        "SAMBA_DOMAIN"|"samba_domain")
+            echo "smbdomain"
+        ;;
+        "VOLUME_PATH"|"volume_path")
+            echo "smbvolumepath"
+        ;;
+        "VOLUME_FILENAME"|"volume_filename")
+            echo "smbvolumefilename"
+        ;;
+        "SWAP_FILENAME"|"swap_filename")
+            echo "smbswapfilename"
+        ;;
+        "SAMBA_EXTRA_MOUNT_OPTS"|"samba_extra_mount_opts")
+            echo "smbmountopts"
+        ;;
+        "VOLUME_EXTRA_MOUNT_OPTS"|"volume_extra_mount_opts")
+            echo "newrootmountopts"
+        ;;
+        "CHECK_FS"|"check_fs")
+            echo "newrootfsck"
+        ;;
+        "EXTRA_KERNEL_OPTS"|"extra_kernel_opts")
+            echo "kernelopts"
+        ;;
+        "PATH_TO_NEW_KERNEL"|"path_to_new_kernel")
+            echo "kernelpath"
+        ;;
+        "PATH_TO_NEW_INITRAMFS"|"path_to_new_initramfs")
+            echo "initramfspath"
+        ;;
+        "MAX_SMB_RETRY_COUNT"|"max_smb_retry_count")
+            echo "smbretry"
+        ;;
+        *)
+            echo X
+        ;;
+    esac
+}
+
+process_single_presets() {
+    local grep evalvar evalname evalvalue
+
+    grep="$(grep -E -o "(^|[[:space:]]+)skuf\.(samba_username|samba_password|samba_address|samba_port|samba_version|samba_domain|volume_path|volume_filename|swap_filename|samba_extra_mount_opts|check_fs|extra_kernel_opts|path_to_new_kernel|path_to_new_initramfs|max_smb_retry_count|SAMBA_USERNAME|SAMBA_PASSWORD|SAMBA_ADDRESS|SAMBA_PORT|SAMBA_VERSION|SAMBA_DOMAIN|VOLUME_PATH|VOLUME_FILENAME|SWAP_FILENAME|SAMBA_EXTRA_MOUNT_OPTS|CHECK_FS|EXTRA_KERNEL_OPTS|PATH_TO_NEW_KERNEL|PATH_TO_NEW_INITRAMFS|MAX_SMB_RETRY_COUNT)=(\"(\\\\\"|[^\"])*\"|'(\\\'|[^'])*'|(\\\ |[^[:space:]])*)" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//')"
+
+    [ -n "$grep" ] || return 1
+
+    while read -r evalvar; do
+        evalname="${evalvar%%=*}"
+        evalname="${evalname#skuf\.}"
+        evalname="$(translate_preset_var "$evalname")"
+
+        evalvalue="${evalvar#*=}"
+        case "$evalvalue" in
+            \'*\')
+                evalvalue="${evalvalue#\'}"
+                evalvalue="${evalvalue%\'}"
+                evalvalue="${evalvalue//\\\'/\'}"
+            ;;
+            \"*\")
+                evalvalue="${evalvalue#\"}"
+                evalvalue="${evalvalue%\"}"
+                evalvalue="${evalvalue//\\\"/\"}"
+            ;;
+            *)
+                evalvalue="${evalvalue//\\ / }"
+            ;;
+        esac
+
+        eval 'preset_'"$evalname"'="$evalvalue"'
+    done <<EOF
+$grep
+EOF
+
+    return 0
+}
+
+process_skip() {
+    local grep cutted
+
+    case "$preset_skip" in
+        "")
+            skuf_skip=0
+        ;;
+        1|Y|y|Yes|yes|Д|д|Да|да)
+            skuf_skip=1
+        ;;
+        0|N|n|No|no|Н|н|Нет|нет)
+            skuf_skip=0
+        ;;
+        *)
+            skuf_skip=0
+        ;;
+    esac
+
+    grep="$(grep -E -o "(^|[[:space:]]+)skuf\.(skip|SKIP)($|[[:space:]]|=[^[:space:]]*($)?)" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;$!d')"
+    case "$grep" in
+        "")
+            maybe_skip=1
+        ;;
+        "skuf.skip"|"skuf.SKIP")
+            skuf_skip=1
+        ;;
+        "skuf.skip="*|"skuf.SKIP="*)
+            cutted="${grep#*=}"
+            cutted="${cutted//[\"\']/}"
+            case "$cutted" in
+                "")
+                    maybe_skip=1
+                ;;
+                1|Y|y|Yes|yes|Д|д|Да|да)
+                    skuf_skip=1
+                ;;
+                0|N|n|No|no|Н|н|Нет|нет)
+                    skuf_skip=0
+                ;;
+                *)
+                    maybe_skip=1
+                ;;
+            esac
+        ;;
+    esac
+}
+
+process_presets() {
+    local creds everything i skip_wish=0
+
+    if process_single_presets "${1:-/proc/cmdline}"; then
+        [ "$maybe_skip" == 1 ] && skip_wish=1
+    fi
+
+    creds="$(grep -E -o "(^|[[:space:]]+)\[.*;.*\]$" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//;$!d')"
+    if [ -n "$creds" ]; then
+        creds="${creds#\[}"
+        creds="${creds%\]}"
+        preset_smbusername="${creds%%;*}"
+        preset_smbpassword="${creds#*;}"
+        [ "$maybe_skip" == 1 ] && skip_wish=1
+    fi
+
+    everything="$(grep -E -o "(^|[[:space:]]+)\{.*;.*\}$" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//;$!d')"
+    if [ -n "$everything" ]; then
+        everything="${everything#\{}"
+        everything="${everything%\}}"
+        everything="$(echo "$everything" | sed "s/\\\;/\\\\&/g;s/;/$sep/g;s/\\\\$sep/;/g;s/\\\;/;/g")"
+
+        for i in smbusername smbpassword smbaddr smbport smbversion smbdomain smbvolumepath smbvolumefilename smbswapfilename smbmountopts newrootmountopts newrootfsck kernelopts kernelpath initramfspath smbretry; do
+            eval 'preset_'"$i"'="${everything%%"$sep"*}"'
+            case "$everything" in *"$sep"*) : ;; *) break ;; esac
+            everything="${everything#*"${sep}"}" # cut
+        done
+
+        [ "$maybe_skip" == 1 ] && skip_wish=1
+    fi
+
+    if [ "$skip_wish" -eq 1 ]; then
+        if [ -n "$preset_smbusername"       ] && \
+           [ -n "$preset_smbpassword"       ] && \
+           [ -n "$preset_smbaddr"           ] && \
+           [ -n "$preset_smbvolumepath"     ] && \
+           [ -n "$preset_smbvolumefilename" ] && \
+           [ -n "$preset_kernelpath"        ] && \
+           [ -n "$preset_initramfspath"     ]; then
+            skuf_skip=1
+        fi
+    fi
+}
+
+apply_presets() {
+    smbusername="$preset_smbusername"
+    smbpassword="$preset_smbpassword"
+    smbaddr="$preset_smbaddr"
+    smbport="$preset_smbport"
+    smbversion="$preset_smbversion"
+    smbdomain="$preset_smbdomain"
+    smbvolumepath="$preset_smbvolumepath"
+    smbvolumefilename="$preset_smbvolumefilename"
+    smbswapfilename="$preset_smbswapfilename"
+    smbmountopts="$preset_smbmountopts"
+    newrootmountopts="$preset_newrootmountopts"
+    newrootfsck="$preset_newrootfsck"
+    kernelopts="$preset_kernelopts"
+    kernelpath="$preset_kernelpath"
+    initramfspath="$preset_initramfspath"
+}
+
 user_read() {
     local ylw="$(echo -e '\e[1;33m')"
     local blu="$(echo -e '\e[1;36m')"
@@ -322,7 +559,7 @@ user_read() {
 
     while ! check_smbusername; do
         read -e -p "Login:                  $ylw" \
-                smbusername
+                -i "$preset_smbusername" smbusername
         ___
     done
     while ! check_smbpassword; do
@@ -331,68 +568,68 @@ user_read() {
     done
     while ! check_smbaddr; do
         read -e -p "SAMBA server address:   $ylw" \
-                # SAMBA_ADDRESS #
+                -i "$preset_smbaddr" smbaddr
         ___
     done
     while ! check_smbport; do
         read -e -p "SAMBA server port:      $ylw" \
-                # SAMBA_PORT #
+                -i "$preset_smbport" smbport
         ___
     done
     while ! check_smbversion; do
         read -e -p "SAMBA protocol version: $ylw" \
-                # SAMBA_VERSION #
+                -i "$preset_smbversion" smbversion
         ___
     done
     while ! check_smbdomain; do
         read -e -p "SAMBA server domain:    $ylw" \
-                # SAMBA_DOMAIN #
+                -i "$preset_smbdomain" smbdomain
         ___
     done
     while ! check_smbvolumepath; do
         read -e -p "Path to your folder:    $ylw" \
-                # VOLUME_PATH #
+                -i "$preset_smbvolumepath" smbvolumepath
         ___
     done
     while ! check_smbvolumefilename; do
         read -e -p "Volume file name:       $ylw" \
-                # VOLUME_FILENAME #
+                -i "$preset_smbvolumefilename" smbvolumefilename
         ___
     done
     while ! check_smbswapfilename; do
         read -e -p "swap file name:         $ylw" \
-                # SWAP_FILENAME #
+                -i "$preset_smbswapfilename" smbswapfilename
         ___
     done
     while ! check_smbmountopts; do
         read -e -p "Extra SAMBA mount options:  $ylw" \
-                # SAMBA_EXTRA_MOUNT_OPTS #
+                -i "$preset_smbmountopts" smbmountopts
         ___
     done
     while ! check_newrootmountopts; do
         read -e -p "Extra volume mount options: $ylw" \
-                # VOLUME_EXTRA_MOUNT_OPTS #
+                -i "$preset_newrootmountopts" newrootmountopts
         ___
     done
     while ! check_newrootfsck; do
         read -e -p "Check volume FS? [Yes/no]:  $ylw" \
-                # CHECK_FS #
+                -i "$preset_newrootfsck" newrootfsck
         ___
     done
     while ! check_kernelopts; do
         read -e -p "Extra kernel parameters:    $ylw" \
-                # EXTRA_KERNEL_OPTS #
+                -i "$preset_kernelopts" kernelopts
         ___
     done
     echo '....................................'
     while ! check_kernelpath; do
         read -e -p "Path to new kernel:         $blu" \
-                # PATH_TO_NEW_KERNEL #
+                -i "$preset_kernelpath" kernelpath
         ___
     done
     while ! check_initramfspath; do
         read -e -p "Path to new initramfs:      $blu" \
-                # PATH_TO_NEW_INITRAMFS #
+                -i "$preset_initramfspath" initramfspath
         ___
     done
 
@@ -641,7 +878,7 @@ retry_samba() {
     local ylw="$(echo -e '\e[1;33m')"
     local i x=1
 
-    i="$1"
+    i="${preset_smbretry}"
 
     if [ -z "$i" ] || [ -n "${i//[0-9-]/}" ]; then
         i=0
@@ -1019,7 +1256,15 @@ echo -ne '\r'
 
 display_version
 
-user_read
+process_skip
+
+process_presets
+
+if [ "$skuf_skip" == 1 ]; then
+    apply_presets
+else
+    user_read
+fi
 
 bring_lo_up
 

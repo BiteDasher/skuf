@@ -1,3 +1,5 @@
+SAMBA_USERNAME=""
+SAMBA_PASSWORD=""
 SAMBA_ADDRESS=""
 SAMBA_PORT=""
 SAMBA_VERSION=""
@@ -12,3 +14,6 @@ EXTRA_KERNEL_OPTS="mitigations=off splash"
 PATH_TO_NEW_KERNEL="/boot/vmlinuz-linux"
 PATH_TO_NEW_INITRAMFS="/boot/initramfs-linux.img"
 MAX_SMB_RETRY_COUNT="2"
+SKIP=""
+
+# vim: syntax=sh

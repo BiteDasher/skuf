@@ -18,6 +18,7 @@ rm -r -f -- ./work/*
 rm -f ./skuf_src/{rootfs.tar,init,kinit}
 rm -f ./.pkgname
 rm -f ./.tune_*
+rm -f ./.setup_defaults_*
 rm -f ./.defaults_mark
 
 # vim: set ft=sh ts=4 sw=4 et:
