@@ -880,7 +880,7 @@ retry_samba() {
 
     i="${preset_smbretry}"
 
-    if [ -z "$i" ] || [ -n "${i//[0-9-]/}" ]; then
+    if [ -z "$i" ] || [ -n "${i//[0-9]/}" ]; then
         i=0
     fi
 
