@@ -30,9 +30,15 @@ while read -r pair; do
     to="${pair##* }"
     if [ -z "$from" ] || [ -z "$to" ]; then
         echo "Missing pair!" >&2
-        rm -f ./skuf_src/{init,kinit}
         exit 1
     fi
+    case "${from}${to}" in
+        *[\^:]*)
+            echo "Characters '^' and ':' are forbidden to use" >&2
+            continue
+        ;;
+    esac
+
     echo "$from -> $to"
     cat <<EOF >> ./.tune_crypt_pattern_enc
     sambaoptsx="\${sambaoptsx//$from/^}" # SKUF_ENC_TUNED #
