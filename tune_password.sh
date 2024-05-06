@@ -44,6 +44,11 @@ if [ -z "$password" ]; then
     exit 1
 fi
 
+if ! echo "\"$password\"" | sh -n; then
+    echo "Password quoted incorrectly!" >&2
+    exit 1
+fi
+
 : > ./.tune_password_pattern_enc
 : > ./.tune_password_pattern_dec
 
@@ -51,7 +56,7 @@ fi
 [ -f ./skuf_src/kinit ] || cp -a "./skuf_src/kinit(untuned)" "./skuf_src/kinit"
 
 cat <<EOF > ./.tune_password_pattern_enc
-    sambaoptsx="\$(echo -n "\$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter $iter -base64 -A -k '$password' -in - -out -)" # SKUF_OPENSSL_ENC_RM #
+    sambaoptsx="\$(echo -n "\$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter $iter -base64 -A -k "$password" -in - -out -)" # SKUF_OPENSSL_ENC_RM #
 EOF
 
 cat <<EOF > ./.tune_password_pattern_dec
