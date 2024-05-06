@@ -579,18 +579,6 @@ else
 fi
 
 echo ''
-for i in 1 2 3; do
-    msg -ne '\rHello! \e[1;32m|\e[0m'
-    sleep 0.1
-    msg -ne '\rHello! \e[1;32m/\e[0m'
-    sleep 0.1
-    msg -ne '\rHello! \e[1;32m-\e[0m'
-    sleep 0.1
-    msg -ne '\rHello! \e[1;32m\\\e[0m'
-    sleep 0.1
-done
-msg -ne '\r         '
-msg -ne '\r'
 
 silence || {
     [ -f /banner_kexec ] && cat /banner_kexec

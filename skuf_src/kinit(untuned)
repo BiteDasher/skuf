@@ -1239,18 +1239,6 @@ else
 fi
 
 echo ''
-for i in 1 2 3; do
-    echo -ne '\rHello! \e[1;32m|\e[0m'
-    sleep 0.1
-    echo -ne '\rHello! \e[1;32m/\e[0m'
-    sleep 0.1
-    echo -ne '\rHello! \e[1;32m-\e[0m'
-    sleep 0.1
-    echo -ne '\rHello! \e[1;32m\\\e[0m'
-    sleep 0.1
-done
-echo -ne '\r         '
-echo -ne '\r'
 
 [ -f /banner_usb ] && cat /banner_usb
 
