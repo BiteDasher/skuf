@@ -1248,9 +1248,9 @@ itsquite || {
 
 itsquite || display_version
 
-process_skip
+process_skip /proc/cmdline
 
-process_presets
+process_presets /proc/cmdline
 
 if [ "$skuf_skip" == 1 ]; then
     apply_presets
