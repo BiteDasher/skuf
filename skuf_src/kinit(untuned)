@@ -511,7 +511,7 @@ process_presets() {
         everything="${everything%\}}"
         everything="$(echo "$everything" | sed "s/\\\;/\\\\&/g;s/;/$sep/g;s/\\\\$sep/;/g;s/\\\;/;/g")"
 
-        for i in smbusername smbpassword smbaddr smbport smbversion smbdomain smbvolumepath smbvolumefilename smbswapfilename smbmountopts newrootmountopts newrootfsck kernelopts kernelpath initramfspath smbretry; do
+        for i in smbusername smbpassword smbaddr smbport smbversion smbdomain smbvolumepath smbvolumefilename smbswapfilename smbmountopts newrootmountopts newrootfsck kernelopts kernelpath initramfspath; do
             eval 'preset_'"$i"'="${everything%%"$sep"*}"'
             case "$everything" in *"$sep"*) : ;; *) break ;; esac
             everything="${everything#*"${sep}"}" # cut
