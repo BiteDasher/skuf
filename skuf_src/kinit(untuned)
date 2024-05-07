@@ -1060,7 +1060,6 @@ unpack_switch() {
 }
 
 prepare_kexec() {
-    msg "[] Preparing kexec"
     msg "[] Loading kernel and initramfs into RAM"
 
     if ! /switch/bin/kexec -l "/new_root${kernelpath}" --initrd="/new_root${initramfspath}" --command-line="${kernelopts}${sambaopts}" --console-vga --reset-vga; then
@@ -1071,8 +1070,6 @@ prepare_kexec() {
 }
 
 prepare_switch() {
-    msg "[] Preparing environment for switch_root"
-
     ln -sfT /proc/self/mounts /switch/etc/mtab
 
     msg "[] Editing kexec script"
