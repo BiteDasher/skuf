@@ -577,11 +577,7 @@ fi
 # In case we using rdlogger
 #exec 0</dev/console 1>/dev/console 2>/dev/console
 
-if [ -e "/etc/inputrc" ]; then
-    set -o emacs
-else
-    :
-fi
+[ -e "/etc/inputrc" ] && set -o emacs
 
 msg ''
 
