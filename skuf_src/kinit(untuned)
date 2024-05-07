@@ -524,7 +524,7 @@ process_presets() {
         [ "$maybe_skip" == 1 ] && skip_wish=1
     fi
 
-    if [ "$skip_wish" -eq 1 ]; then
+    if [ $skip_wish -eq 1 ]; then
         if [ -n "$preset_smbusername"       ] && \
            [ -n "$preset_smbpassword"       ] && \
            [ -n "$preset_smbaddr"           ] && \
