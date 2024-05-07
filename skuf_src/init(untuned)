@@ -583,7 +583,7 @@ else
     :
 fi
 
-echo ''
+msg ''
 
 silence || {
     [ -f /banner_kexec ] && cat /banner_kexec

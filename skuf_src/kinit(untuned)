@@ -62,6 +62,10 @@ display_version() {
     echo -e "\e[1;3${letter1}mS\e[0m\e[1;3${letter2}mK\e[0m\e[1;3${letter3}mU\e[0m\e[1;3${letter4}mF\e[0m v${skuf_version}"
 }
 
+itsquiet() {
+    [ "${quiet}" == "y" ]
+}
+
 ___() {
     if [ "$1" == "_" ]; then
         echo -e '\e[0m'
@@ -637,14 +641,14 @@ user_read() {
 }
 
 bring_lo_up() {
-    echo "[] Bringing UP 'lo' network interface"
+    msg "[] Bringing UP 'lo' network interface"
     ip link set lo up
 }
 
 shutdown_interfaces() {
     local i
 
-    echo "[] Bringing DOWN network interfaces"
+    msg "[] Bringing DOWN network interfaces"
 
     ip addr flush dev lo
     ip link set lo down
@@ -800,7 +804,7 @@ get_dhcp() {
         launch_interactive_shell --exec
     fi
 
-    echo "[] Obtaining IP address via DHCP"
+    msg "[] Obtaining IP address via DHCP"
 
     type_of_smbaddr="$(get_smbaddr_type)"
     case "$type_of_smbaddr" in "zeroconf"|"ipv4ll")
@@ -808,8 +812,8 @@ get_dhcp() {
         sed -i 's/^noipv4ll$/# noipv4ll #/' /etc/dhcpcd.conf ;;
     esac
     ###################################
-    if dhcpcd --allowinterfaces 'eth* en*'; then
-        echo "-> dhcpcd forked. Sleeping $sleepsec seconds..."
+    if dhcpcd $(itsquite && echo "-q") --allowinterfaces 'eth* en*'; then
+        msg "-> dhcpcd forked. Sleeping $sleepsec seconds..."
         sleep "$sleepsec"
     else
         fail2start=1
@@ -817,15 +821,15 @@ get_dhcp() {
     ###################################
     if [ $fail2start -eq 1 ] || ! check_dhcpcd; then
         # We should try again
-        echo "-> dhcpcd failed. Trying again..."
+        msg "-> dhcpcd failed. Trying again..."
         sleep 1
-        dhcpcd -x
+        dhcpcd $(itsquite && echo "-q -q") -x
         fail2start=0
         # For buggy IPv6 RA
         sed -i 's/^# ipv6ra_fork #$/ipv6ra_fork/' /etc/dhcpcd.conf
         ###################################
-        if dhcpcd --allowinterfaces 'eth* en*'; then
-            echo "-> dhcpcd forked. Sleeping $sleepsec seconds..."
+        if dhcpcd $(itsquite && echo "-q") --allowinterfaces 'eth* en*'; then
+            msg "-> dhcpcd forked. Sleeping $sleepsec seconds..."
             sleep "$sleepsec"
         else
             fail2start=1
@@ -843,7 +847,7 @@ get_dhcp() {
 }
 
 quirk_vars() {
-    echo "[] Quirking variables"
+    msg "[] Quirking variables"
 
     uq_smbvolumepath="$smbvolumepath"
     smbvolumepath="${smbvolumepath//@u@/${smbusername/@*/}}"
@@ -925,7 +929,7 @@ retry_samba() {
         [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
         [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
 
-        echo "[] Remounting SAMBA"
+        msg "[] Remounting SAMBA"
 
         if PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
             return 0
@@ -946,7 +950,7 @@ mount_samba() {
     [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
     [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
 
-    echo "[] Mounting SAMBA"
+    msg "[] Mounting SAMBA"
 
     if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
         if ! retry_samba; then
@@ -1004,7 +1008,7 @@ fsck_in_samba() {
 mount_newroot() {
     local newrootmountoptsx
 
-    echo "[] Mounting volume"
+    msg "[] Mounting volume"
 
     if [ -n "$newrootmountopts" ]; then
         newrootmountoptsx=",$newrootmountopts"
@@ -1028,7 +1032,7 @@ mount_newroot() {
 setup_sambaopts() {
     local sambaoptsx
 
-    echo "[] Building and encrypting /proc/cmdline"
+    msg "[] Building and encrypting /proc/cmdline"
 
     sambaoptsx="${smbaddr}${sep}${smbport}${sep}${smbversion}${sep}${smbdomain}${sep}${smbusername}${sep}${smbpassword}${sep}${uq_smbvolumepath}${sep}${uq_smbvolumefilename}${sep}${uq_smbswapfilename}${sep}${smbmountopts}${sep}${newrootmountopts}${sep}${newrootfsck}"
     # SKUF_OPENSSL_ENC #
@@ -1048,7 +1052,7 @@ setup_kernelopts() {
 }
 
 unpack_switch() {
-    echo "[] Unpacking environment for switch_root"
+    msg "[] Unpacking environment for switch_root"
 
     mount -t tmpfs switch /switch -o size=5M
 
@@ -1056,8 +1060,8 @@ unpack_switch() {
 }
 
 prepare_kexec() {
-    echo "[] Preparing kexec"
-    echo "[] Loading kernel and initramfs into RAM"
+    msg "[] Preparing kexec"
+    msg "[] Loading kernel and initramfs into RAM"
 
     if ! /switch/bin/kexec -l "/new_root${kernelpath}" --initrd="/new_root${initramfspath}" --command-line="${kernelopts}${sambaopts}" --console-vga --reset-vga; then
         echo "Failed to load kernel and initramfs to RAM!"
@@ -1067,11 +1071,11 @@ prepare_kexec() {
 }
 
 prepare_switch() {
-    echo "[] Preparing environment for switch_root"
+    msg "[] Preparing environment for switch_root"
 
     ln -sfT /proc/self/mounts /switch/etc/mtab
 
-    echo "[] Editing kexec script"
+    msg "[] Editing kexec script"
 
     cat <<'SWITCHEOF' >> /switch/init
 export PATH=/bin
@@ -1141,7 +1145,7 @@ SWITCHEOF
 }
 
 unmount_stuff() {
-    echo "[] Unmounting volume and SAMBA"
+    msg "[] Unmounting volume and SAMBA"
     umount /new_root
     sleep 1
     umount /samba
@@ -1149,12 +1153,12 @@ unmount_stuff() {
 }
 
 kill_dhcp_client() {
-    echo "[] Shutting down dhcpcd"
-    dhcpcd -x
+    msg "[] Shutting down dhcpcd"
+    dhcpcd $(itsquite && echo "-q -q") -x
 }
 
 perform_kexec() {
-    echo "[!] Executing new kernel"
+    msg "[!] Executing new kernel"
 
     exec env -i TERM="$TERM" SHELL=/bin/ash switch_root \
          /switch /init
@@ -1243,11 +1247,13 @@ else
     :
 fi
 
-echo ''
+msg ''
 
-[ -f /banner_usb ] && cat /banner_usb
+itsquite || {
+    [ -f /banner_usb ] && cat /banner_usb
+}
 
-display_version
+itsquite || display_version
 
 process_skip
 
@@ -1287,12 +1293,12 @@ kill_dhcp_client
 
 shutdown_interfaces
 
-echo "[] Finishing some late work"
+msg "[] Finishing some late work"
 # We rely on word splitting
 # shellcheck disable=SC2086
 run_hookfunctions 'run_latehook' 'late hook' $LATEHOOKS
 
-echo "[] Doing some cleanup"
+msg "[] Doing some cleanup"
 # We rely on word splitting
 # shellcheck disable=SC2086
 run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS

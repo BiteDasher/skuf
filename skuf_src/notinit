@@ -11,6 +11,10 @@ display_version() {
     echo -e "\e[1;3${letter1}mS\e[0m\e[1;3${letter2}mK\e[0m\e[1;3${letter3}mU\e[0m\e[1;3${letter4}mF\e[0m v${skuf_version}"
 }
 
+itsquiet() {
+    [ "${quiet}" == "y" ]
+}
+
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/bin'
 
 udevd_running=0
@@ -19,6 +23,19 @@ init=/sbin/init
 rd_logmask=0
 
 . /init_functions
+
+unset -f launch_interactive_shell
+# shellcheck disable=SC2120
+launch_interactive_shell() {
+    export PS1='[rootfs \W]\$ '
+
+    # explicitly redirect to /dev/console in case we're logging. note that
+    # anything done in the rescue shell will NOT be logged.
+    {
+        [ "$1" = "--exec" ] && exec bash -i
+        bash -i
+    } 0</dev/console 1>/dev/console 2>/dev/console
+}
 
 unset -f msg
 msg() {
@@ -41,6 +58,8 @@ disablehooks="$(getarg disablehooks)"
 for d in ${disablehooks//,/ }; do
     [ -e "/hooks/$d" ] && chmod 644 "/hooks/$d"
 done
+
+[ -x "/hooks/plymouth" ] && chmod 644 "/hooks/plymouth"
 
 # shellcheck disable=SC1091
 . /config
@@ -75,7 +94,9 @@ fi
 exec 0</dev/console 1>/dev/console 2>/dev/console
 echo -ne '\e[J'
 
-display_version
+msg ''
+
+itsquite || display_version
 
 # We rely on word splitting
 # shellcheck disable=SC2086
