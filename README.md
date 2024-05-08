@@ -69,7 +69,7 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 - `kernel-api-headers`
 - `kernel-headers-musl`
 
-###  Build instructions
+### Build instructions
 
 Clone this repository using git:
 ```
@@ -135,23 +135,80 @@ I O
 ### Defaults setup
 When you booted up the `skuflinux` ISO image from your media device, you will be asked questions like: SMB server address, SMB server port, SMB protocol version and so on. Edit the `defaults` file if you want to preset them manually.
 
-Table of SKUF variables:
+Table of main SKUF variables:
 |Variable|Meaning|
 |:---|:---|
-|`SAMBA_ADDRESS`|Address of the SMB server where the client directory with the `Arch Linux` image is located|
+|`SAMBA_USERNAME`|Username for the SMB server \*|
+|`SAMBA_PASSWORD`|User password for the SMB server \*|
+|`SAMBA_ADDRESS`|Address of the SMB server where the client directory with the `Arch Linux` image is located \*|
 |`SAMBA_PORT`|SMB server port|
 |`SAMBA_VERSION`|SMB server protocol version|
 |`SAMBA_DOMAIN`|Domain for the SMB server (default domain is `WORKGROUP`)|
-|`VOLUME_PATH`|Path to the directory on the SMB server where the client Arch Linux image volume and swap file are located(see [Tips and Tricks](#tips-and-tricks))|
-|`VOLUME_FILENAME`|Arch Linux image volume name that is located in `VOLUME_PATH`|
+|`VOLUME_PATH`|Path to the directory on the SMB server where the client Arch Linux image volume and swap file are located(see [Tips and Tricks](#tips-and-tricks)) \*|
+|`VOLUME_FILENAME`|Arch Linux image volume name that is located in `VOLUME_PATH` \*|
 |`SWAP_FILENAME`|swap file name that is located in `VOLUME_PATH`|
 |`SAMBA_EXTRA_MOUNT_OPTS`|Additional SMB mount options. Applies to both [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and [step 2](#Step-2-Re-mounting-SMB-and-running-system) of SKUF boot process|
 |`VOLUME_EXTRA_MOUNT_OPTS`|Additional client Arch Linux image volume mount options. Applies to both [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and [step 2](#Step-2-Re-mounting-SMB-and-running-system) of SKUF boot process|
 |`CHECK_FS`|Whether to check the integrity of a file system image with Arch Linux. Accepts `Yes` or `No`. Applies only to [step 2](#Step-2-Re-mounting-SMB-and-running-system)|
 |`EXTRA_KERNEL_OPTS`|Additional linux kernel options|
-|`PATH_TO_NEW_KERNEL`|Path to the new kernel that will be loaded using kexec. The new kernel must be in the Arch Linux image that is lies on SMB server|
-|`PATH_TO_NEW_INITRAMFS`|Path to the new initramfs that will be loaded using kexec alongside kernel. The new initramfs must be in the Arch Linux image that is lies on SMB server|
+|`PATH_TO_NEW_KERNEL`|Path to the new kernel that will be loaded using kexec. The new kernel must be in the Arch Linux image that is lies on SMB server \*|
+|`PATH_TO_NEW_INITRAMFS`|Path to the new initramfs that will be loaded using kexec alongside kernel. The new initramfs must be in the Arch Linux image that is lies on SMB server \*|
+---
+Table of auxiliary SKUF variables:
+|Variable|Meaning|
+|:---|:---|
 |`MAX_SMB_RETRY_COUNT`|Maximum number of attempts to re-enter SMB credentials if the first mount attempt failed. Applies only to [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server)|
+|`SKIP`|Automate the startup process. Set to `0` or *nothing* if you want to achieve the default behavior of having to enter answers to questions using keyboard. Set to `1` if you want the startup to proceed without your participation. Be sure you have set all the mandatory variables! Applies to [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server)|
+> [!NOTE]
+> "Mandatory" variables are marked with an **asterisk** at the end.
+
+### Presets using bootloader (iMac with wireless keyboard)
+If you need to change any [presets](#Defaults-setup) before booting into **SKUF**, you can change the bootable kernel parameters through the bootloader. This can be useful when you have, for example, an **iMac with a wireless keyboard** that only works in `EFI` applications.
+The way to change kernel parameters depends on the bootloader:
+- `syslinux`: hit <kbd>Tab</kbd> and start typing
+- `grub2`: select entry in menu and click <kbd>e</kbd> to open editor
+- `systemd-boot`: click <kbd>e</kbd> and start typing
+
+#### 1. Set presets using variables
+
+You can specify presets using one or more kernel variables like this:
+```
+skuf.samba_username="Username with spaces"
+skuf.SAMBA_PASSWORD='Password \' with character escaping'
+skuf.VOLUME_PATH=Path\ with\ spaces
+skuf.skip=1
+```
+The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF variable table](#Defaults-setup) in lower or upper case.
+> [!NOTE]
+> As you can see, you can use `'single quotes'` as well as `"double quotes"`. If you use single quotes, you must escape other single quotes with a backslash. In the case of double quotes, you must escape double quotes. In case you do not use quotation marks you need to escape spaces with backslash.
+
+#### 2. Set presets using curly or square brackets at the end of kernel parameters
+
+> [!IMPORTANT]
+> Variables set via this method will be prioritized over every variable you specified in method №1
+
+**Curly** brackets allow you to set several variables at once:
+```
+{username;password;address;;;;volume path;volume \; file;;;;;;/kernel;/initramfs}
+```
+The syntax corresponds to the order of the **main** variables from the [SKUF variable table](#Defaults-setup) separated from each other by semicolons.
+> [!NOTE]
+> You can escape the semicolons here using a backslash.
+
+**Square** brackets allow you to set only username and password at the same time:
+```
+[username;password;with;semicolons]
+```
+> [!NOTE]
+> Unlike curly brackets, there's no escaping required.
+
+---
+- In case you did not specify `skuf.skip` in the kernel parameters, but you did specify `{...}` or `[...]`, script will attempt to apply `skuf.skip=1`, but only if you have set (or have already set) the **7** mandatory variables listed above.
+
+- Setting `skuf.skip=1` will omit all variable checks.
+
+- The `skuf.skip` preset in the kernel parameters will have a higher priority than same `SKIP` preset set in the `defaults` file or `{...}`/`[...]`.
+
 
 ## Tips and Tricks
 - You can place a swap file next to the Arch Linux image volume so you can use it on your system. The swap file will be connected over the network as a loop device.
