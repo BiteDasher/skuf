@@ -121,11 +121,13 @@ ITERATIONS_COUNT PASSWORD
 > For an example, see the `tune.passwordX` file
 
 ### Obfuscation tuning
-String that is encrypted through [OpenSSL](https://www.openssl.org) is eventually turned into a [base64](https://en.m.wikipedia.org/wiki/Base64) string. You can obfuscate this string by swapping these letters. Write **pairs of letters** in the following format to the `tune.crypt` file:
+String that is encrypted through [OpenSSL](https://www.openssl.org) is eventually turned into a [base64](https://en.m.wikipedia.org/wiki/Base64) string. You can obfuscate this string by swapping these symbols. Write **pairs of letters or numbers** in the following format to the `tune.crypt` file:
 ```
 A B
 X Y
 I O
+0 1
+4 8
 ```
 > [!NOTE]
 > For an example, see the `tune.cryptX` file
