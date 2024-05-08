@@ -36,7 +36,7 @@ SKIP=""
 sed_prepare() {
     local line to_append
 
-    line="$(grep -q -o "^$1=.*$" ./defaults)"
+    line="$(grep -q -o "^$1=.*$" ./defaults)" || :
     to_append="${line#*=}"
     echo "preset_$2=$to_append" >> ./.setup_defaults_temp
 }
