@@ -1,7 +1,7 @@
 # Maintainer: Artemy Sudakov <finziyr@yandex.ru>
 
 pkgname=skuf
-__mkinitcpio_base=38.1
+__mkinitcpio_base=39
 pkgver="22.0+${__mkinitcpio_base}"
 pkgrel=1
 pkgdesc="SKUF Network Boot System"
@@ -20,18 +20,14 @@ optdepends=('gzip: Use gzip compression for the initramfs image'
             'lz4: Use lz4 compression for the initramfs image'
             'mkinitcpio-nfs-utils: Support for root filesystem on NFS')
 provides=("initramfs" "skuf-rd=$pkgver" "skuf-nbs=$pkgver" "mkinitcpio=$__mkinitcpio_base")
-conflicts=('mkinitcpio'
-           'systemd<255.4-2'
-           'cryptsetup<2.7.0-3'
-           'mdadm<4.3-2'
-           'lvm2<2.03.23-3')
+conflicts=('mkinitcpio')
 
 install=skuf.install
 backup=('etc/mkinitcpio.conf')
 source=("file:///tmp/mkinitcpio.tar"
-        "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.gz")
+        "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.xz")
 sha512sums=('SKIP'
-            'e727509badc528f45f2b193b3f49c202df41d4e75067bebd44c22ebc59f635d4a9596bc671d609d8941644f3a246267f7a199946730ba474040a1f24b94f663c')
+            '50ae08ddf7596b821c89f927ff6692ca907a5045590096155ec6de64e0b5da647ff2c75d1603ab0035046096d37a6eacae383d458b1bb36bd525691b2b23c9ea')
 
 package() {
     # mkinitcpio

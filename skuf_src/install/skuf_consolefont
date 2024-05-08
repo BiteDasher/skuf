@@ -15,10 +15,10 @@ build() {
                 if [[ -e "$file" ]]; then
                     [[ "$file" =~ (\.(fnt|psfu?))(\.gz|\.zst)?$ ]] && ext="${BASH_REMATCH[2]}"
                     if [[ "$file" == *'.gz' ]]; then
-                        gzip -cd "$file" >"$BUILDROOT/${FONT}_consolefont.$ext"
+                        gzip -cd "$file" | add_file - "/${FONT}_consolefont.$ext" 644
                         ifoundit=1
                     elif [[ "$file" == *'.zst' ]]; then
-                        zstd -qd "$file" -o "$BUILDROOT/${FONT}_consolefont.$ext"
+                        zstd -qd "$file" | add_file - "/${FONT}_consolefont.$ext" 644
                         ifoundit=1
                     else
                         add_file "$file" "/${FONT}_consolefont.$ext"

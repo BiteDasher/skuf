@@ -16,7 +16,7 @@ build() {
     done
 
     add_binary blkid
-    add_binary mount
+    map add_binary mount umount
     add_binary switch_root
 
     # kexec exists in rootfs.tar
