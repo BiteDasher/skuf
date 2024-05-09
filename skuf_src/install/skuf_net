@@ -2,13 +2,12 @@
 
 build() {
     [ -d "$BUILDROOT"/etc ] || add_dir "/etc" 755
-    >"$BUILDROOT/etc/resolv.conf"
-    chmod 644 "$BUILDROOT/etc/resolv.conf"
+    [ -f "$BUILDROOT/etc/resolv.conf" ] || add_file /dev/null "$BUILDROOT/etc/resolv.conf" 644
 
     add_binary /usr/lib/libnss_files.so.2
     add_binary /usr/lib/libnss_dns.so.2
     echo "hosts: files dns" >> "$BUILDROOT/etc/nsswitch.conf"
-    echo "127.0.0.1 localhost" > "$BUILDROOT/etc/hosts"
+    echo "127.0.0.1 localhost" >> "$BUILDROOT/etc/hosts"
     echo "::1       localhost" >> "$BUILDROOT/etc/hosts"
 
     add_all_modules -f 'wireless' '/drivers/net/'
