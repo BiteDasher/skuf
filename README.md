@@ -174,13 +174,16 @@ The way to change kernel parameters depends on the bootloader:
 You can specify presets using one or more kernel variables like this:
 ```
 skuf.samba_username="Username with spaces"
-skuf.SAMBA_PASSWORD='Password \' with character escaping'
+skuf.SAMBA_PASSWORD='Password \' with \\ character escaping'
 skuf.VOLUME_PATH=Path\ with\ spaces
 skuf.skip=1
 ```
 The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF variable table](#Defaults-setup) in lower or upper case.
 > [!NOTE]
-> As you can see, you can use `'single quotes'` as well as `"double quotes"`. If you use single quotes, you must escape other single quotes with a backslash. In the case of double quotes, you must escape double quotes. In case you do not use quotation marks you need to escape spaces with backslash.
+> To escape `'` inside `'single quotes'`, use `\'`
+> To escape `"` inside `"double quotes"`, use `\"`
+> To escape whitespace in the case of missing quotation marks, use `\ `
+> In all cases above, to escape `\` themselves, use `\\`
 
 #### 2. Set presets using curly or square brackets at the end of kernel parameters
 
@@ -189,11 +192,12 @@ The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF 
 
 **Curly** brackets allow you to set several variables at once:
 ```
-{username;password;address;;;;volume path;volume \; file;;;;;;/kernel;/initramfs}
+{username;password;address;;;;volume\\path;volume \; file;;;;;;/kernel;/initramfs}
 ```
 The syntax corresponds to the order of the **main** variables from the [SKUF variable table](#Defaults-setup) separated from each other by semicolons.
 > [!NOTE]
-> You can escape the semicolons here using a backslash.
+> To escape `;`, use `\;`
+> To escape `\` themselves, use `\\`
 
 **Square** brackets allow you to set only username and password at the same time:
 ```

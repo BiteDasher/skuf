@@ -412,7 +412,7 @@ translate_preset_var() {
 process_single_presets() {
     local grep evalvar evalname evalvalue
 
-    grep="$(grep -E -o "(^|[[:space:]]+)skuf\.(samba_username|samba_password|samba_address|samba_port|samba_version|samba_domain|volume_path|volume_filename|swap_filename|samba_extra_mount_opts|check_fs|extra_kernel_opts|path_to_new_kernel|path_to_new_initramfs|max_smb_retry_count|SAMBA_USERNAME|SAMBA_PASSWORD|SAMBA_ADDRESS|SAMBA_PORT|SAMBA_VERSION|SAMBA_DOMAIN|VOLUME_PATH|VOLUME_FILENAME|SWAP_FILENAME|SAMBA_EXTRA_MOUNT_OPTS|CHECK_FS|EXTRA_KERNEL_OPTS|PATH_TO_NEW_KERNEL|PATH_TO_NEW_INITRAMFS|MAX_SMB_RETRY_COUNT)=(\"(\\\\\"|[^\"])*\"|'(\\\'|[^'])*'|(\\\ |[^[:space:]])*)" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//')"
+    grep="$(grep -E -o "(^|[[:space:]]+)skuf\.(samba_username|samba_password|samba_address|samba_port|samba_version|samba_domain|volume_path|volume_filename|swap_filename|samba_extra_mount_opts|check_fs|extra_kernel_opts|path_to_new_kernel|path_to_new_initramfs|max_smb_retry_count|SAMBA_USERNAME|SAMBA_PASSWORD|SAMBA_ADDRESS|SAMBA_PORT|SAMBA_VERSION|SAMBA_DOMAIN|VOLUME_PATH|VOLUME_FILENAME|SWAP_FILENAME|SAMBA_EXTRA_MOUNT_OPTS|CHECK_FS|EXTRA_KERNEL_OPTS|PATH_TO_NEW_KERNEL|PATH_TO_NEW_INITRAMFS|MAX_SMB_RETRY_COUNT)=(\"(\\\\\"|\\\\\\\\|[^\"\\])*\"|'(\\\'|\\\\\\\\|[^'\\])*'|(\\\ |\\\\\\\\|[^[:space:]\\])*)" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//')"
 
     [ -n "$grep" ] || return 1
 
@@ -427,14 +427,17 @@ process_single_presets() {
                 evalvalue="${evalvalue#\'}"
                 evalvalue="${evalvalue%\'}"
                 evalvalue="${evalvalue//\\\'/\'}"
+                evalvalue="${evalvalue//\\\\/\\}"
             ;;
             \"*\")
                 evalvalue="${evalvalue#\"}"
                 evalvalue="${evalvalue%\"}"
                 evalvalue="${evalvalue//\\\"/\"}"
+                evalvalue="${evalvalue//\\\\/\\}"
             ;;
             *)
                 evalvalue="${evalvalue//\\ / }"
+                evalvalue="${evalvalue//\\\\/\\}"
             ;;
         esac
 
@@ -495,6 +498,8 @@ process_skip() {
 
 process_presets() {
     local creds everything i skip_wish=0
+    local sym1="$(echo -ne '\x02')"
+    local sym2="$(echo -ne '\x03')"
 
     if process_single_presets "${1:-/proc/cmdline}"; then
         [ "$maybe_skip" == 1 ] && skip_wish=1
@@ -513,7 +518,7 @@ process_presets() {
     if [ -n "$everything" ]; then
         everything="${everything#\{}"
         everything="${everything%\}}"
-        everything="$(echo "$everything" | sed "s/\\\;/\\\\&/g;s/;/$sep/g;s/\\\\$sep/;/g;s/\\\;/;/g")"
+        everything="$(echo "$everything" | sed "s/\\\\\\\\/$sym1/g;s/\\\;/$sym2/g;s/;/$sep/g;s/$sym1/\\\\/g;s/$sym2/;/g")"
 
         for i in smbusername smbpassword smbaddr smbport smbversion smbdomain smbvolumepath smbvolumefilename smbswapfilename smbmountopts newrootmountopts newrootfsck kernelopts kernelpath initramfspath; do
             eval 'preset_'"$i"'="${everything%%"$sep"*}"'
