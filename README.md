@@ -180,10 +180,10 @@ skuf.skip=1
 ```
 The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF variable table](#Defaults-setup) in lower or upper case.
 > [!NOTE]
-> To escape `'` inside `'single quotes'`, use `\'`
-> To escape `"` inside `"double quotes"`, use `\"`
-> To escape whitespace in the case of missing quotation marks, use `\ `
-> In all cases above, to escape `\` themselves, use `\\`
+> To escape `'` inside `'single quotes'`, use `\'` <br>
+> To escape `"` inside `"double quotes"`, use `\"` <br>
+> To escape whitespace in the case of missing quotation marks, use `\ ` <br>
+> In all cases above, to escape `\` themselves, use `\\` <br>
 
 #### 2. Set presets using curly or square brackets at the end of kernel parameters
 
@@ -196,8 +196,8 @@ The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF 
 ```
 The syntax corresponds to the order of the **main** variables from the [SKUF variable table](#Defaults-setup) separated from each other by semicolons.
 > [!NOTE]
-> To escape `;`, use `\;`
-> To escape `\` themselves, use `\\`
+> To escape `;`, use `\;` <br>
+> To escape `\` themselves, use `\\` <br>
 
 **Square** brackets allow you to set only username and password at the same time:
 ```
