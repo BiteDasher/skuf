@@ -817,7 +817,7 @@ get_dhcp() {
         sed -i 's/^noipv4ll$/# noipv4ll #/' /etc/dhcpcd.conf ;;
     esac
     ###################################
-    if dhcpcd $(itsquite && echo "-q") --allowinterfaces 'eth* en*'; then
+    if dhcpcd $(itsquite && echo " -q") --allowinterfaces 'eth* en*'; then
         msg "-> dhcpcd forked. Sleeping $sleepsec seconds..."
         sleep "$sleepsec"
     else
@@ -828,12 +828,12 @@ get_dhcp() {
         # We should try again
         msg "-> dhcpcd failed. Trying again..."
         sleep 1
-        dhcpcd $(itsquite && echo "-q -q") -x
+        dhcpcd $(itsquite && echo " -q -q") -x
         fail2start=0
         # For buggy IPv6 RA
         sed -i 's/^# ipv6ra_fork #$/ipv6ra_fork/' /etc/dhcpcd.conf
         ###################################
-        if dhcpcd $(itsquite && echo "-q") --allowinterfaces 'eth* en*'; then
+        if dhcpcd $(itsquite && echo " -q") --allowinterfaces 'eth* en*'; then
             msg "-> dhcpcd forked. Sleeping $sleepsec seconds..."
             sleep "$sleepsec"
         else
@@ -1156,7 +1156,7 @@ unmount_stuff() {
 
 kill_dhcp_client() {
     msg "[] Shutting down dhcpcd"
-    dhcpcd $(itsquite && echo "-q -q") -x
+    dhcpcd $(itsquite && echo " -q -q") -x
 }
 
 perform_kexec() {
