@@ -254,7 +254,7 @@ check_smbswapfilename() {
     fi
     case "$smbswapfilename" in
         *"/")
-            echo -e "  \e[1;31m! swap file cannot be a folder\e[0m"
+            echo -e "  \e[1;31m! Swap file cannot be a folder\e[0m"
             return 1
         ;;
     esac
@@ -617,7 +617,7 @@ user_read() {
         ___
     done
     while ! check_smbswapfilename; do
-        read -e -p "swap file name:         $ylw" \
+        read -e -p "Swap file name:         $ylw" \
                 -i "$preset_smbswapfilename" smbswapfilename
         ___
     done

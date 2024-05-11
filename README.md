@@ -146,7 +146,7 @@ Table of main SKUF variables:
 |`SAMBA_DOMAIN`|Domain for the SMB server (default domain is `WORKGROUP`)|
 |`VOLUME_PATH`|Path to the directory on the SMB server where the client Arch Linux image volume and swap file are located(see [Tips and Tricks](#tips-and-tricks)) \*|
 |`VOLUME_FILENAME`|Arch Linux image volume name that is located in `VOLUME_PATH` \*|
-|`SWAP_FILENAME`|swap file name that is located in `VOLUME_PATH`|
+|`SWAP_FILENAME`|Swap file name that is located in `VOLUME_PATH`|
 |`SAMBA_EXTRA_MOUNT_OPTS`|Additional SMB mount options. Applies to both [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and [step 2](#Step-2-Re-mounting-SMB-and-running-system) of SKUF boot process|
 |`VOLUME_EXTRA_MOUNT_OPTS`|Additional client Arch Linux image volume mount options. Applies to both [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and [step 2](#Step-2-Re-mounting-SMB-and-running-system) of SKUF boot process|
 |`CHECK_FS`|Whether to check the integrity of a file system image with Arch Linux. Accepts `Yes` or `No`. Applies only to [step 2](#Step-2-Re-mounting-SMB-and-running-system)|
