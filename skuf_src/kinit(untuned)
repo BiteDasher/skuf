@@ -1086,9 +1086,9 @@ prepare_kexec() {
 }
 
 prepare_switch() {
-    ln -sfT /proc/self/mounts /switch/etc/mtab
+    msg "[] Modifying kexec environment"
 
-    msg "[] Editing kexec script"
+    ln -sfT /proc/self/mounts /switch/etc/mtab
 
     cat <<'SWITCHEOF' >> /switch/init
 export PATH=/bin
