@@ -11,10 +11,6 @@ display_version() {
     echo -e "\e[1;3${letter1}mS\e[0m\e[1;3${letter2}mK\e[0m\e[1;3${letter3}mU\e[0m\e[1;3${letter4}mF\e[0m v${skuf_version}"
 }
 
-itsquiet() {
-    [ "${quiet}" == "y" ]
-}
-
 export PATH='/usr/local/sbin:/usr/local/bin:/usr/bin'
 
 udevd_running=0
@@ -94,9 +90,9 @@ fi
 exec 0</dev/console 1>/dev/console 2>/dev/console
 echo -ne '\e[J'
 
-msg ''
+echo ''
 
-itsquite || display_version
+display_version
 
 # We rely on word splitting
 # shellcheck disable=SC2086
