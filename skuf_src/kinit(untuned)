@@ -578,7 +578,7 @@ user_read() {
     echo -e "To change the keyboard layout, press \e[1mAlt+Shift\e[0m (ru)" # SKUF_RU #
 
     while ! check_smbusername; do
-        read -e -p "Login:                  $ylw" \
+        read -r -e -p "Login:                  $ylw" \
                 -i "$preset_smbusername" smbusername
         ___
     done
@@ -587,68 +587,68 @@ user_read() {
         ___ _
     done
     while ! check_smbaddr; do
-        read -e -p "SAMBA server address:   $ylw" \
+        read -r -e -p "SAMBA server address:   $ylw" \
                 -i "$preset_smbaddr" smbaddr
         ___
     done
     while ! check_smbport; do
-        read -e -p "SAMBA server port:      $ylw" \
+        read -r -e -p "SAMBA server port:      $ylw" \
                 -i "$preset_smbport" smbport
         ___
     done
     while ! check_smbversion; do
-        read -e -p "SAMBA protocol version: $ylw" \
+        read -r -e -p "SAMBA protocol version: $ylw" \
                 -i "$preset_smbversion" smbversion
         ___
     done
     while ! check_smbdomain; do
-        read -e -p "SAMBA server domain:    $ylw" \
+        read -r -e -p "SAMBA server domain:    $ylw" \
                 -i "$preset_smbdomain" smbdomain
         ___
     done
     while ! check_smbvolumepath; do
-        read -e -p "Path to your folder:    $ylw" \
+        read -r -e -p "Path to your folder:    $ylw" \
                 -i "$preset_smbvolumepath" smbvolumepath
         ___
     done
     while ! check_smbvolumefilename; do
-        read -e -p "Volume file name:       $ylw" \
+        read -r -e -p "Volume file name:       $ylw" \
                 -i "$preset_smbvolumefilename" smbvolumefilename
         ___
     done
     while ! check_smbswapfilename; do
-        read -e -p "Swap file name:         $ylw" \
+        read -r -e -p "Swap file name:         $ylw" \
                 -i "$preset_smbswapfilename" smbswapfilename
         ___
     done
     while ! check_smbmountopts; do
-        read -e -p "Extra SAMBA mount options:  $ylw" \
+        read -r -e -p "Extra SAMBA mount options:  $ylw" \
                 -i "$preset_smbmountopts" smbmountopts
         ___
     done
     while ! check_newrootmountopts; do
-        read -e -p "Extra volume mount options: $ylw" \
+        read -r -e -p "Extra volume mount options: $ylw" \
                 -i "$preset_newrootmountopts" newrootmountopts
         ___
     done
     while ! check_newrootfsck; do
-        read -e -p "Check volume FS? [Yes/no]:  $ylw" \
+        read -r -e -p "Check volume FS? [Yes/no]:  $ylw" \
                 -i "$preset_newrootfsck" newrootfsck
         ___
     done
     while ! check_kernelopts; do
-        read -e -p "Extra kernel parameters:    $ylw" \
+        read -r -e -p "Extra kernel parameters:    $ylw" \
                 -i "$preset_kernelopts" kernelopts
         ___
     done
     echo '....................................'
     while ! check_kernelpath; do
-        read -e -p "Path to new kernel:         $blu" \
+        read -r -e -p "Path to new kernel:         $blu" \
                 -i "$preset_kernelpath" kernelpath
         ___
     done
     while ! check_initramfspath; do
-        read -e -p "Path to new initramfs:      $blu" \
+        read -r -e -p "Path to new initramfs:      $blu" \
                 -i "$preset_initramfspath" initramfspath
         ___
     done
@@ -919,7 +919,7 @@ retry_samba() {
         flush_stdin
 
         while ! check_smbusername2; do
-            read -e -p "Login:                  $ylw" \
+            read -r -e -p "Login:                  $ylw" \
                     re_smbusername
             ___
         done
