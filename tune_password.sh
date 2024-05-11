@@ -60,7 +60,7 @@ cat <<EOF > ./.tune_password_pattern_enc
 EOF
 
 cat <<EOF > ./.tune_password_pattern_dec
-        if _sambaopts="\$(echo -n "\$_sambaopts" | openssl enc -d -aes-256-cbc -salt -iter $iter -base64 -A -k '$password' -in - -out -)"; then # SKUF_OPENSSL_DEC_RM #
+        if _sambaopts="\$(echo -n "\$_sambaopts" | openssl enc -d -aes-256-cbc -salt -iter $iter -base64 -A -k "$password" -in - -out -)"; then # SKUF_OPENSSL_DEC_RM #
 EOF
 
 sed -i "/# SKUF_OPENSSL_ENC_RM #/d" ./skuf_src/kinit

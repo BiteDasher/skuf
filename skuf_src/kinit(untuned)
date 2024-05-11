@@ -1041,7 +1041,7 @@ setup_sambaopts() {
 
     sambaoptsx="${smbaddr}${sep}${smbport}${sep}${smbversion}${sep}${smbdomain}${sep}${smbusername}${sep}${smbpassword}${sep}${uq_smbvolumepath}${sep}${uq_smbvolumefilename}${sep}${uq_smbswapfilename}${sep}${smbmountopts}${sep}${newrootmountopts}${sep}${newrootfsck}"
     # SKUF_OPENSSL_ENC #
-    sambaoptsx="$(echo -n "$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter 1234 -base64 -A -k '12345678' -in - -out -)" # SKUF_OPENSSL_ENC_RM #
+    sambaoptsx="$(echo -n "$sambaoptsx" | openssl enc -e -aes-256-cbc -salt -iter 1234 -base64 -A -k "12345678" -in - -out -)" # SKUF_OPENSSL_ENC_RM #
     sambaoptsx="${sambaoptsx//=/%}"
     sambaoptsx="${sambaoptsx:10}"
 
