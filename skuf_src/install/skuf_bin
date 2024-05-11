@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 build() {
-    add_binary base64
     add_binary openssl
     [ -x "$BUILDROOT/usr/bin/install" ] || add_binary install || return 1
     add_binary tty
