@@ -285,12 +285,10 @@ check_newrootfsck() {
         return 1
     fi
     case "$newrootfsck" in
-        Y|y|Yes|yes|Д|д|Да|да)
-            newrootfsck="Yes"
+        1|Y|y|Yes|yes|True|true|Д|д|Да|да)
             return 0
         ;;
-        N|n|No|no|Н|н|Нет|нет)
-            newrootfsck="No"
+        0|N|n|No|no|False|false|Н|н|Нет|нет)
             return 0
         ;;
         "")
@@ -301,6 +299,19 @@ check_newrootfsck() {
             return 1
         ;;
     esac
+}
+
+quirk_newrootfsck() {
+    case "$newrootfsck" in
+        1|Y|y|Yes|yes|True|true|Д|д|Да|да)
+            newrootfsck="Yes"
+        ;;
+        0|N|n|No|no|False|false|Н|н|Нет|нет)
+            newrootfsck="No"
+        ;;
+    esac
+
+    return 0
 }
 
 check_kernelopts() {
@@ -456,10 +467,10 @@ process_skip() {
         "")
             skuf_skip=0
         ;;
-        1|Y|y|Yes|yes|Д|д|Да|да)
+        1|Y|y|Yes|yes|True|true|Д|д|Да|да)
             skuf_skip=1
         ;;
-        0|N|n|No|no|Н|н|Нет|нет)
+        0|N|n|No|no|False|false|Н|н|Нет|нет)
             skuf_skip=0
         ;;
         *)
@@ -482,10 +493,10 @@ process_skip() {
                 "")
                     maybe_skip=1
                 ;;
-                1|Y|y|Yes|yes|Д|д|Да|да)
+                1|Y|y|Yes|yes|True|true|Д|д|Да|да)
                     skuf_skip=1
                 ;;
-                0|N|n|No|no|Н|н|Нет|нет)
+                0|N|n|No|no|False|false|Н|н|Нет|нет)
                     skuf_skip=0
                 ;;
                 *)
@@ -1268,6 +1279,7 @@ bring_lo_up
 get_dhcp
 
 quirk_vars
+quirk_newrootfsck
 
 mount_samba
 
