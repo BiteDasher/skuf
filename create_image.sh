@@ -125,6 +125,7 @@ echo "[] Modifying /etc/pacman.conf"
 sleep 1
 cp -a /etc/pacman.conf ./work/pacman.conf
 cat <<EOF >> ./work/pacman.conf
+
 [asshole]
 SigLevel = Optional
 Server = file:///tmp/repo
