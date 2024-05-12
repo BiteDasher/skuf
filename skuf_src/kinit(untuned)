@@ -873,7 +873,7 @@ quirk_vars() {
         "/"*"/") : ;;
         "/"*)    smbvolumepath="${smbvolumepath}/" ;;
         *"/")    smbvolumepath="/${smbvolumepath}" ;;
-        "")      smbvolumepath="/" ;;
+        "")      : ;;
         *)       smbvolumepath="/${smbvolumepath}/" ;;
     esac
 
