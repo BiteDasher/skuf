@@ -301,19 +301,6 @@ check_newrootfsck() {
     esac
 }
 
-quirk_newrootfsck() {
-    case "$newrootfsck" in
-        1|Y|y|Yes|yes|True|true|Д|д|Да|да)
-            newrootfsck="Yes"
-        ;;
-        0|N|n|No|no|False|false|Н|н|Нет|нет)
-            newrootfsck="No"
-        ;;
-    esac
-
-    return 0
-}
-
 check_kernelopts() {
     if [ "$kernelopts" == "$sep" ]; then
         return 1
@@ -336,14 +323,9 @@ check_kernelpath() {
             echo -e "  \e[1;31m! Path to kernel cannot be a folder\e[0m"
             return 1
         ;;
-        "/"*)
-            return 0
-        ;;
-        *)
-            echo -e "  \e[1;31m! You should type FULL path to kernel\e[0m"
-            return 1
-        ;;
     esac
+
+    return 0
 }
 
 check_initramfspath() {
@@ -359,14 +341,9 @@ check_initramfspath() {
             echo -e "  \e[1;31m! Path to initramfs cannot be a folder\e[0m"
             return 1
         ;;
-        "/"*)
-            return 0
-        ;;
-        *)
-            echo -e "  \e[1;31m! You should type FULL path to initramfs\e[0m"
-            return 1
-        ;;
     esac
+
+    return 0
 }
 
 translate_preset_var() {
@@ -891,12 +868,49 @@ quirk_vars() {
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
+    case "$smbvolumefilename" in
+        *"/") smbvolumefilename="${smbvolumefilename%/}" ;;
+    esac
 
     uq_smbswapfilename="$smbswapfilename"
     smbswapfilename="${smbswapfilename//@u@/${smbusername/@*/}}"
     smbswapfilename="${smbswapfilename//@fu@/${smbusername}}"
     case "$smbswapfilename" in
         "/"*) smbswapfilename="${smbswapfilename#/}" ;;
+    esac
+    case "$smbswapfilename" in
+        *"/") smbswapfilename="${smbswapfilename%/}" ;;
+    esac
+
+    return 0
+}
+
+quirk_post() {
+    case "$newrootfsck" in
+        1|Y|y|Yes|yes|True|true|Д|д|Да|да)
+            newrootfsck="Yes"
+        ;;
+        0|N|n|No|no|False|false|Н|н|Нет|нет)
+            newrootfsck="No"
+        ;;
+    esac
+
+    case "$kernelpath" in
+        *"/") kernelpath="${kernelpath%/}" ;;
+    esac
+    case "$kernelpath" in
+        "/"*) : ;;
+        "")   : ;;
+        *)    kernelpath="/${kernelpath}" ;;
+    esac
+
+    case "$initramfspath" in
+        *"/") initramfspath="${initramfspath%/}" ;;
+    esac
+    case "$initramfspath" in
+        "/"*) : ;;
+        "")   : ;;
+        *)    initramfspath="/${initramfspath}" ;;
     esac
 
     return 0
@@ -1287,7 +1301,7 @@ bring_lo_up
 get_dhcp
 
 quirk_vars
-quirk_newrootfsck
+quirk_post
 
 mount_samba
 

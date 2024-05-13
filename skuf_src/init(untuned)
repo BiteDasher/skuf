@@ -337,11 +337,17 @@ quirk_vars() {
     case "$smbvolumefilename" in
         "/"*) smbvolumefilename="${smbvolumefilename#/}" ;;
     esac
+    case "$smbvolumefilename" in
+        *"/") smbvolumefilename="${smbvolumefilename%/}" ;;
+    esac
 
     smbswapfilename="${smbswapfilename//@u@/${smbusername/@*/}}"
     smbswapfilename="${smbswapfilename//@fu@/${smbusername}}"
     case "$smbswapfilename" in
         "/"*) smbswapfilename="${smbswapfilename#/}" ;;
+    esac
+    case "$smbswapfilename" in
+        *"/") smbswapfilename="${smbswapfilename%/}" ;;
     esac
 
     return 0
