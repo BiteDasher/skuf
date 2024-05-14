@@ -15,28 +15,10 @@ rm -f ./.defaults_mark
 
 [ -f ./skuf_src/kinit ] || cp -a "./skuf_src/kinit(untuned)" "./skuf_src/kinit"
 
-SAMBA_USERNAME=""
-SAMBA_PASSWORD=""
-SAMBA_ADDRESS=""
-SAMBA_PORT=""
-SAMBA_VERSION=""
-SAMBA_DOMAIN=""
-VOLUME_PATH=""
-VOLUME_FILENAME=""
-SWAP_FILENAME=""
-SAMBA_EXTRA_MOUNT_OPTS=""
-VOLUME_EXTRA_MOUNT_OPTS=""
-CHECK_FS=""
-EXTRA_KERNEL_OPTS=""
-PATH_TO_NEW_KERNEL=""
-PATH_TO_NEW_INITRAMFS=""
-MAX_SMB_RETRY_COUNT=""
-SKIP=""
-
 sed_prepare() {
     local line to_append
 
-    line="$(grep -q -o "^$1=.*$" ./defaults)" || :
+    line="$(grep -o "^$1=.*$" ./defaults)" || :
     to_append="${line#*=}"
     echo "preset_$2=$to_append" >> ./.setup_defaults_temp
 }
@@ -56,6 +38,8 @@ fi
 
 : >./.setup_defaults_temp
 
+sed_prepare SAMBA_USERNAME          smbusername
+sed_prepare SAMBA_PASSWORD          smbpassword
 sed_prepare SAMBA_ADDRESS           smbaddr
 sed_prepare SAMBA_PORT              smbport
 sed_prepare SAMBA_VERSION           smbversion
