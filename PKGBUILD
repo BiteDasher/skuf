@@ -2,7 +2,7 @@
 
 pkgname=skuf
 __mkinitcpio_base=39
-pkgver="22.0+${__mkinitcpio_base}"
+pkgver="23.0+${__mkinitcpio_base}"
 pkgrel=1
 pkgdesc="SKUF Network Boot System"
 arch=('any')
