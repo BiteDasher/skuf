@@ -3,7 +3,7 @@
 
 > Ever wanted to be able to boot Linux[^1] over the network using an Ethernet cable but without setting up a PXE? Now you only need a SMB server that can be installed anywhere!
 
-**SKUF Network Boot System** allows you to boot the [Arch Linux](https://archlinux.org)[^2] operating system on a computer connected to network via Ethernet using USB flash drive (100MB minimum) and a SMB file share.
+**SKUF Network Boot System** allows you to boot the [Arch Linux](https://archlinux.org)[^2] operating system on a computer connected to network via Ethernet using USB flash drive (150MB minimum) and a SMB file share.
 
 > [!CAUTION]
 > **The only supported distribution is Arch Linux™.** Other shitty systems like Debian, Ubuntu, Manjaro, Fedora, openSUSE, etc. are NOT supported and NEVER WILL BE.
