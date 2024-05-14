@@ -75,6 +75,7 @@ Clone this repository using git:
 ```
 git clone https://github.com/BiteDasher/skuf
 cd skuf
+./switch-tag latest
 ```
 
 Tune encryption obfuscation and encryption password (see [Customization instructions](#Password-tuning)):

@@ -1,0 +1,23 @@
+#!/bin/bash
+if [ ! -d ./.git ]; then
+    echo "Error: this is not a git repository" >&2
+    exit 1
+fi
+
+case "$@" in
+    "latest")
+        tag="$(git describe --tags "$(git rev-list --tags --max-count=1)")"
+    ;;
+    *)
+        tag="$@"
+    ;;
+esac
+
+if [ -z "$(git tag -l "$tag")" ]; then
+    echo "Error: tag '$tag' not found" >&2
+    exit 1
+fi
+
+git checkout tags/"$tag"
+
+# vim: set ft=sh ts=4 sw=4 et:
