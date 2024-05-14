@@ -66,7 +66,7 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 - `binutils`
 - `clang` or `gcc`
 - `musl`
-- `kernel-api-headers`
+- `linux-api-headers`
 - `kernel-headers-musl`
 
 ### Build instructions

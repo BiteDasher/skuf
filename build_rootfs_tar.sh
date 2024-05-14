@@ -29,7 +29,7 @@ if [ -e /usr/include/linux       ] && \
    [ -e /usr/include/asm-generic ]; then
     :
 else
-    echo "Error: package 'kernel-api-headers' not found" >&2
+    echo "Error: package 'linux-api-headers' not found" >&2
     exit 1
 fi
 
