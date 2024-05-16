@@ -216,6 +216,8 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 
 
 ## Tips and Tricks
+- It is highly recommended to have an **individual folder** with a volume file in it for each user on the SMB server. With this setup, there will be fewer possible caching issues (e.g. `cache=singleclient`).
+
 - You can place a swap file next to the Arch Linux image volume so you can use it on your system. The swap file will be connected over the network as a loop device.
 
 - You can use [Plymouth](https://wiki.archlinux.org/title/plymouth) in [step 2](#Step-2-Re-mounting-SMB-and-running-system). Add `splash` to `EXTRA_KERNEL_OPTS` to the `defaults` file, also don't forget to add `HOOKS=(... plymouth ...)` to the `skuf_src/mkinitcpio.conf` and install `plymouth` package.
