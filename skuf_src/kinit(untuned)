@@ -463,7 +463,7 @@ process_skip() {
         ;;
     esac
 
-    grep="$(grep -E -o "(^|[[:space:]]+)skuf\.(skip|SKIP)($|[[:space:]]|=[^[:space:]]*($)?)" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;$!d')"
+    grep="$(grep -E -o "(^|[[:space:]]+)skuf\.(skip|SKIP)($|[[:space:]]|=(\"(\\\\\"|\\\\\\\\|[^\"\\])*\"|'(\\\'|\\\\\\\\|[^'\\])*'|(\\\ |\\\\\\\\|[^[:space:]\\])*)($|[[:space:]]))" "${1:-/proc/cmdline}" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;$!d')"
     case "$grep" in
         "")
             maybe_skip=1
