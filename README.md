@@ -176,15 +176,15 @@ You can specify presets using one or more kernel variables like this:
 ```
 skuf.samba_username="Username with spaces"
 skuf.SAMBA_PASSWORD='Password \' with \\ character escaping'
-skuf.VOLUME_PATH=Path\ with\ spaces
+skuf.VOLUME_PATH=Path\ with\ spaces\ and\ \"quotes\'
 skuf.skip=1
 ```
 The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF variable table](#Defaults-setup) in lower or upper case.
 > [!NOTE]
-> To escape `'` inside `'single quotes'`, use `\'` <br>
-> To escape `"` inside `"double quotes"`, use `\"` <br>
-> To escape whitespace in the case of missing quotation marks, use `\ ` <br>
-> In all cases above, to escape `\` themselves, use `\\` <br>
+> - To escape `"` inside `"double quotes"`, use `\"` <br>
+> - To escape `'` inside `'single quotes'`, use `\'` <br>
+> - To escape `'`, `"`, ` ` in case of missing quotation marks, use `\'`, `\"`, `\ ` respectively <br>
+> - In all cases above, to escape `\` themselves, use `\\` <br>
 
 #### 2. Set presets using curly or square brackets at the end of kernel parameters
 
@@ -197,8 +197,8 @@ The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF 
 ```
 The syntax corresponds to the order of the **main** variables from the [SKUF variable table](#Defaults-setup) separated from each other by semicolons.
 > [!NOTE]
-> To escape `;`, use `\;` <br>
-> To escape `\` themselves, use `\\` <br>
+> - To escape `;`, use `\;` <br>
+> - To escape `\` themselves, use `\\` <br>
 
 **Square** brackets allow you to set only username and password at the same time:
 ```
