@@ -183,7 +183,7 @@ The syntax of the variable is as follows: `skuf.` + **any** variable from [SKUF 
 > [!NOTE]
 > - To escape `"` inside `"double quotes"`, use `\"` <br>
 > - To escape `'` inside `'single quotes'`, use `\'` <br>
-> - To escape `'`, `"`, ` ` in case of missing quotation marks, use `\'`, `\"`, `\ ` respectively <br>
+> - To escape `"`, `'`, ` `(whitespace) in case of missing quotation marks, use `\"`, `\'`, `\ ` respectively <br>
 > - In all cases above, to escape `\` themselves, use `\\` <br>
 
 #### 2. Set presets using curly or square brackets at the end of kernel parameters
