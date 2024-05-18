@@ -619,7 +619,7 @@ user_read() {
         ___
     done
     while ! check_newrootfsck; do
-        read -r -e -p "Check volume FS? [Yes/no]:  $ylw" \
+        read -r -e -p "Check volume FS? [yes/No]:  $ylw" \
                 -i "$preset_newrootfsck" newrootfsck
         ___
     done
