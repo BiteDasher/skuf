@@ -121,6 +121,7 @@ check_smbpassword2() {
 }
 
 read_smbpassword() {
+    local ylw="$(echo -ne '\x01\e[1;33m\x02')"
     local password charcount prompt char i=1
 
     echo -n "Password:               $ylw"
@@ -495,9 +496,9 @@ process_skip() {
 }
 
 process_presets() {
-    local creds everything i skip_wish=0
     local sym1="$(echo -ne '\x02')"
     local sym2="$(echo -ne '\x03')"
+    local creds everything i skip_wish=0
 
     if process_single_presets "${1:-/proc/cmdline}"; then
         [ "$maybe_skip" == 1 ] && skip_wish=1
@@ -559,8 +560,8 @@ apply_presets() {
 }
 
 user_read() {
-    local ylw="$(echo -e '\e[1;33m')"
-    local blu="$(echo -e '\e[1;36m')"
+    local ylw="$(echo -ne '\x01\e[1;33m\x02')"
+    local blu="$(echo -ne '\x01\e[1;36m\x02')"
 
     echo -e "To change the keyboard layout, press \e[1mAlt+Shift\e[0m (ru)" # SKUF_RU #
 
@@ -919,7 +920,7 @@ quirk_post() {
 }
 
 retry_samba() {
-    local ylw="$(echo -e '\e[1;33m')"
+    local ylw="$(echo -ne '\x01\e[1;33m\x02')"
     local i x=1
 
     i="${preset_smbretry}"
