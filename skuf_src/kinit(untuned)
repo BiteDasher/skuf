@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-readonly skuf_version="23.1+39"
+readonly skuf_version="24.0+39.1"
 readonly sep="$(echo -ne '\037')"
 
 smbaddr="$sep"
