@@ -57,6 +57,16 @@ if [ ! -f ./busybox_config ]; then
     exit 1
 fi
 
+for __patches in ./busybox_*.patch ./kexec-tools_*.patch; do
+    [ -e "$__patches" ] || continue
+    if command -v patch &>/dev/null; then
+        break
+    else
+        echo "Error: .patch files are found, but the 'patch' command is not" >&2
+        exit 1
+    fi
+done
+
 set -e
 set -x
 rm -r -f ./work/{busybox,kexec,rootfs}
@@ -118,6 +128,11 @@ pushd ./busybox-$ver_busybox
 
 install -m 644 "$backtome"/busybox_config  ./.config
 
+for bpatch in "$backtome"/busybox_*.patch; do
+    [ -e "$bpatch" ] || continue
+    patch -Np1 -i "$bpatch"
+done
+
 make CC="$muslCC"
 
 install -m 755 ./busybox -- "$backtome"/work/rootfs/bin/busybox
@@ -135,6 +150,11 @@ curl -L -o ./kexec-$ver_kexec.tar.gz "https://git.kernel.org/pub/scm/utils/kerne
 tar -x -p -f ./kexec-$ver_kexec.tar.gz
 
 pushd ./kexec-tools-$ver_kexec
+
+for kpatch in "$backtome"/kexec-tools_*.patch; do
+    [ -e "$kpatch" ] || continue
+    patch -Np1 -i "$kpatch"
+done
 
 ./bootstrap
 LDFLAGS=-static CC="$CC" ./configure

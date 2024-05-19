@@ -68,6 +68,7 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 - `musl`
 - `linux-api-headers`
 - `kernel-headers-musl`
+- `patch` (optional, for `build_rootfs_tar.sh`, if patches present)
 
 ### Build instructions
 
