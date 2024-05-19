@@ -52,7 +52,7 @@ rm -f ./work/mkarchiso
 set +e
 set +x
 
-if grep -o '^[[:space:]]*mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"' -- "$(command -v mkarchiso)" &>/dev/null; then
+if grep -o -- '^[[:space:]]*mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"' "$(command -v mkarchiso)" &>/dev/null; then
     cp -a -- "$(command -v mkarchiso)" ./work/mkarchiso
     sed -i 's/\(^[[:space:]]*\)mksquashfs "\$@" "\${image_path}" -noappend "\${airootfs_image_tool_options\[@\]}" "\${mksquashfs_options\[@\]}"/\1: /' ./work/mkarchiso
 else
@@ -80,7 +80,7 @@ case "$pacman_cachedir" in
     */) : ;;
     *)  pacman_cachedir="${pacman_cachedir}/" ;;
 esac
-ln -sf /tmp/repo/"$thispkgname" -- "${pacman_cachedir}${thispkgname}"
+ln -sf -- /tmp/repo/"$thispkgname" "${pacman_cachedir}${thispkgname}"
 
 ./work/mkarchiso -v -w ./work/iso -o ./ ./skuf_archiso
 

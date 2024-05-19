@@ -126,7 +126,7 @@ tar -x -p -f ./busybox-$ver_busybox.tar.bz2
 
 pushd ./busybox-$ver_busybox
 
-install -m 644 "$backtome"/busybox_config  ./.config
+install -m 644 "$backtome"/busybox_config ./.config
 
 for bpatch in "$backtome"/busybox_*.patch; do
     [ -e "$bpatch" ] || continue
@@ -135,7 +135,7 @@ done
 
 make CC="$muslCC"
 
-install -m 755 ./busybox -- "$backtome"/work/rootfs/bin/busybox
+install -m 755 ./busybox "$backtome"/work/rootfs/bin/busybox
 
 popd
 popd
@@ -160,7 +160,7 @@ done
 LDFLAGS=-static CC="$CC" ./configure
 make
 
-install -m 755 ./build/sbin/kexec -- "$backtome"/work/rootfs/bin/kexec
+install -m 755 ./build/sbin/kexec "$backtome"/work/rootfs/bin/kexec
 
 popd
 popd

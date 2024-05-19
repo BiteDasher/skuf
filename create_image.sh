@@ -141,7 +141,7 @@ case "$pacman_cachedir" in
     */) : ;;
     *)  pacman_cachedir="${pacman_cachedir}/" ;;
 esac
-ln -sf /tmp/repo/"$thispkgname" -- "${pacman_cachedir}${thispkgname}"
+ln -sf -- /tmp/repo/"$thispkgname" "${pacman_cachedir}${thispkgname}"
 ##################################################
 echo "[] Installing packages to image"
 sleep 3

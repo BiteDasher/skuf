@@ -51,7 +51,7 @@ for pkg in skuf-*.pkg.tar*; do
     [ "$pkg" == 'skuf-*.pkg.tar*' ] && exit 1 || break
 done
 
-install -m 600 "$pkg" -- "$backtome"/"$pkg"
+install -m 600 "$pkg" "$backtome"/"$pkg"
 echo "$pkg" > "$backtome"/.pkgname
 
 popd
