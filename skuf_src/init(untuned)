@@ -571,15 +571,6 @@ fi
 # shellcheck disable=SC2086
 run_hookfunctions 'run_hook' 'hook' $HOOKS
 
-# honor the old behavior of break=y as a synonym for break=premount
-break="$(getarg break)"
-if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
-    # shellcheck disable=SC2086
-    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
-    echo ":: Pre-mount break requested, type 'exit' to resume operation"
-    launch_interactive_shell
-fi
-
 # In case we using rdlogger
 #exec 0</dev/console 1>/dev/console 2>/dev/console
 
@@ -607,6 +598,15 @@ renice_dhcpcd
 
 plymouth_show_msg "Quirking variables\n45%"
 quirk_vars
+
+# honor the old behavior of break=y as a synonym for break=premount
+break="$(getarg break)"
+if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    echo ":: Pre-mount break requested, type 'exit' to resume operation"
+    launch_interactive_shell
+fi
 
 plymouth_show_msg "Mounting SAMBA\n50%"
 mount_samba

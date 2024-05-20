@@ -1268,15 +1268,6 @@ fi
 # shellcheck disable=SC2086
 run_hookfunctions 'run_hook' 'hook' $HOOKS
 
-# honor the old behavior of break=y as a synonym for break=premount
-break="$(getarg break)"
-if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
-    # shellcheck disable=SC2086
-    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
-    echo ":: Pre-mount break requested, type 'exit' to resume operation"
-    launch_interactive_shell
-fi
-
 exec 0</dev/console 1>/dev/console 2>/dev/console
 
 [ -e "/etc/inputrc" ] && set -o emacs
@@ -1305,6 +1296,15 @@ get_dhcp
 
 quirk_vars
 quirk_post
+
+# honor the old behavior of break=y as a synonym for break=premount
+break="$(getarg break)"
+if [ "${break}" = "y" ] || [ "${break}" = "premount" ]; then
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    echo ":: Pre-mount break requested, type 'exit' to resume operation"
+    launch_interactive_shell
+fi
 
 mount_samba
 
@@ -1337,6 +1337,13 @@ msg "[] Doing some cleanup"
 # We rely on word splitting
 # shellcheck disable=SC2086
 run_hookfunctions 'run_cleanuphook' 'cleanup hook' $CLEANUPHOOKS
+
+if [ "${break}" = "postmount" ]; then
+    # shellcheck disable=SC2086
+    run_hookfunctions 'run_emergencyhook' 'emergency hook' $EMERGENCYHOOKS
+    echo ":: Post-mount break requested, type 'exit' to resume operation"
+    launch_interactive_shell
+fi
 
 # this should always be the last thing we do before the switch_root.
 rdlogger_stop
