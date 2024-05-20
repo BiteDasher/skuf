@@ -5,8 +5,8 @@ build() {
     add_binary "nologin"
 
     add_binary "renice"
-    [ -x "$BUILDROOT/usr/bin/pidof" ] || add_binary pidof || \
-    [ -x "$BUILDROOT/usr/bin/pgrep" ] || add_binary pgrep || return 1
+    [[ -x "$BUILDROOT/usr/bin/pidof" ]] || add_binary pidof || \
+    [[ -x "$BUILDROOT/usr/bin/pgrep" ]] || add_binary pgrep || return 1
 
     add_dir "/var/lib/dhcpcd" 750
     add_dir "/usr/lib/dhcpcd" 755

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 build() {
-    if [ ! -x "$BUILDROOT/usr/lib/systemd/systemd-udevd" ]; then
+    if [[ ! -x "$BUILDROOT/usr/lib/systemd/systemd-udevd" ]]; then
         warning 'udev daemon not found in $BUILDROOT. Too early?'
     fi
 
-    if [ -x "/usr/lib/dhcpcd/dev/udev.so" ]; then
+    if [[ -x "/usr/lib/dhcpcd/dev/udev.so" ]]; then
         add_binary "/usr/lib/dhcpcd/dev/udev.so"
     else
         error 'dhcpcd udev module was requested, but not found'

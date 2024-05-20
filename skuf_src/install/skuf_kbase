@@ -20,10 +20,10 @@ build() {
     add_binary switch_root
 
     # kexec exists in rootfs.tar
-    [ -x "$BUILDROOT/usr/bin/tar" ] || add_binary tar || return 1
+    [[ -x "$BUILDROOT/usr/bin/tar" ]] || add_binary tar || return 1
 
     add_file "/usr/lib/initcpio/init_functions" "/init_functions"
-    if [ -r "/usr/lib/initcpio/skuf_data/kinit" ]; then
+    if [[ -r "/usr/lib/initcpio/skuf_data/kinit" ]]; then
         add_file "/usr/lib/initcpio/skuf_data/kinit" "/init"
     else
         error "%s is not readable. Creating empty initramfs..." "kinit"

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 build() {
-    [ -d "$BUILDROOT"/etc ] || add_dir "/etc" 755
-    [ -e "$BUILDROOT/etc/resolv.conf" ] || add_file /dev/null "$BUILDROOT/etc/resolv.conf" 644
+    [[ -d "$BUILDROOT"/etc ]] || add_dir "/etc" 755
+    [[ -e "$BUILDROOT/etc/resolv.conf" ]] || add_file /dev/null "$BUILDROOT/etc/resolv.conf" 644
 
     add_binary /usr/lib/libnss_files.so.2
     add_binary /usr/lib/libnss_dns.so.2

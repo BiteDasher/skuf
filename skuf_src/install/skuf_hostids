@@ -7,7 +7,7 @@ build() {
 
     (
     grepresult="$(grep -o "^dhcpcd:.*" /etc/passwd)"
-    if [ -z "$grepresult" ]; then
+    if [[ -z "$grepresult" ]]; then
         dhcpcd_uid="$dhcpcd_fallback"
         dhcpcd_gid="$dhcpcd_fallback"
     else
@@ -24,7 +24,7 @@ build() {
     fi
 
     grepresult="$(grep -o "^wheel:.*" /etc/group)"
-    if [ -z "$grepresult" ]; then
+    if [[ -z "$grepresult" ]]; then
         wheel_gid="$wheel_fallback"
     else
         grepdata="${grepresult#*:}"

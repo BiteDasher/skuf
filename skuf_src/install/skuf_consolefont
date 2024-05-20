@@ -27,7 +27,7 @@ build() {
                     continue
                 fi
             done
-            if [ $ifoundit == 0 ]; then
+            if [[ $ifoundit == 0 ]]; then
                 error "consolefont: requested font not found: '%s'" "$FONT"
                 exit 1
             fi

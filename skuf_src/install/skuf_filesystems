@@ -3,7 +3,7 @@
 build() {
     local mount
 
-    if (( fs_autodetect_failed )) || [ -z ${rootfstype+x} ]; then
+    if (( fs_autodetect_failed )) || [[ -z ${rootfstype+x} ]]; then
         add_all_modules '/kernel/fs/ext4'
         add_all_modules '/kernel/fs/btrfs'
         add_all_modules '/kernel/fs/xfs'
@@ -28,10 +28,10 @@ build() {
     fi
 
     if (( fs_autodetect_failed )) || \
-       [ -z ${rootfstype+x} ]; then
+       [[ -z ${rootfstype+x} ]]; then
         add_binary btrfs   || true
         add_binary btrfsck || true
-    elif [ "$rootfstype" == "btrfs" ]; then
+    elif [[ "$rootfstype" == "btrfs" ]]; then
         add_binary btrfs   || return 1
         add_binary btrfsck || return 1
     fi
