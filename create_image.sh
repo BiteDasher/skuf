@@ -56,6 +56,18 @@ if [ ! -f /tmp/repo/"$thispkgname" ]; then
     exit 1
 fi
 
+if [ -n "$POST_INSTALL" ]; then
+    if [ -e "$POST_INSTALL" ]; then
+        if [ -d "$POST_INSTALL" ]; then
+            echo "Error: post-install file cannot be a directory" >&2
+            exit 1
+        fi
+    else
+        echo "Error: post-install file '$POST_INSTALL' not found" >&2
+        exit 1
+    fi
+fi
+
 case "$1" in
     '-s'|'-S'|'--sparse'|'--sparse-file')
         SPARSE=1
@@ -151,7 +163,10 @@ rm -f ./work/pacman.conf
 ##################################################
 echo "[] Creating temporary script"
 sleep 1
-cat <<EOF > /mnt/skuf_afterwork
+if [ -n "$POST_INSTALL" ]; then
+    cat "$POST_INSTALL" > /mnt/skuf_afterwork
+else
+    cat <<EOF > /mnt/skuf_afterwork
 #!/usr/bin/env bash
 echo "skuf" > /etc/hostname
 echo "127.0.0.1 localhost" >> /etc/hosts
@@ -162,6 +177,7 @@ echo "test:0000" | chpasswd --crypt-method SHA512
 sed 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' -i /etc/sudoers
 echo "LANG=C.UTF-8" > /etc/locale.conf
 EOF
+fi
 chmod 700 /mnt/skuf_afterwork
 ##################################################
 echo "[] Executing temporary script"

@@ -227,6 +227,8 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 
 - After building the ISO image and creating a file system image with Arch Linux you can execute `sudo ./clean.sh` to remove unnedeed files.
 
+- You can execute post-install script/binary during image creation via `./create_image.sh`. To do this, specify the file location via the `POST_INSTALL` [environment variable](https://wiki.archlinux.org/title/environment_variables).
+
 - Password for `root` and `test` users in `arch.ext4` is `0000`
 
 - If you enter something incorrectly while entering SMB address, kernel path, etc. at [step 1](#Step-1-Loading-kernel-and-initramfs-from-SMB-server) and fall into the interactive shell, write `reboot -f`. No, **you cannot restart the script**. Train your attention.
