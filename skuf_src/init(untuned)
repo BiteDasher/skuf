@@ -413,15 +413,15 @@ fsck_in_samba() {
 
 mount_newroot() {
     if [ -z "$newrootmountopts" ]; then
-        if ! mount /samba/"${smbvolumefilename}" /new_root; then
+        if ! mount -t "${rootfstype:-auto}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
-            echo "mount /samba/\"${smbvolumefilename}\" /new_root"
+            echo "mount -t \"${rootfstype:-auto}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     else
-        if ! mount -o "${newrootmountopts}" /samba/"${smbvolumefilename}" /new_root; then
+        if ! mount -t "${rootfstype:-auto}" -o "${newrootmountopts}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
-            echo "mount -o \"${newrootmountopts}\" /samba/\"${smbvolumefilename}\" /new_root"
+            echo "mount -t \"${rootfstype:-auto}\" -o \"${newrootmountopts}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     fi

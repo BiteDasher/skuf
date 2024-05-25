@@ -1056,15 +1056,15 @@ mount_newroot() {
     fi
 
     if [ "$(blkid -o value -s TYPE /samba/"${smbvolumefilename}")" == "ext4" ]; then
-        if ! mount -o "ro,noload${newrootmountoptsx}" /samba/"${smbvolumefilename}" /new_root; then
+        if ! mount -t "${rootfstype:-auto}" -o "ro,noload${newrootmountoptsx}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
-            echo "mount -o \"ro,noload${newrootmountoptsx}\" /samba/\"${smbvolumefilename}\" /new_root"
+            echo "mount -t \"${rootfstype:-auto}\" -o \"ro,noload${newrootmountoptsx}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     else
-        if ! mount -o "ro${newrootmountoptsx}" /samba/"${smbvolumefilename}" /new_root; then
+        if ! mount -t "${rootfstype:-auto}" -o "ro${newrootmountoptsx}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
-            echo "mount -o \"ro${newrootmountoptsx}\" /samba/\"${smbvolumefilename}\" /new_root"
+            echo "mount -t \"${rootfstype:-auto}\" -o \"ro${newrootmountoptsx}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     fi
