@@ -37,8 +37,8 @@ You have a USB flash drive/CD/DVD with an ISO image of `skuflinux` on it. You ha
 After booting from USB drive with `skuflinux` you will be prompted to enter SMB server address and port, user credentials and path to filesystem image. Now SKUF script will do the following:
 
 - Obtain an IP address using `dhcpcd`
-- Mount the SMB directory
-- Mount the image volume with Arch Linux
+- Mount the SMB directory (**read-only**)
+- Mount the image volume with Arch Linux (**read-only**)
 - Generate an encrypted string with your answers to the questions asked earlier
 - Load kernel and initramfs from a previously mounted Arch Linux image into RAM
 - Unmount SMB and image volume with Arch Linux
@@ -49,8 +49,9 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 
 - The newly booted system obtaining IP address again
 - The previously encrypted string contained your answers to the questions. It was passed to the kernel command line (`/proc/cmdline`) in encrypted form, and will now be decrypted, so you don't have to write it all over again.
-- Mounting the SMB directory again
-- Once the Arch Linux image volume is mounted, SKUF executes [switch_root](https://man.archlinux.org/man/switch_root.8.en) and system is booted. Congratulations!
+- Mounting the SMB directory again (**read/write**)
+- Mounting the image with Arch Linux again (**read/write**)
+- Once everything mounted, SKUF executes [switch_root](https://man.archlinux.org/man/switch_root.8.en) and system is booted. Congratulations!
 
 
 ## Building

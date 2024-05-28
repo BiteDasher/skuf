@@ -6,6 +6,8 @@ readonly sep="$(echo -ne '\037')"
 readonly _nl='
 '
 
+mountmode="rw"
+
 display_version() {
     local letter1="$(( RANDOM % 7 ))"
     local letter2="$(( RANDOM % 7 ))"
@@ -116,8 +118,6 @@ asshole_parse() {
     newrootfsck="${sambaopts%%:*}"
         #sambaopts="${sambaopts#*"${sep}"}" # cut
         sambaopts="${sambaopts#*:}" # cut
-
-    smbmode="rw"
 }
 
 bring_lo_up() {
@@ -354,15 +354,17 @@ quirk_vars() {
 }
 
 mount_samba() {
-    finalusername="username=$smbusername,"
-    [ -z "$smbport"      ] || finalport="port=$smbport,"
-    [ -z "$smbversion"   ] || finalversion="vers=$smbversion,"
-    [ -z "$smbdomain"    ] || finaldomain="domain=$smbdomain,"
-    [ -z "$smbmountopts" ] || finalmountopts="$smbmountopts,"
+    local finalusername finalport finalversion finaldomain finalmountopts
 
-    if ! PASSWD="$smbpassword" mount -t cifs -o "${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}" "//${smbaddr}${smbvolumepath}" /samba; then
+    finalusername=",username=$smbusername"
+    [ -z "$smbport"      ] || finalport=",port=$smbport"
+    [ -z "$smbversion"   ] || finalversion=",vers=$smbversion"
+    [ -z "$smbdomain"    ] || finaldomain=",domain=$smbdomain"
+    [ -z "$smbmountopts" ] || finalmountopts=",$smbmountopts"
+
+    if ! PASSWD="$smbpassword" mount -t cifs -o "${mountmode}${finalusername}${finalport}${finalversion}${finaldomain}${finalmountopts}" "//${smbaddr}${smbvolumepath}" /samba; then
         echo "Failed to mount SAMBA share!"
-        echo "PASSWD=\"$smbpassword\" mount -t cifs -o \"${finalusername}${finalport}${finaldomain}${finalmountopts}${finalversion}${smbmode}\" \"//${smbaddr}${smbvolumepath}\" /samba"
+        echo "PASSWD=\"$smbpassword\" mount -t cifs -o \"${mountmode}${finalusername}${finalport}${finalversion}${finaldomain}${finalmountopts}\" \"//${smbaddr}${smbvolumepath}\" /samba"
         launch_interactive_shell
     fi
 }
@@ -412,16 +414,27 @@ fsck_in_samba() {
 }
 
 mount_newroot() {
-    if [ -z "$newrootmountopts" ]; then
-        if ! mount -t "${rootfstype:-auto}" /samba/"${smbvolumefilename}" /new_root; then
+    local ext4mountmode newrootmountoptsx
+
+    case "$mountmode" in
+        "ro") ext4mountmode="ro,noload" ;;
+        "rw") ext4mountmode="rw"        ;;
+    esac
+
+    if [ -n "$newrootmountopts" ]; then
+        newrootmountoptsx=",$newrootmountopts"
+    fi
+
+    if [ "$(blkid -o value -s TYPE /samba/"${smbvolumefilename}")" == "ext4" ]; then
+        if ! mount -t "ext4" -o "${ext4mountmode}${newrootmountoptsx}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
-            echo "mount -t \"${rootfstype:-auto}\" /samba/\"${smbvolumefilename}\" /new_root"
+            echo "mount -t \"ext4\" -o \"${ext4mountmode}${newrootmountoptsx}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     else
-        if ! mount -t "${rootfstype:-auto}" -o "${newrootmountopts}" /samba/"${smbvolumefilename}" /new_root; then
+        if ! mount -t "${rootfstype:-auto}" -o "${mountmode}${newrootmountoptsx}" /samba/"${smbvolumefilename}" /new_root; then
             echo "Failed to mount /new_root!"
-            echo "mount -t \"${rootfstype:-auto}\" -o \"${newrootmountopts}\" /samba/\"${smbvolumefilename}\" /new_root"
+            echo "mount -t \"${rootfstype:-auto}\" -o \"${mountmode}${newrootmountoptsx}\" /samba/\"${smbvolumefilename}\" /new_root"
             launch_interactive_shell
         fi
     fi
