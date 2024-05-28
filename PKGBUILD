@@ -1,8 +1,8 @@
 # Maintainer: Artemy Sudakov <finziyr@yandex.ru>
 
 pkgname=skuf
-__mkinitcpio_base=39.1
-pkgver="24.1+${__mkinitcpio_base}"
+__mkinitcpio_base=39.2
+pkgver="24.2+${__mkinitcpio_base}"
 pkgrel=1
 pkgdesc="SKUF Network Boot System"
 arch=('any')
@@ -27,7 +27,7 @@ backup=('etc/mkinitcpio.conf')
 source=("file:///tmp/mkinitcpio.tar"
         "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.xz")
 sha512sums=('SKIP'
-            '8d6ed6eb222f34960e5cd9480e965f1fdb9b1af439d68e199cd17e92a3bbc8a34fb9d4ade1b32a3f8b844529b1c6fbeb2d2fa40e0cf9bd1dd767caa2bb148b60')
+            'e4ba9fe901da56bb116510ec0c6abeba5153e57d9545baccbc466932951b7f324aa75ef7cc3de87f966456b0365b17552f367411d62585d500e88dc5c815058b')
 
 package() {
     # mkinitcpio
