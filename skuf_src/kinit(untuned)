@@ -1110,9 +1110,9 @@ unpack_switch() {
 prepare_kexec() {
     msg "[] Loading kernel and initramfs into RAM"
 
-    if ! /switch/bin/kexec -l "/new_root${kernelpath}" --initrd="/new_root${initramfspath}" --command-line="${kernelopts}${sambaopts}" --console-vga --reset-vga; then
+    if ! /switch/bin/kexec -l "/new_root${kernelpath}" --initrd="/new_root${initramfspath}" --command-line="${kernelopts}${sambaopts}"; then
         echo "Failed to load kernel and initramfs to RAM!"
-        echo "/switch/bin/kexec -l \"/new_root${kernelpath}\" --initrd=\"/new_root${initramfspath}\" --command-line=\"${kernelopts}${sambaopts}\" --console-vga --reset-vga"
+        echo "/switch/bin/kexec -l \"/new_root${kernelpath}\" --initrd=\"/new_root${initramfspath}\" --command-line=\"${kernelopts}${sambaopts}\""
         launch_interactive_shell
     fi
 }
