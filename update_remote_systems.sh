@@ -41,7 +41,7 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
                        mounted
       -o <MOUNT_OPTS> Mount options for all remote systems
                        (default: rw)
-      -p <PKG>        Path to local pacman package file.
+      -p <PKG>        Path to local pacman package file
                        (Can be specified multiple times)
       -r              Do not copy /etc/resolv.conf from host to
                        remote system during update
