@@ -916,7 +916,7 @@ fi
 
 if (( store_pacman_cache )); then
     pacman_command+=("--cachedir")
-    pacman_command+=("/tmp/shared_cache_dir")
+    pacman_command+=("/tmp/shared_pacman_cache")
 fi
 
 pacman_command+=("--noconfirm")
