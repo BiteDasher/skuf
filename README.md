@@ -217,6 +217,25 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 - The `skuf.skip` preset in the kernel parameters will have a higher priority than same `SKIP` preset set in the `defaults` file or `{...}`/`[...]`.
 
 
+## Updating
+To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed.
+
+Let's assume you have an SMB server mounted in `/samba`:
+```
+/samba
+├── John Doe
+│   └── arch.ext4
+├── Foo Bar
+│   └── arch.ext4
+└── Lady Muck
+    └── arch.ext4
+```
+
+And so, you need to run the following command to update these 3 systems:
+```
+./update_remote_systems.sh /samba/*/arch.ext4
+```
+
 ## Tips and Tricks
 - It is highly recommended to have an **individual folder** with a volume file in it for each user on the SMB server. With this setup, there will be fewer possible caching issues (e.g. `cache=singleclient`).
 
