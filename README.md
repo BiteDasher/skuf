@@ -236,10 +236,8 @@ And so, you need to run the following command to update these 3 systems:
 ./update_remote_systems.sh /samba/*/arch.ext4
 ```
 
-To update **SKUF** and the system itself, put the package file somewhere and execute:
-```
-./update_remote_systems.sh -p /path/to/skuf.pkg.tar /samba/*/arch.ext4
-```
+> [!TIP]
+> To update **SKUF** and the system itself, put the package file somewhere and add `-p /path/to/skuf.pkg.tar` to script arguments.
 
 ## Tips and Tricks
 - It is highly recommended to have an **individual folder** with a volume file in it for each user on the SMB server. With this setup, there will be fewer possible caching issues (e.g. `cache=singleclient`).
