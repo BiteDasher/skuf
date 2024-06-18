@@ -867,7 +867,7 @@ send_usr2
 send_int
 
 msg "Done! Press any key to exit"
-read -r -n 1 unused
+read -s -r -n 1 unused
 exit 0
 EOF
 
