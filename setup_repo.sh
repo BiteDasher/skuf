@@ -43,7 +43,7 @@ install -d -m 755 /tmp/repo
 cp -a ./"$thispkgname" ./work/repo/
 
 pushd ./work/repo
-repo-add asshole.db.tar.gz *
+repo-add asshole.db.tar *
 cp -a * /tmp/repo/
 popd
 
