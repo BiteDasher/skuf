@@ -177,7 +177,7 @@ tmux_kill() {
 }
 
 tmux_send_term() {
-    kill -s TERM "$(<"$temporary/status_pid")" "$(<"$temporary/update_pid")"
+    kill -s TERM "$(<"$temporary/update_pid")" "$(<"$temporary/status_pid")"
 } &>/dev/null
 
 tmux_setup() {
