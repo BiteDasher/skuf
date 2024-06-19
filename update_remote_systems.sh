@@ -74,55 +74,41 @@ exit_if_empty() {
 
 while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
     case $__opt in
-        h)
-            usage
-            exit 0
-        ;;
-        a)
-            exit_if_empty "$OPTARG" "Path to post-install script cannot be empty"
-            post_script="$OPTARG"
-        ;;
-        b)
-            exit_if_empty "$OPTARG" "Path to pre-install script cannot be empty"
-            pre_script="$OPTARG"
-        ;;
-        c)
-            exit_if_empty "$OPTARG" "Path to pacman package cache directory cannot be empty"
-            store_pacman_cache=1
-            pacman_cache_dir="$OPTARG"
-        ;;
-        C)
-            store_pacman_cache=0
-        ;;
-        i)
-            ignore_fails=1
-        ;;
-        m)
-            exit_if_empty "$OPTARG" "Path to mount directory cannot be empty"
-            mount_dir="$OPTARG"
-        ;;
-        o)
-            all_mount_opts="$OPTARG"
-        ;;
-        p)
-            exit_if_empty "$OPTARG" "Path to local pacman package file cannot be empty"
-            pacman_packages+=("$OPTARG")
-        ;;
-        P)
-            install_on_sync=1
-        ;;
-        r)
-            copy_resolvconf=0
-        ;;
-        U)
-            update_systems=0
-        ;;
-        :)
-            die "option requires an argument -- '$OPTARG'"
-        ;;
-        ?)
-            die "invalid option -- '$OPTARG'"
-        ;;
+        h) usage
+           exit 0
+           ;;
+        a) exit_if_empty "$OPTARG" "Path to post-install script cannot be empty"
+           post_script="$OPTARG"
+           ;;
+        b) exit_if_empty "$OPTARG" "Path to pre-install script cannot be empty"
+           pre_script="$OPTARG"
+           ;;
+        c) exit_if_empty "$OPTARG" "Path to pacman package cache directory cannot be empty"
+           store_pacman_cache=1
+           pacman_cache_dir="$OPTARG"
+           ;;
+        C) store_pacman_cache=0
+           ;;
+        i) ignore_fails=1
+           ;;
+        m) exit_if_empty "$OPTARG" "Path to mount directory cannot be empty"
+           mount_dir="$OPTARG"
+           ;;
+        o) all_mount_opts="$OPTARG"
+           ;;
+        p) exit_if_empty "$OPTARG" "Path to local pacman package file cannot be empty"
+           pacman_packages+=("$OPTARG")
+           ;;
+        P) install_on_sync=1
+           ;;
+        r) copy_resolvconf=0
+           ;;
+        U) update_systems=0
+           ;;
+        :) die "option requires an argument -- '$OPTARG'"
+           ;;
+        ?) die "invalid option -- '$OPTARG'"
+           ;;
     esac
 done
 
@@ -301,25 +287,25 @@ get_operation() {
             op_symbol="-"
             startsym="$(echo -ne "\e[1;34m[\e[0m")"
             endsym="$(echo -ne "\e[1;34m]\e[0m")"
-        ;;
+            ;;
         update)
             symcolor="$(echo -ne "\e[0m")"
             op_symbol="."
             startsym="$(echo -ne "\e[1m[\e[0m")"
             endsym="$(echo -ne "\e[1m]\e[0m")"
-        ;;
+            ;;
         post_script)
             symcolor="$(echo -ne "\e[0;36m")"
             op_symbol="-"
             startsym="$(echo -ne "\e[1;36m[\e[0m")"
             endsym="$(echo -ne "\e[1;36m]\e[0m")"
-        ;;
+            ;;
         done)
             symcolor="$(echo -ne "\e[0;32m")"
             op_symbol="="
             startsym="$(echo -ne "\e[1;32m[\e[0m")"
             endsym="$(echo -ne "\e[1;32m]\e[0m")"
-        ;;
+            ;;
         problem)
             if (( ignore_fails )); then
                 symcolor="$(echo -ne "\e[0;31m")"
@@ -332,13 +318,13 @@ get_operation() {
                 startsym="$(echo -ne "\e[1;33m[\e[0m")"
                 endsym="$(echo -ne "\e[1;33m]\e[0m")"
             fi
-        ;;
+            ;;
         idle|*)
             symcolor="$(echo -ne "\e[0m")"
             op_symbol=" "
             startsym="$(echo -ne "\e[1m[\e[0m")"
             endsym="$(echo -ne "\e[1m]\e[0m")"
-        ;;
+            ;;
     esac
 }
 
@@ -661,9 +647,11 @@ drop_to_shell() {
            send_usr1
            [[ $STATUS == update ]] && update_success=1
            FAIL_ACTION=:
-        ;;
-        5) FAIL_ACTION="exit 5" ;;
-        1|*) FAIL_ACTION="on_fail; continue" ;;
+           ;;
+        5) FAIL_ACTION="exit 5"
+           ;;
+        1|*) FAIL_ACTION="on_fail; continue"
+           ;;
     esac
 }
 
@@ -677,51 +665,51 @@ fail() {
         mount)
             error "Failed to mount remote system to '$mount_dir' -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         chroot_setup)
             error "Failed to setup chroot mounts for remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         mount_shared_cache_dir)
             error "Failed to mount --bind shared pacman package cache directory '$shared_cache_dir' for remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         mount_packages)
             error "Failed to mount --bind packages for remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         install_pre_script)
             error "Failed to install pre-install script to remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         pre_script)
             error "pre-install script executed with non-zero exit code -- '$current_system'"
             drop_to_shell chroot
-        ;;
+            ;;
         install_update_script)
             error "Failed to install update script to remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         update)
             error "Failed to update remote system -- '$current_system'"
             drop_to_shell chroot
-        ;;
+            ;;
         install_post_script)
             error "Failed to install post-install script to remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         post_script)
             error "post-install script executed with non-zero exit code -- '$current_system'"
             drop_to_shell chroot
-        ;;
+            ;;
         chroot_teardown)
             error "Failed to umount chroot mounts for remote system -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
         umount)
             error "Failed to umount remote system from '$mount_dir' -- '$current_system'"
             drop_to_shell
-        ;;
+            ;;
     esac
 }
 
