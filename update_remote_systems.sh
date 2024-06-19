@@ -185,7 +185,7 @@ stty_size() {
 tmux_setup() {
     tmux -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
     tmux -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
-    tmux resize-pane -t skuf_update:0.0 -x 16 &&
+    tmux resize-pane -t skuf_update:0.0 -x 14 &&
     tmux select-pane -t skuf_update:0.0 -d &&
     tmux select-pane -t skuf_update:0.1 -e
 }
