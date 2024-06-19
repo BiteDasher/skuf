@@ -172,7 +172,7 @@ tmux_check() {
 }
 
 tmux_kill() {
-    tmux kill-session skuf_update &>/dev/null
+    tmux kill-session -t skuf_update &>/dev/null
 }
 
 tmux_setup() {
