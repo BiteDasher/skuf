@@ -632,7 +632,7 @@ drop_to_shell() {
         msg " If the problem is solved, write 'exit 0', and if not, write 'exit 1'"
         msg " If you want to abort the whole update process, write 'exit 5'"
         flush_stdin
-        SHELL=/bin/bash chroot -- "$mount_dir"
+        SHELL=/bin/bash chroot "$mount_dir"
         SHELL_EXIT="$?"
     else
         msg "Right now you are in a shell on the host. Try to figure out the problem."
@@ -814,7 +814,7 @@ for index in "${!remote_systems[@]}"; do
         }
         echo "pre_script" > "$temporary/system.$index"
         send_usr1
-        chroot -- "$mount_dir" /tmp/pre_script || {
+        chroot "$mount_dir" /tmp/pre_script || {
             fail pre_script
             eval "$FAIL_ACTION"
         }
@@ -826,7 +826,7 @@ for index in "${!remote_systems[@]}"; do
     }
     echo "update" > "$temporary/system.$index"
     send_usr1
-    if chroot -- "$mount_dir" /tmp/update_script; then
+    if chroot "$mount_dir" /tmp/update_script; then
         update_success=1
     else
         fail update
@@ -840,7 +840,7 @@ for index in "${!remote_systems[@]}"; do
         }
         echo "post_script" > "$temporary/system.$index"
         send_usr1
-        chroot -- "$mount_dir" /tmp/post_script || {
+        chroot "$mount_dir" /tmp/post_script || {
             fail post_script
             eval "$FAIL_ACTION"
         }
