@@ -902,7 +902,7 @@ create_pacman_config() {
         cat /etc/pacman.conf
         echo ""
         echo "[some_pacman_repo]"
-        echo "SigLevel = optional"
+        echo "SigLevel = Optional"
         echo "Server = file:///tmp/some_pacman_repo"
     } > /tmp/mod_pacman.conf
 }
