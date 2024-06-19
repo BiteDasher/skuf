@@ -175,10 +175,6 @@ tmux_kill() {
     tmux kill-session skuf_update &>/dev/null
 }
 
-tmux_send_term() {
-    kill -s TERM "$(<"$temporary/update_pid")" "$(<"$temporary/status_pid")"
-} &>/dev/null
-
 tmux_setup() {
     tmux -f <(tmux_config) new-session -s skuf_update -d "$temporary/update" &&
     tmux -f <(tmux_config) split-window -t skuf_update -b -v "$temporary/status" &&
@@ -979,8 +975,8 @@ generate_status
 generate_update_script
 
 tmux_check
-tmux_setup || { tmux_send_term; tmux_kill; die "Unable to setup tmux session"; }
-tmux_atttach || { tmux_send_term; tmux_kill; die "Unable to attach to tmux session"; }
+tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
+tmux_atttach || { tmux_kill; die "Unable to attach to tmux session"; }
 tmux_kill
 
 :
