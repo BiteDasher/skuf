@@ -770,7 +770,7 @@ for index in "${!remote_systems[@]}"; do
     update_success=0
     FAIL_ACTION=:
     current_system="${remote_systems[$index]}"
-    if [[ "$current_system" == *::* ]];
+    if [[ "$current_system" == *::* ]]; then
         system_mount_opts="${current_system##*::}"
         current_system="${current_system%::*}"
     else
