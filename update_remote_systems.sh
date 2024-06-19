@@ -632,14 +632,14 @@ drop_to_shell() {
         msg " If the problem is solved, write 'exit 0', and if not, write 'exit 1'"
         msg " If you want to abort the whole update process, write 'exit 5'"
         flush_stdin
-        SHELL=/bin/bash chroot -- "$mount_dir" /bin/bash -l
+        SHELL=/bin/bash chroot -- "$mount_dir"
         SHELL_EXIT="$?"
     else
         msg "Right now you are in a shell on the host. Try to figure out the problem."
         msg " If the problem is solved, write 'exit 0', and if not, write 'exit 1'"
         msg " If you want to abort the whole update process, write 'exit 5'"
         flush_stdin
-        bash -l
+        bash -i
         SHELL_EXIT="$?"
     fi
 
