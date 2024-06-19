@@ -459,6 +459,7 @@ for_sigusr2() {
 }
 
 for_sigwinch() {
+    [[ -d "$temporary" ]] || exit 0
     DRAW_COUNTER=0
     draw_params
     draw_bars
