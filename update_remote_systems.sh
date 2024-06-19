@@ -738,6 +738,7 @@ on_fail() {
 }
 
 for_exit() {
+    trap - EXIT INT TERM HUP QUIT
     on_fail
     rm -r -f "$temporary"
 }
@@ -750,8 +751,9 @@ done
 
 status_pid="$(<"$temporary/status_pid")"
 
-trap ! INT
 trap for_exit EXIT
+trap ! INT
+trap "exit 1" TERM HUP QUIT
 
 for index in "${!remote_systems[@]}"; do
     echo "idle" > "$temporary/status.$index"
