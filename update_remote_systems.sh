@@ -121,14 +121,21 @@ while getopts ':ha:b:c:Cim:o:p:Ur' __opt; do
 done
 
 check_binaries() {
-    local binary binaries=(tmux realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
+    local text1 text2 binary binaries=(tmux realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
 
     for binary in "${binaries[@]}"; do
         command -v "$binary" &>/dev/null || notfound+=("$binary")
     done
 
     if (( ${#notfound[@]} )); then
-        die "The following binaries required for execution were not found: ${notfound[*]}"
+        if (( ${#notfound[@]} == 1 )); then
+            text1="binary"
+            text2="was"
+        else
+            text1="binaries"
+            text2="were"
+        fi
+        die "The following ${text1} required for execution ${text2} not found: ${notfound[*]}"
     fi
 }
 
