@@ -976,7 +976,7 @@ generate_update_script
 
 tmux_check
 tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
-tmux_atttach || { tmux_kill; die "Unable to attach to tmux session"; }
+tmux_attach || { tmux_kill; die "Unable to attach to tmux session"; }
 tmux_kill
 
 :
