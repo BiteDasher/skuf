@@ -36,7 +36,7 @@ while read -r pair; do
         *[\^:]*)
             echo "Characters '^' and ':' are forbidden to use" >&2
             continue
-        ;;
+            ;;
     esac
 
     echo "$from -> $to"

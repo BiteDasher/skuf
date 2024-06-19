@@ -73,11 +73,11 @@ case "$1" in
         SPARSE=1
         filetype="sparse"
         shift
-    ;;
+        ;;
     *)
         SPARSE=0
         filetype="empty"
-    ;;
+        ;;
 esac
 
 if [ -z "$1" ]; then
@@ -89,14 +89,14 @@ case "$1" in
     ''|*[!0-9]*)
         echo "size containts something other than number!" >&2
         exit 1
-    ;;
+        ;;
     0*)
         echo "size argument should not start with 0!" >&2
         exit 1
-    ;;
+        ;;
     *)
         :
-    ;;
+        ;;
 esac
 
 if [ ! -d /mnt ]; then

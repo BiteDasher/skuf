@@ -177,7 +177,7 @@ check_smbaddr() {
         *'/'*|*'\'*)
             echo -e "  \e[1;31m! SAMBA server address cannot be a path\e[0m"
             return 1
-        ;;
+            ;;
     esac
 
     return 0
@@ -240,7 +240,7 @@ check_smbvolumefilename() {
         *"/")
             echo -e "  \e[1;31m! Volume file cannot be a folder\e[0m"
             return 1
-        ;;
+            ;;
     esac
 
     return 0
@@ -257,7 +257,7 @@ check_smbswapfilename() {
         *"/")
             echo -e "  \e[1;31m! Swap file cannot be a folder\e[0m"
             return 1
-        ;;
+            ;;
     esac
 
     return 0
@@ -288,17 +288,17 @@ check_newrootfsck() {
     case "$newrootfsck" in
         1|Y|y|Yes|yes|True|true|Д|д|Да|да)
             return 0
-        ;;
+            ;;
         0|N|n|No|no|False|false|Н|н|Нет|нет)
             return 0
-        ;;
+            ;;
         "")
             return 0
-        ;;
+            ;;
         *)
             echo -e "  \e[1;31m! Unknown answer variant\e[0m"
             return 1
-        ;;
+            ;;
     esac
 }
 
@@ -323,7 +323,7 @@ check_kernelpath() {
         *"/")
             echo -e "  \e[1;31m! Path to kernel cannot be a folder\e[0m"
             return 1
-        ;;
+            ;;
     esac
 
     return 0
@@ -341,7 +341,7 @@ check_initramfspath() {
         *"/")
             echo -e "  \e[1;31m! Path to initramfs cannot be a folder\e[0m"
             return 1
-        ;;
+            ;;
     esac
 
     return 0
@@ -351,58 +351,58 @@ translate_preset_var() {
     case "$1" in
         "")
             echo X
-        ;;
+            ;;
         "SAMBA_USERNAME"|"samba_username")
             echo "smbusername"
-        ;;
+            ;;
         "SAMBA_PASSWORD"|"samba_password")
             echo "smbpassword"
-        ;;
+            ;;
         "SAMBA_ADDRESS"|"samba_address")
             echo "smbaddr"
-        ;;
+            ;;
         "SAMBA_PORT"|"samba_port")
             echo "smbport"
-        ;;
+            ;;
         "SAMBA_VERSION"|"samba_version")
             echo "smbversion"
-        ;;
+            ;;
         "SAMBA_DOMAIN"|"samba_domain")
             echo "smbdomain"
-        ;;
+            ;;
         "VOLUME_PATH"|"volume_path")
             echo "smbvolumepath"
-        ;;
+            ;;
         "VOLUME_FILENAME"|"volume_filename")
             echo "smbvolumefilename"
-        ;;
+            ;;
         "SWAP_FILENAME"|"swap_filename")
             echo "smbswapfilename"
-        ;;
+            ;;
         "SAMBA_EXTRA_MOUNT_OPTS"|"samba_extra_mount_opts")
             echo "smbmountopts"
-        ;;
+            ;;
         "VOLUME_EXTRA_MOUNT_OPTS"|"volume_extra_mount_opts")
             echo "newrootmountopts"
-        ;;
+            ;;
         "CHECK_FS"|"check_fs")
             echo "newrootfsck"
-        ;;
+            ;;
         "EXTRA_KERNEL_OPTS"|"extra_kernel_opts")
             echo "kernelopts"
-        ;;
+            ;;
         "PATH_TO_NEW_KERNEL"|"path_to_new_kernel")
             echo "kernelpath"
-        ;;
+            ;;
         "PATH_TO_NEW_INITRAMFS"|"path_to_new_initramfs")
             echo "initramfspath"
-        ;;
+            ;;
         "MAX_SMB_RETRY_COUNT"|"max_smb_retry_count")
             echo "smbretry"
-        ;;
+            ;;
         *)
             echo X
-        ;;
+            ;;
     esac
 }
 
@@ -420,43 +420,43 @@ process_skip() {
     case "$preset_skip" in
         "")
             skuf_skip=0
-        ;;
+            ;;
         1|Y|y|Yes|yes|True|true|Д|д|Да|да)
             skuf_skip=1
-        ;;
+            ;;
         0|N|n|No|no|False|false|Н|н|Нет|нет)
             skuf_skip=0
-        ;;
+            ;;
         *)
             skuf_skip=0
-        ;;
+            ;;
     esac
 
     case "$skip_single" in
         "")
             maybe_skip=1
-        ;;
+            ;;
         "skuf.skip"|"skuf.SKIP")
             skuf_skip=1
-        ;;
+            ;;
         "skuf.skip="*|"skuf.SKIP="*)
             cutted="${skip_single#*=}"
             cutted="${cutted//[\"\'\\ ]/}"
             case "$cutted" in
                 "")
                     maybe_skip=1
-                ;;
+                    ;;
                 1|Y|y|Yes|yes|True|true|Д|д|Да|да)
                     skuf_skip=1
-                ;;
+                    ;;
                 0|N|n|No|no|False|false|Н|н|Нет|нет)
                     skuf_skip=0
-                ;;
+                    ;;
                 *)
                     maybe_skip=1
-                ;;
+                    ;;
             esac
-        ;;
+            ;;
     esac
 }
 
@@ -482,19 +482,19 @@ process_presets() {
                     evalvalue="${evalvalue%\"}"
                     evalvalue="${evalvalue//\\\"/\"}"
                     evalvalue="${evalvalue//\\\\/\\}"
-                ;;
+                    ;;
                 \'*\')
                     evalvalue="${evalvalue#\'}"
                     evalvalue="${evalvalue%\'}"
                     evalvalue="${evalvalue//\\\'/\'}"
                     evalvalue="${evalvalue//\\\\/\\}"
-                ;;
+                    ;;
                 *)
                     evalvalue="${evalvalue//\\ / }"
                     evalvalue="${evalvalue//\\\"/\"}"
                     evalvalue="${evalvalue//\\\'/\'}"
                     evalvalue="${evalvalue//\\\\/\\}"
-                ;;
+                    ;;
             esac
 
             eval 'preset_'"$evalname"'="$evalvalue"'
@@ -670,19 +670,19 @@ get_smbaddr_type() {
         case "$smbaddr" in
             "169.254."*)
                 so_this_is=ipv4ll
-            ;;
+                ;;
             *)
                 so_this_is=ipv4
-            ;;
+                ;;
         esac
     elif echo "$smbaddr" | grep -q -E -o '^(::)?[0-9a-fA-F]{1,4}(::?[0-9a-fA-F]{1,4}){1,7}(::)?(%[0-9a-zA-Z_-]+)?$'; then
         case "$smbaddr" in
             [fF][eE]80::*)
                 so_this_is=slaac
-            ;;
+                ;;
             *)
                 so_this_is=ipv6
-            ;;
+                ;;
         esac
     elif echo "$smbaddr" | grep -q -o '.*\.local$'; then
         so_this_is=zeroconf
@@ -743,42 +743,42 @@ GREP
 
     case "$type_of_smbaddr" in
         "ipv4")
-                if [ $ipv4 -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IPv4 address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv4 -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IPv4 address not received"
+                return 1
+            fi
+            ;;
         "ipv4ll")
-                if [ $ipv4   -gt 0 ] || \
-                   [ $ipv4ll -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IPv4 address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv4   -gt 0 ] || \
+               [ $ipv4ll -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IPv4 address not received"
+                return 1
+            fi
+            ;;
         "ipv6"|"slaac")
-                if [ $ipv6  -gt 0 ] || \
-                   [ $slaac -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IPv6 address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv6  -gt 0 ] || \
+               [ $slaac -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IPv6 address not received"
+                return 1
+            fi
+            ;;
         "zeroconf"|"domain")
-                if [ $ipv4   -gt 0 ] || \
-                   [ $ipv6   -gt 0 ] || \
-                   [ $slaac  -gt 0 ] || \
-                   [ $ipv4ll -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IP address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv4   -gt 0 ] || \
+               [ $ipv6   -gt 0 ] || \
+               [ $slaac  -gt 0 ] || \
+               [ $ipv4ll -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IP address not received"
+                return 1
+            fi
+            ;;
     esac
 
     return 1
@@ -892,10 +892,10 @@ quirk_post() {
     case "$newrootfsck" in
         1|Y|y|Yes|yes|True|true|Д|д|Да|да)
             newrootfsck="Yes"
-        ;;
+            ;;
         0|N|n|No|no|False|false|Н|н|Нет|нет)
             newrootfsck="No"
-        ;;
+            ;;
     esac
 
     case "$kernelpath" in

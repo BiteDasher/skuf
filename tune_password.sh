@@ -31,10 +31,10 @@ case "$iter" in
     ''|*[!0-9]*)
         echo "iter containts something other than number!" >&2
         exit 1
-    ;;
+        ;;
     *)
         :
-    ;;
+        ;;
 esac
 
 password="${data#* }"

@@ -131,19 +131,19 @@ get_smbaddr_type() {
         case "$smbaddr" in
             "169.254."*)
                 so_this_is=ipv4ll
-            ;;
+                ;;
             *)
                 so_this_is=ipv4
-            ;;
+                ;;
         esac
     elif echo "$smbaddr" | grep -q -E -o '^(::)?[0-9a-fA-F]{1,4}(::?[0-9a-fA-F]{1,4}){1,7}(::)?(%[0-9a-zA-Z_-]+)?$'; then
         case "$smbaddr" in
             [fF][eE]80::*)
                 so_this_is=slaac
-            ;;
+                ;;
             *)
                 so_this_is=ipv6
-            ;;
+                ;;
         esac
     elif echo "$smbaddr" | grep -q -o '.*\.local$'; then
         so_this_is=zeroconf
@@ -204,42 +204,42 @@ GREP
 
     case "$type_of_smbaddr" in
         "ipv4")
-                if [ $ipv4 -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IPv4 address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv4 -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IPv4 address not received"
+                return 1
+            fi
+            ;;
         "ipv4ll")
-                if [ $ipv4   -gt 0 ] || \
-                   [ $ipv4ll -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IPv4 address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv4   -gt 0 ] || \
+               [ $ipv4ll -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IPv4 address not received"
+                return 1
+            fi
+            ;;
         "ipv6"|"slaac")
-                if [ $ipv6  -gt 0 ] || \
-                   [ $slaac -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IPv6 address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv6  -gt 0 ] || \
+               [ $slaac -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IPv6 address not received"
+                return 1
+            fi
+            ;;
         "zeroconf"|"domain")
-                if [ $ipv4   -gt 0 ] || \
-                   [ $ipv6   -gt 0 ] || \
-                   [ $slaac  -gt 0 ] || \
-                   [ $ipv4ll -gt 0 ]; then
-                    return 0
-                else
-                    echo "dhcpcd failed: IP address not received"
-                    return 1
-                fi
-        ;;
+            if [ $ipv4   -gt 0 ] || \
+               [ $ipv6   -gt 0 ] || \
+               [ $slaac  -gt 0 ] || \
+               [ $ipv4ll -gt 0 ]; then
+                return 0
+            else
+                echo "dhcpcd failed: IP address not received"
+                return 1
+            fi
+            ;;
     esac
 
     return 1

@@ -7,10 +7,10 @@ fi
 case "$@" in
     "latest")
         tag="$(git describe --tags "$(git rev-list --tags --max-count=1)")"
-    ;;
+        ;;
     *)
         tag="$@"
-    ;;
+        ;;
 esac
 
 if [ -z "$(git tag -l "$tag")" ]; then
