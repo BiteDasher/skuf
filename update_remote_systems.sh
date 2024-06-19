@@ -8,6 +8,7 @@ ignore_fails=0
 mount_dir="/mnt"
 all_mount_opts="rw"
 pacman_packages=()
+install_on_sync=0
 copy_resolvconf=1
 update_systems=1
 
@@ -42,6 +43,8 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
                        (default: rw)
       -p <PKG>        Path to local pacman package file
                        (Can be specified multiple times)
+      -P              Provide 'pacman -Syu' with a list of packages
+                       specified in '-p' for explicit (re)installation
       -r              Do not copy /etc/resolv.conf from host to
                        remote system during update
       -U              Do not update remote systems via 'pacman -Syu',
@@ -69,7 +72,7 @@ exit_if_empty() {
     fi
 }
 
-while getopts ':ha:b:c:Cim:o:p:Ur' __opt; do
+while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
     case $__opt in
         h)
             usage
@@ -104,6 +107,9 @@ while getopts ':ha:b:c:Cim:o:p:Ur' __opt; do
         p)
             exit_if_empty "$OPTARG" "Path to local pacman package file cannot be empty"
             pacman_packages+=("$OPTARG")
+        ;;
+        P)
+            install_on_sync=1
         ;;
         r)
             copy_resolvconf=0
@@ -525,7 +531,7 @@ cat <<'EOF' > "$temporary/update"
 
 EOF
 
-declare -p post_script pre_script pacman_cache_dir store_pacman_cache ignore_fails mount_dir all_mount_opts pacman_packages copy_resolvconf update_systems remote_systems temporary >> "$temporary/update"
+declare -p post_script pre_script pacman_cache_dir store_pacman_cache ignore_fails mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf update_systems remote_systems temporary >> "$temporary/update"
 declare -fp out error warning msg die >> "$temporary/update"
 
 cat <<'EOF' >> "$temporary/update"
@@ -886,7 +892,7 @@ cat <<'EOF' > "$temporary/update_script"
 
 EOF
 
-declare -p store_pacman_cache pacman_packages update_systems >> "$temporary/update_script"
+declare -p store_pacman_cache pacman_packages install_on_sync update_systems >> "$temporary/update_script"
 declare -fp out error warning msg die >> "$temporary/update_script"
     
 cat <<'EOF' >> "$temporary/update_script"
@@ -927,7 +933,12 @@ fi
 
 pacman_command+=("--noconfirm")
 
-if (( ! update_systems )); then
+if (( update_systems )); then
+    if (( install_on_sync && ${#pacman_packages[@]} )); then
+        pacman_command+=("--")
+        mapfile -t -O ${#pacman_command[@]} pacman_command < <(tar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/%NAME%/,/^[[:space:]]*$/!d;/%NAME%/d;/^[[:space:]]*$/d')
+    fi
+else
     pacman_command+=("--")
     for pkg in /tmp/some_pacman_repo/*; do
         pacman_command+=("$pkg")
