@@ -738,7 +738,7 @@ on_fail() {
 }
 
 for_exit() {
-    trap - EXIT INT TERM HUP QUIT
+    trap '' EXIT INT TERM HUP QUIT
     on_fail
     rm -r -f "$temporary"
 }
