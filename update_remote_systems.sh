@@ -35,8 +35,7 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
                        package cache shared by remote systems will be
                        stored (default: /var/cache/pacman/pkg)
       -C              Do not use shared pacman package cache
-      -i              Continue to update remote systems even if one
-                       of them fails
+      -i              Ignore all errors during the update
       -m <MOUNT_DIR>  Path to directory where remote systems will be
                        mounted
       -o <MOUNT_OPTS> Mount options for all remote systems
