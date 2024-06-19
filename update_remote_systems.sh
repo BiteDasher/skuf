@@ -749,7 +749,7 @@ done
 
 status_pid="$(<"$temporary/status_pid")"
 
-trap : INT
+trap ! INT
 trap for_exit EXIT
 
 for index in "${!remote_systems[@]}"; do
