@@ -771,6 +771,8 @@ cd /
 
 system_mount_opts=
 for index in "${!remote_systems[@]}"; do
+    read -s -r -d '' -t 0.1 unused
+
     update_success=0
     FAIL_ACTION=:
     current_system="${remote_systems[$index]}"
@@ -871,6 +873,8 @@ for index in "${!remote_systems[@]}"; do
         echo "done" > "$temporary/system.$index"
         send_usr1
     fi
+
+    read -s -r -d '' -t 0.1 unused
 done
 send_usr2
 send_int
