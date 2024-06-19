@@ -186,8 +186,8 @@ tmux_setup() {
     tmux -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
     tmux -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
     tmux resize-pane -t skuf_update:0.0 -x 16 &&
-    tmux select-pane -t skuf_update:0.0 -d -T "Status" &&
-    tmux select-pane -t skuf_update:0.1 -e -T "Remote systems"
+    tmux select-pane -t skuf_update:0.0 -d &&
+    tmux select-pane -t skuf_update:0.1 -e
 }
 
 tmux_attach() {
@@ -475,6 +475,8 @@ for_sigint() {
     trap - INT
 }
 
+echo -ne "\e]0;Status\a"
+
 until [[ -f "$temporary/update_pid" ]]; do
     :
 done
@@ -745,6 +747,8 @@ for_exit() {
     on_fail
     rm -r -f "$temporary"
 }
+
+echo -ne "\e]0;Remote systems\a"
 
 echo "$$" > "$temporary/update_pid"
 
