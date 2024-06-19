@@ -763,7 +763,7 @@ trap ! INT
 trap "exit 1" TERM HUP QUIT
 
 for index in "${!remote_systems[@]}"; do
-    echo "idle" > "$temporary/status.$index"
+    echo "idle" > "$temporary/system.$index"
     last_index="$index"
 done
 
