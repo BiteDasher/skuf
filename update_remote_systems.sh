@@ -158,6 +158,7 @@ tmux_config() {
 set -g mouse on
 set -g history-limit 10000
 set -g status-position bottom
+set -g status-left-length 20
 set -g pane-border-status top
 set -g pane-border-format " #{pane_title} "
 set -g pane-border-style fg=green
@@ -175,12 +176,18 @@ tmux_kill() {
     tmux kill-session -t skuf_update &>/dev/null
 }
 
+stty_size() {
+    tty_size="$(stty size)" || return 1
+    tty_x="${tty_size##* }"; tty_x="${tty_x:-0}"
+    tty_y="${tty_size%% *}"; tty_y="${tty_y:-0}"
+}
+
 tmux_setup() {
-    tmux -f <(tmux_config) new-session -s skuf_update -d "$temporary/update" &&
-    tmux -f <(tmux_config) split-window -t skuf_update -b -v "$temporary/status" &&
-    tmux resize-pane -t skuf_update:0.1 -x 16 &&
-    tmux select-pane -t skuf_update:0.1 -d -T "Status" &&
-    tmux select-pane -t skuf_update:0.0 -e -T "Remote systems"
+    tmux -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
+    tmux -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
+    tmux resize-pane -t skuf_update:0.0 -x 16 &&
+    tmux select-pane -t skuf_update:0.0 -d -T "Status" &&
+    tmux select-pane -t skuf_update:0.1 -e -T "Remote systems"
 }
 
 tmux_attach() {
@@ -975,6 +982,7 @@ generate_status
 generate_update_script
 
 tmux_check
+stty_size || die "Unable to fetch terminal window size"
 tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
 tmux_attach || { tmux_kill; die "Unable to attach to tmux session"; }
 tmux_kill
