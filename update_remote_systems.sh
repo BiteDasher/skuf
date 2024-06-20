@@ -506,9 +506,11 @@ move_cursor 8
 
 DRAW_PROGRESS=1
 DRAW_COUNTER=1
+
+exec {read_hole}<><(:) || { exec 5<><(:); read_hole=5; }
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
-    read -s -r -t 0.2 unused
+    read -r -t 0.2 unused <&${read_hole}
 done
 
 exit 0
@@ -770,9 +772,9 @@ done
 
 cd /
 
-system_mount_opts=
+exec {read_hole}<><(:) || { exec 5<><(:); read_hole=5; }
 for index in "${!remote_systems[@]}"; do
-    read -s -r -d '' -t 0.1 unused
+    read -r -t 0.1 unused <&${read_hole}
 
     update_success=0
     FAIL_ACTION=:
@@ -875,7 +877,7 @@ for index in "${!remote_systems[@]}"; do
         send_usr1
     fi
 
-    read -s -r -d '' -t 0.1 unused
+    read -r -t 0.1 unused <&${read_hole}
 done
 send_usr2
 send_int
