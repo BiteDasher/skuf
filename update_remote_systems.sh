@@ -507,7 +507,7 @@ move_cursor 8
 DRAW_PROGRESS=1
 DRAW_COUNTER=1
 
-exec {read_hole}<><(:) || { exec 5<><(:); read_hole=5; }
+exec {read_hole}<><(:)
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
     read -r -t 0.2 unused <&${read_hole}
@@ -772,7 +772,7 @@ done
 
 cd /
 
-exec {read_hole}<><(:) || { exec 5<><(:); read_hole=5; }
+exec {read_hole}<><(:)
 for index in "${!remote_systems[@]}"; do
     read -r -t 0.1 unused <&${read_hole}
 
