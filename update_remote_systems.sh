@@ -167,13 +167,13 @@ EOF
 }
 
 tmux_check() {
-    if tmux has-session -t skuf_update &>/dev/null; then
-        die "tmux session 'skuf_update' already exists! Check it."
+    if tmux -L skuf_tmux has-session -t skuf_update &>/dev/null; then
+        die "tmux session 'skuf_update' on socket 'skuf_tmux' already exists! Check it. (use 'tmux -L' to specify socket)"
     fi
 }
 
 tmux_kill() {
-    tmux kill-session -t skuf_update &>/dev/null
+    tmux -L skuf_tmux kill-session -t skuf_update &>/dev/null
 }
 
 stty_size() {
@@ -183,15 +183,15 @@ stty_size() {
 }
 
 tmux_setup() {
-    tmux -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
-    tmux -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
-    tmux resize-pane -t skuf_update:0.0 -x 14 &&
-    tmux select-pane -t skuf_update:0.0 -d &&
-    tmux select-pane -t skuf_update:0.1 -e
+    tmux -L skuf_tmux -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
+    tmux -L skuf_tmux -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
+    tmux -L skuf_tmux resize-pane -t skuf_update:0.0 -x 14 &&
+    tmux -L skuf_tmux select-pane -t skuf_update:0.0 -d &&
+    tmux -L skuf_tmux select-pane -t skuf_update:0.1 -e
 }
 
 tmux_attach() {
-    tmux attach-session -t skuf_update
+    tmux -L skuf_tmux attach-session -t skuf_update
 }
 
 mutate_opts() {
