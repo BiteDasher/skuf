@@ -873,13 +873,9 @@ for index in "${!remote_systems[@]}"; do
 
     if (( update_success )); then
         echo "done" > "$temporary/system.$index"
-        send_usr1
     else
         echo "fail" > "$temporary/system.$index"
-        send_usr1
     fi
-
-    read -r -t 0.1 unused <&${read_hole}
 done
 send_usr2
 send_int
