@@ -939,7 +939,7 @@ pacman_command+=("--noconfirm")
 if (( update_systems )); then
     if (( install_on_sync && ${#pacman_packages[@]} )); then
         pacman_command+=("--")
-        mapfile -t -O ${#pacman_command[@]} pacman_command < <(tar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/%NAME%/,/^[[:space:]]*$/!d;/%NAME%/d;/^[[:space:]]*$/d')
+        mapfile -t -O ${#pacman_command[@]} pacman_command < <(tar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')
     fi
 else
     pacman_command+=("--")
