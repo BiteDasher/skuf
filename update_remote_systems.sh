@@ -986,8 +986,8 @@ check_opts_dups
 
 temporary="$(crtemp)" || die "Unable to create temporary directory"
 
-generate_update
 generate_status
+generate_update
 generate_update_script
 
 tmux_check
