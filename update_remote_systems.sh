@@ -616,7 +616,6 @@ mount_shared_cache_dir() {
     }
 }
 
-
 flush_stdin() {
     local unused
     read -r -d '' -t 0.1 -n 9999 unused
@@ -877,6 +876,8 @@ for index in "${!remote_systems[@]}"; do
         echo "fail" > "$temporary/system.$index"
     fi
 done
+read -r -t 0.1 unused <&${read_hole}
+
 send_usr2
 send_int
 
