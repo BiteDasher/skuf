@@ -275,7 +275,7 @@ cat <<'EOF' > "$temporary/status"
 
 EOF
 
-declare -p ignore_fails remote_systems temporary >> "$temporary/status"
+declare -p remote_systems temporary >> "$temporary/status"
 
 cat <<'EOF' >> "$temporary/status"
 
@@ -310,17 +310,16 @@ get_operation() {
             endsym="$(echo -ne "\e[1;32m]\e[0m")"
             ;;
         problem)
-            if (( ignore_fails )); then
-                symcolor="$(echo -ne "\e[0;31m")"
-                op_symbol="X"
-                startsym="$(echo -ne "\e[1;31m[\e[0m")"
-                endsym="$(echo -ne "\e[1;31m]\e[0m")"
-            else
-                symcolor="$(echo -ne "\e[0;33m")"
-                op_symbol="?"
-                startsym="$(echo -ne "\e[1;33m[\e[0m")"
-                endsym="$(echo -ne "\e[1;33m]\e[0m")"
-            fi
+            symcolor="$(echo -ne "\e[0;33m")"
+            op_symbol="?"
+            startsym="$(echo -ne "\e[1;33m[\e[0m")"
+            endsym="$(echo -ne "\e[1;33m]\e[0m")"
+            ;;
+        fail)
+            symcolor="$(echo -ne "\e[0;31m")"
+            op_symbol="X"
+            startsym="$(echo -ne "\e[1;31m[\e[0m")"
+            endsym="$(echo -ne "\e[1;31m]\e[0m")"
             ;;
         idle|*)
             symcolor="$(echo -ne "\e[0m")"
@@ -656,9 +655,9 @@ drop_to_shell() {
            [[ $STATUS == update ]] && update_success=1
            FAIL_ACTION=:
            ;;
-        5) FAIL_ACTION="exit 5"
+        5) FAIL_ACTION='exit 5'
            ;;
-        1|*) FAIL_ACTION="on_fail; continue"
+      1|*) FAIL_ACTION='on_fail; echo "fail" > "$temporary/system.$index"; continue'
            ;;
     esac
 }
@@ -874,6 +873,9 @@ for index in "${!remote_systems[@]}"; do
 
     if (( update_success )); then
         echo "done" > "$temporary/system.$index"
+        send_usr1
+    else
+        echo "fail" > "$temporary/system.$index"
         send_usr1
     fi
 
