@@ -156,13 +156,13 @@ crtemp() {
 tmux_config() {
     cat <<EOF
 set -g mouse on
-set -g history-limit 10000
+set -g history-limit 100000
 set -g status-position bottom
 set -g status-left-length 20
 set -g pane-border-status top
 set -g pane-border-format " #{pane_title} "
-set -g pane-border-style fg=green
-set -g pane-active-border-style bg=default,fg=gray
+set -g pane-border-style bg=default,fg=gray
+set -g pane-active-border-style bg=default,fg=green
 EOF
 }
 
