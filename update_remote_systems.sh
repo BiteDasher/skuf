@@ -202,15 +202,15 @@ mutate_opts() {
         post_script="$(realpath "$post_script")" ||
             die "realpath failed for post-install script"
         [[ -f "$post_script" ]] ||
-            die "Unable to find post-install script -- '$_post_script'"
+            die "Unable to find post-install script -- '$post_script'"
     fi
     # -b
     if [[ -n "$pre_script" ]]; then
         pre_script="$(echo "$pre_script" | sed 's|/*$||')"
         pre_script="$(realpath "$pre_script")" ||
-            die "realpath failed for post-install script"
+            die "realpath failed for pre-install script"
         [[ -f "$pre_script" ]] ||
-            die "Unable to find post-install script -- '$pre_script'"
+            die "Unable to find pre-install script -- '$pre_script'"
     fi
     # -p
     for pkg in "${pacman_packages[@]}"; do
