@@ -38,7 +38,7 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
       -C              Do not use shared pacman package cache
       -i              Ignore all errors during the update
       -m <MOUNT_DIR>  Path to directory where remote systems will be
-                       mounted
+                       mounted (default: /mnt)
       -o <MOUNT_OPTS> Mount options for all remote systems
                        (default: rw)
       -p <PKG>        Path to local pacman package file
