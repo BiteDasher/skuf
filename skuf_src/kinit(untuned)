@@ -138,10 +138,10 @@ read_smbpassword() {
     fi
 
     while IFS= read -p "$prompt" -r -s -n 1 char; do
-        if [[ $char == $'\0' ]]; then
+        if [ "$char" == $'\0' ]; then
             break
         fi
-        if [[ $char == $'\177' ]] || [[ $char == $'\010' ]]; then
+        if [ "$char" == $'\177' ] || [ "$char" == $'\010' ]; then
             if [ $charcount -gt 0 ]; then
                 charcount=$(( charcount - 1 ))
                 prompt=$'\b \b'
