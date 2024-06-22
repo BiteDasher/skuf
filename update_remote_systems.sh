@@ -985,9 +985,9 @@ mutate_opts
 do_action_opts
 check_opts_dups
 
-cd /
-
 temporary="$(crtemp)" || die "Unable to create temporary directory"
+
+cd /
 
 generate_status
 generate_update
