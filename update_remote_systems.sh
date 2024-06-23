@@ -780,6 +780,7 @@ for index in "${!remote_systems[@]}"; do
     last_index="$index"
 done
 
+echo "1" > "$temporary/system.current" # TODO: remove this
 : >"$temporary/ready_first_draw"
 
 until [[ -f "$temporary/done_first_draw" ]]; do
