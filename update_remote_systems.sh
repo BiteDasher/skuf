@@ -477,6 +477,11 @@ for_sigint() {
 
 echo -ne "\e]0;Status\a"
 
+tput civis 2>/dev/null || echo -ne "\e[?25l"
+
+exec {read_hole}<><(:)
+read -r -u ${read_hole} -t 3 unused
+
 until [[ -f "$temporary/update_pid" ]]; do
     :
 done
@@ -488,7 +493,7 @@ echo "$$" > "$temporary/status_pid"
 trap : USR1
 trap : USR2
 
-until [[ -f "$temporary/system.current" ]]; do
+until [[ -f "$temporary/ready_first_draw" ]]; do
     :
 done
 
@@ -497,16 +502,19 @@ trap for_sigusr2 USR2
 trap for_sigwinch WINCH
 trap for_sigint INT
 
-tput civis 2>/dev/null || echo -ne "\e[?25l"
-
 draw_params
 draw_bars
 move_cursor 8
 
+: >"$temporary/done_first_draw"
+
+until [[ -f "$temporary/system.current" ]]; do
+    :
+done
+
 DRAW_PROGRESS=1
 DRAW_COUNTER=1
 
-exec {read_hole}<><(:)
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
     read -r -u ${read_hole} -t 0.2 unused
@@ -751,6 +759,10 @@ for_exit() {
 
 echo -ne "\e]0;Remote systems\a"
 
+exec {read_hole}<><(:)
+read -r -u ${read_hole} -t 3 unused
+flush_stdin
+
 echo "$$" > "$temporary/update_pid"
 
 until [[ -f "$temporary/status_pid" ]]; do
@@ -768,9 +780,14 @@ for index in "${!remote_systems[@]}"; do
     last_index="$index"
 done
 
+: >"$temporary/ready_first_draw"
+
+until [[ -f "$temporary/done_first_draw" ]]; do
+    :
+done
+
 cd /
 
-exec {read_hole}<><(:)
 for index in "${!remote_systems[@]}"; do
     read -r -u ${read_hole} -t 0.1 unused
 
