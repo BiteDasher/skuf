@@ -509,7 +509,7 @@ DRAW_COUNTER=1
 exec {read_hole}<><(:)
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
-    read -r -t 0.2 unused <&${read_hole}
+    read -r -u ${read_hole} -t 0.2 unused
 done
 
 exit 0
@@ -772,7 +772,7 @@ cd /
 
 exec {read_hole}<><(:)
 for index in "${!remote_systems[@]}"; do
-    read -r -t 0.1 unused <&${read_hole}
+    read -r -u ${read_hole} -t 0.1 unused
 
     update_success=0
     FAIL_ACTION=:
@@ -876,7 +876,7 @@ for index in "${!remote_systems[@]}"; do
         echo "fail" > "$temporary/system.$index"
     fi
 done
-read -r -t 0.1 unused <&${read_hole}
+read -r -u ${read_hole} -t 0.1 unused
 
 send_usr2
 send_int
