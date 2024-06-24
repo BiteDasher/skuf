@@ -476,6 +476,7 @@ for_sigwinch() {
 
 for_sigint() {
     DRAW_PROGRESS=0
+    for_sigusr2
     trap - INT
 }
 
@@ -902,7 +903,6 @@ for index in "${!remote_systems[@]}"; do
 done
 sleep 0.1
 
-send_usr2
 send_int
 
 msg "Done! Press any key to exit"
