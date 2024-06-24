@@ -769,8 +769,6 @@ for_exit() {
 
 cd /
 
-trap 'rm -r -f "$temporary"; exit 1' INT TERM HUP QUIT
-
 echo -ne "\e]0;Remote systems\a"
 
 until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
