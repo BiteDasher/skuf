@@ -113,7 +113,7 @@ while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
 done
 
 check_binaries() {
-    local text1 text2 binary binaries=(tmux realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
+    local text1 text2 binary binaries=(tmux realpath install rm mv cat sed chmod sleep stty kill mount umount chroot) notfound=()
 
     for binary in "${binaries[@]}"; do
         command -v "$binary" &>/dev/null || notfound+=("$binary")
@@ -524,10 +524,9 @@ get_current_system
 DRAW_PROGRESS=1
 DRAW_COUNTER=1
 
-exec {read_hole}<><(:)
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
-    read -r -u ${read_hole} -t 0.2 unused
+    sleep 0.2
 done
 
 exit 0
@@ -797,10 +796,8 @@ trap ! INT
 trap for_exit EXIT
 trap "exit 1" TERM HUP QUIT
 
-exec {read_hole}<><(:)
 for index in "${!remote_systems[@]}"; do
-    read -r -u ${read_hole} -t 0.1 unused
-
+    sleep 0.1
     update_success=0
     FAIL_ACTION=:
     current_system="${remote_systems[$index]}"
@@ -903,7 +900,7 @@ for index in "${!remote_systems[@]}"; do
         echo "fail" > "$temporary/system.$index"
     fi
 done
-read -r -u ${read_hole} -t 0.1 unused
+sleep 0.1
 
 send_usr2
 send_int
