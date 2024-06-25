@@ -780,6 +780,7 @@ for_exit() {
 not_initialized() {
     trap '' EXIT INT TERM HUP QUIT
     rm -r -f "$temporary"
+    tmux -L skuf_tmux kill-session -t skuf_update
 }
 
 cd /
