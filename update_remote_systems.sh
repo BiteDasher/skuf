@@ -812,7 +812,7 @@ done
 trap ! INT
 trap for_exit EXIT
 trap 'exit 1' TERM HUP QUIT
-trap 'SIGDONE=1' USR1 USR2
+trap 'SIGDONE=1' USR1
 
 for index in "${!remote_systems[@]}"; do
     update_success=0
