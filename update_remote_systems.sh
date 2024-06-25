@@ -439,12 +439,17 @@ draw_progress() {
     ((DRAW_COUNTER++))
 }
 
+send_usr1() {
+    kill -s USR1 "$update_pid"
+}
+
 for_sigusr1() {
     DRAW_COUNTER=0
     move_cursor 0
     draw_bar "$current_system" 0 1
     move_cursor 8
     DRAW_COUNTER=1
+    send_usr1
 }
 
 for_sigusr2() {
@@ -459,6 +464,7 @@ for_sigusr2() {
     fi
     move_cursor 8
     DRAW_COUNTER=1
+    send_usr1
 }
 
 for_sigwinch() {
@@ -492,6 +498,7 @@ tput civis 2>/dev/null || echo -ne "\e[?25l"
 until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
     :
 done
+sleep 1
 
 until [[ -f "$temporary/update_pid" ]]; do
     :
@@ -548,10 +555,14 @@ declare -fp out error warning msg die >> "$temporary/update"
 cat <<'EOF' >> "$temporary/update"
 
 send_usr1() {
+    SIGDONE=0
     kill -s USR1 "$status_pid"
+    until (( SIGDONE )); do :; done
 }
 send_usr2() {
+    SIGDONE=0
     kill -s USR2 "$status_pid"
+    until (( SIGDONE )); do :; done
 }
 send_int() {
     kill -s INT "$status_pid"
@@ -767,13 +778,17 @@ for_exit() {
     rm -r -f "$temporary"
 }
 
+not_started() {
+    trap '' EXIT INT TERM HUP QUIT
+    rm -r -f "$temporary"
+}
+
 cd /
 
-echo -ne "\e]0;Remote systems\a"
+trap 'not_started' EXIT
+trap 'exit 1' INT TERM HUP QUIT
 
-until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
-    :
-done
+echo -ne "\e]0;Remote systems\a"
 
 echo "$$" > "$temporary/update_pid"
 
@@ -795,10 +810,11 @@ done
 
 trap ! INT
 trap for_exit EXIT
-trap "exit 1" TERM HUP QUIT
+trap 'exit 1' TERM HUP QUIT
+trap 'SIGDONE=1' USR1
+trap : USR2
 
 for index in "${!remote_systems[@]}"; do
-    sleep 0.1
     update_success=0
     FAIL_ACTION=:
     current_system="${remote_systems[$index]}"
@@ -901,8 +917,6 @@ for index in "${!remote_systems[@]}"; do
         echo "fail" > "$temporary/system.$index"
     fi
 done
-sleep 0.1
-
 send_int
 
 msg "Done! Press any key to exit"
