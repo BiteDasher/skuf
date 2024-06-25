@@ -488,8 +488,7 @@ for_sigint() {
 
 cd /
 
-trap : USR1
-trap : USR2
+trap : USR1 USR2
 
 echo -ne "\e]0;Status\a"
 
@@ -785,7 +784,8 @@ not_initialized() {
 
 cd /
 
-trap 'not_initialized' EXIT
+trap : USR1 USR2
+trap not_initialized EXIT
 trap 'exit 1' INT TERM HUP QUIT
 
 echo -ne "\e]0;Remote systems\a"
@@ -811,8 +811,7 @@ done
 trap ! INT
 trap for_exit EXIT
 trap 'exit 1' TERM HUP QUIT
-trap 'SIGDONE=1' USR1
-trap : USR2
+trap 'SIGDONE=1' USR1 USR2
 
 for index in "${!remote_systems[@]}"; do
     update_success=0
