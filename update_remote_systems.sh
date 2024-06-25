@@ -359,11 +359,11 @@ draw_params() {
 }
 
 draw_bars() {
+    echo -ne "\e[H\e[2J\e[3J"
+
     (( DRAW )) || return 1
 
     local index
-
-    echo -ne "\e[H\e[2J\e[3J"
 
     for index in "${!remote_systems[@]}"; do
         if (( DRAW_LATEST )); then
