@@ -778,14 +778,14 @@ for_exit() {
     rm -r -f "$temporary"
 }
 
-not_started() {
+not_initialized() {
     trap '' EXIT INT TERM HUP QUIT
     rm -r -f "$temporary"
 }
 
 cd /
 
-trap 'not_started' EXIT
+trap 'not_initialized' EXIT
 trap 'exit 1' INT TERM HUP QUIT
 
 echo -ne "\e]0;Remote systems\a"
