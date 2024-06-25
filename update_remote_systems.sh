@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+version=1.0.0
 
 post_script=
 pre_script=
@@ -22,7 +23,8 @@ msg() { out "==>" "$@"; }
 die() { error "$@"; exit 1; }
 
 usage() {
-    cat <<EOF
+    echo "${0##*/} v${version}
+
 usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
 
     Options:
@@ -53,8 +55,7 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
 
       -h              Print this help message
 
-This script allows you to update multiple remote Arch Linux systems.
-EOF
+This script allows you to update multiple remote Arch Linux systems."
 }
 
 case "$1" in
