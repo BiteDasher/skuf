@@ -919,6 +919,7 @@ for index in "${!remote_systems[@]}"; do
 done
 send_int
 
+echo ""
 msg "Done! Press any key to exit"
 read -s -r -n 1 unused
 exit 0
