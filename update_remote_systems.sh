@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.0.2
+version=1.0.3
 
 post_script=
 pre_script=
@@ -556,15 +556,18 @@ declare -fp out error warning msg die >> "$temporary/update"
 
 cat <<'EOF' >> "$temporary/update"
 
-send_usr1() {
+send_usr() {
+    local counter=0 timeout=40 # 2 secs
     SIGDONE=0
-    kill -s USR1 "$status_pid"
-    until (( SIGDONE )); do :; done
-}
-send_usr2() {
-    SIGDONE=0
-    kill -s USR2 "$status_pid"
-    until (( SIGDONE )); do :; done
+    kill -s USR"$1" "$status_pid"
+    until (( SIGDONE )); do
+        ((counter++))
+        if (( counter > timeout )); then
+            break
+        else
+            (read -r -d '' -t 0.05 unused <> <(:))
+        fi
+    done
 }
 send_int() {
     kill -s INT "$status_pid"
@@ -656,7 +659,7 @@ flush_stdin() {
 drop_to_shell() {
     local STATUS="$(<"$temporary/system.$index")" SHELL_EXIT
     echo "problem" > "$temporary/system.$index"
-    send_usr1
+    send_usr 1
 
     if (( ignore_fails )); then
         FAIL_ACTION=:
@@ -681,7 +684,7 @@ drop_to_shell() {
 
     case "$SHELL_EXIT" in
         0) echo "$STATUS" > "$temporary/system.$index"
-           send_usr1
+           send_usr 1
            [[ $STATUS == update ]] && update_success=1
            FAIL_ACTION=:
            ;;
@@ -829,7 +832,7 @@ for index in "${!remote_systems[@]}"; do
     fi
     echo -ne "\e]0;[${index}/${last_index}] ${current_system}\a"
     echo "$index" > "$temporary/system.current"
-    send_usr2
+    send_usr 2
 
     if [[ -d "$current_system" ]]; then
         mount --bind -o "$system_mount_opts" "$current_system" "$mount_dir" || {
@@ -870,7 +873,7 @@ for index in "${!remote_systems[@]}"; do
             eval "$FAIL_ACTION"
         }
         echo "pre_script" > "$temporary/system.$index"
-        send_usr1
+        send_usr 1
         chroot "$mount_dir" /tmp/pre_script || {
             fail pre_script
             eval "$FAIL_ACTION"
@@ -882,7 +885,7 @@ for index in "${!remote_systems[@]}"; do
         eval "$FAIL_ACTION"
     }
     echo "update" > "$temporary/system.$index"
-    send_usr1
+    send_usr 1
     if chroot "$mount_dir" /tmp/update_script; then
         update_success=1
     else
@@ -896,7 +899,7 @@ for index in "${!remote_systems[@]}"; do
             eval "$FAIL_ACTION"
         }
         echo "post_script" > "$temporary/system.$index"
-        send_usr1
+        send_usr 1
         chroot "$mount_dir" /tmp/post_script || {
             fail post_script
             eval "$FAIL_ACTION"
