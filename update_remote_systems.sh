@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.0.3
+version=1.0.4
 
 post_script=
 pre_script=
@@ -181,8 +181,6 @@ stty_size() {
     tty_size="$(stty size)" || return 1
     tty_x="${tty_size##* }"; tty_x="${tty_x:-0}"
     tty_y="${tty_size%% *}"; tty_y="${tty_y:-0}"
-    tty_y="$(( tty_y - 2 ))"
-    (( tty_y > 0 )) || tty_y=0
 }
 
 tmux_setup() {
@@ -500,7 +498,7 @@ tput civis 2>/dev/null || echo -ne "\e[?25l"
 until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
     :
 done
-(read -r -d '' -t 0.1 unused <> <(:))
+(read -r -d '' -t 1 unused <> <(:))
 
 until [[ -f "$temporary/update_pid" ]]; do
     :
