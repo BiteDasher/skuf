@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.0.0
+version=1.0.1
 
 post_script=
 pre_script=
@@ -23,7 +23,7 @@ msg() { out "==>" "$@"; }
 die() { error "$@"; exit 1; }
 
 usage() {
-    echo "${0##*/} v${version}
+    echo "update_remote_systems.sh (SKUF) v${version}
 
 usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
 
@@ -114,7 +114,7 @@ while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
 done
 
 check_binaries() {
-    local text1 text2 binary binaries=(tmux realpath install rm mv cat sed chmod sleep stty kill mount umount chroot) notfound=()
+    local text1 text2 binary binaries=(tmux realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
 
     for binary in "${binaries[@]}"; do
         command -v "$binary" &>/dev/null || notfound+=("$binary")
@@ -498,7 +498,7 @@ tput civis 2>/dev/null || echo -ne "\e[?25l"
 until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
     :
 done
-sleep 1
+(read -r -d '' -t 1 unused <> <(:))
 
 until [[ -f "$temporary/update_pid" ]]; do
     :
@@ -534,7 +534,7 @@ DRAW_COUNTER=1
 
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
-    sleep 0.2
+    (read -r -d '' -t 0.2 unused <> <(:))
 done
 
 exit 0
