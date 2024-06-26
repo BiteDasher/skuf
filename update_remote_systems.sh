@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.0.4
+version=1.1.0
 
 post_script=
 pre_script=
@@ -440,8 +440,8 @@ draw_progress() {
     ((DRAW_COUNTER++))
 }
 
-send_usr1() {
-    kill -s USR1 "$update_pid"
+send_usr() {
+    kill -s USR"$1" "$update_pid"
 }
 
 for_sigusr1() {
@@ -450,7 +450,7 @@ for_sigusr1() {
     draw_bar "$current_system" 0 1
     move_cursor 8
     DRAW_COUNTER=1
-    send_usr1
+    send_usr 1
 }
 
 for_sigusr2() {
@@ -465,7 +465,7 @@ for_sigusr2() {
     fi
     move_cursor 8
     DRAW_COUNTER=1
-    send_usr1
+    send_usr 1
 }
 
 for_sigwinch() {
