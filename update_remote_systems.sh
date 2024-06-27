@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.2.0
+version=1.3.0
 
 post_script=
 pre_script=
@@ -502,7 +502,7 @@ tput civis 2>/dev/null || echo -ne "\e[?25l"
 until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
     :
 done
-(read -r -d '' -t 1 unused <> <(:))
+tmux -L skuf_tmux display-popup -t skuf_update -w 17 -h 3 -E "bash -c \"read -p 'Starting up' -s -r -t 1\""
 
 until [[ -f "$temporary/update_pid" ]]; do
     :
