@@ -2,7 +2,6 @@
 
 build() {
     add_module 'loop?'
-    add_all_modules '/drivers/block/'
 }
 
 help() {
