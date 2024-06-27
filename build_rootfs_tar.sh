@@ -133,7 +133,7 @@ for bpatch in "$backtome"/busybox_*.patch; do
     patch -Np1 -i "$bpatch"
 done
 
-make CC="$muslCC"
+KCONFIG_NOTIMESTAMP=1 make CC="$muslCC"
 
 install -m 755 ./busybox "$backtome"/work/rootfs/bin/busybox
 
