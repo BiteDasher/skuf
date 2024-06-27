@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.1.0
+version=1.1.1
 
 post_script=
 pre_script=
@@ -563,7 +563,7 @@ send_usr() {
         if (( counter > timeout )); then
             break
         else
-            (read -r -d '' -t 0.05 unused <> <(:))
+            read -s -r -d '' -t 0.05 unused
         fi
     done
 }
