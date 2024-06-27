@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.3.1
+version=1.4.0
 
 post_script=
 pre_script=
@@ -129,6 +129,12 @@ check_binaries() {
             text2="were"
         fi
         die "The following ${text1} required for execution ${text2} not found: ${notfound[*]}"
+    fi
+}
+
+check_is_term() {
+    if [[ ! -t 0 ]]; then
+        die "Script should not be run through a pipe or with stdin closed!"
     fi
 }
 
@@ -1002,6 +1008,7 @@ chmod 755 "$temporary/update_script"
 }
 #####################################################################
 check_binaries
+check_is_term
 
 shift $(( OPTIND - 1 ))
 
