@@ -157,7 +157,8 @@ for kpatch in "$backtome"/kexec-tools_*.patch; do
 done
 
 ./bootstrap
-LDFLAGS=-static CC="$CC" ./configure
+CFLAGS+=" -mtune=generic"
+CFLAGS="$CFLAGS" LDFLAGS=-static CC="$CC" ./configure
 make
 
 install -m 755 ./build/sbin/kexec "$backtome"/work/rootfs/bin/kexec
