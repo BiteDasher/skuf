@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.1.1
+version=1.2.0
 
 post_script=
 pre_script=
@@ -181,6 +181,8 @@ stty_size() {
     tty_size="$(stty size)" || return 1
     tty_x="${tty_size##* }"; tty_x="${tty_x:-0}"
     tty_y="${tty_size%% *}"; tty_y="${tty_y:-0}"
+    tty_y="$(( tty_y - 2 ))"
+    (( tty_y > 0 )) || tty_y=0
 }
 
 tmux_setup() {
