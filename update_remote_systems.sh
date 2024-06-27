@@ -158,6 +158,8 @@ tmux_config() {
     cat <<EOF
 set -g mouse on
 set -g history-limit 100000
+set -g status on
+set -g status-style bg=green,fg=black
 set -g status-position bottom
 set -g status-left-length 20
 set -g pane-border-status top
