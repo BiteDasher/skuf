@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.4.0
+version=1.5.0
 
 post_script=
 pre_script=
@@ -497,9 +497,23 @@ for_sigint() {
     trap - INT
 }
 
+for_exit() {
+    local exit_code="$?"
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    (( exit_code )) && rm -f "$temporary/status_pid"
+}
+
+not_initialized() {
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    rm -r -f "$temporary"
+    tmux -L skuf_tmux kill-session -t skuf_update
+}
+
 cd /
 
-trap : USR1 USR2
+trap ':' USR1 USR2
+trap 'not_initialized' EXIT
+trap 'exit 1' INT TERM HUP QUIT
 
 echo -ne "\e]0;Status\a"
 
@@ -521,10 +535,12 @@ until [[ -f "$temporary/ready_first_draw" ]]; do
     :
 done
 
-trap for_sigusr1 USR1
-trap for_sigusr2 USR2
-trap for_sigwinch WINCH
-trap for_sigint INT
+trap 'for_exit' EXIT
+trap 'exit 1' TERM HUP QUIT
+trap 'for_sigusr1' USR1
+trap 'for_sigusr2' USR2
+trap 'for_sigwinch' WINCH
+trap 'for_sigint' INT
 
 FIRST_DRAW=1
 draw_params
@@ -565,6 +581,7 @@ declare -fp out error warning msg die >> "$temporary/update"
 cat <<'EOF' >> "$temporary/update"
 
 send_usr() {
+    [[ -f "$temporary/status_pid" ]] || return 1
     local counter=0 timeout=40 # 2 secs
     SIGDONE=0
     kill -s USR"$1" "$status_pid"
@@ -578,6 +595,7 @@ send_usr() {
     done
 }
 send_int() {
+    [[ -f "$temporary/status_pid" ]] || return 1
     kill -s INT "$status_pid"
 }
 
@@ -786,21 +804,22 @@ on_fail() {
 }
 
 for_exit() {
-    trap '' EXIT INT TERM HUP QUIT
-    on_fail
+    local exit_code="$?"
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    (( exit_code )) && on_fail
     rm -r -f "$temporary"
 }
 
 not_initialized() {
-    trap '' EXIT INT TERM HUP QUIT
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
     rm -r -f "$temporary"
     tmux -L skuf_tmux kill-session -t skuf_update
 }
 
 cd /
 
-trap : USR1 USR2
-trap not_initialized EXIT
+trap ':' USR1 USR2
+trap 'not_initialized' EXIT
 trap 'exit 1' INT TERM HUP QUIT
 
 echo -ne "\e]0;Remote systems\a"
@@ -823,8 +842,8 @@ until [[ -f "$temporary/done_first_draw" ]]; do
     :
 done
 
-trap ! INT
-trap for_exit EXIT
+trap '!' INT
+trap 'for_exit' EXIT
 trap 'exit 1' TERM HUP QUIT
 trap 'SIGDONE=1' USR1
 
