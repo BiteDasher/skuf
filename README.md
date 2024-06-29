@@ -218,7 +218,7 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 
 
 ## Updating
-To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed.
+To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash`, `tmux` and a couple of basic utilities installed.
 
 Let's assume you have an SMB server mounted in `/samba`:
 ```
