@@ -74,32 +74,32 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 ### Build instructions
 
 Clone this repository using git:
-```
+```sh
 git clone https://github.com/BiteDasher/skuf
 cd skuf
 ./switch-tag latest
 ```
 
 Tune encryption obfuscation and encryption password (see [Customization instructions](#Password-tuning)):
-```
+```sh
 vim tune.password
 vim tune.crypt
 ```
 
 Setup defaults for `ISO` (optional):
-```
+```sh
 vim defaults
 ```
 
 Run configuraion sripts:
-```
+```sh
 ./tune_crypt.sh
 ./tune_password.sh
 ./setup_defaults.sh
 ```
 
 Build SKUF:
-```
+```sh
 ./build_rootfs_tar.sh
 ./build_package.sh
 ./setup_repo.sh
@@ -232,7 +232,7 @@ Let's assume you have an SMB server mounted in `/samba`:
 ```
 
 And so, you need to run the following command to update these 3 systems:
-```
+```sh
 ./update_remote_systems.sh /samba/*/arch.ext4
 ```
 
