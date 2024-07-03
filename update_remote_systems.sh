@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=1.5.0
+version=1.5.1
 
 post_script=
 pre_script=
@@ -499,12 +499,12 @@ for_sigint() {
 
 for_exit() {
     local exit_code="$?"
-    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     (( exit_code )) && rm -f "$temporary/status_pid"
 }
 
 not_initialized() {
-    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     rm -r -f "$temporary"
     tmux -L skuf_tmux kill-session -t skuf_update
 }
@@ -805,13 +805,13 @@ on_fail() {
 
 for_exit() {
     local exit_code="$?"
-    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     (( exit_code )) && on_fail
     rm -r -f "$temporary"
 }
 
 not_initialized() {
-    trap '' EXIT USR1 USR2 INT TERM HUP QUIT TSTP
+    trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     rm -r -f "$temporary"
     tmux -L skuf_tmux kill-session -t skuf_update
 }
