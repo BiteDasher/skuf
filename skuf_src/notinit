@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-readonly skuf_version="24.2+39.2"
+readonly skuf_version="25.0+39.2"
 
 display_version() {
     local letter1="$(( RANDOM % 7 ))"
