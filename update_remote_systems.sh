@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=2.0.0
+version=2.1.0
 
 use_tmux="?"
 post_script=
@@ -19,6 +19,7 @@ update_systems=1
 
 remote_systems=()
 temporary=
+temporary_location=
 
 umask 0077
 
@@ -142,6 +143,14 @@ done
 check_binaries() {
     local text1 text2 binary binaries=(realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
 
+    if [[ -n "$EPOCHSECONDS" ]]; then
+        :
+    elif printf "%(%s)T" -1 &>/dev/null; then
+        :
+    else
+        binaries+=(date)
+    fi
+
     if [[ "$use_tmux" == "?" ]]; then
         if command -v tmux &>/dev/null; then
             use_tmux=1
@@ -175,29 +184,29 @@ check_is_term() {
 }
 
 crtemp() {
-    local SKUF_TMPDIR _umask fallback=0
+    local _umask fallback=0
 
     while :; do
-
+    ###########
     ((fallback++))
 
     if [[ -n "${TMPDIR%/}" && "${TMPDIR%/}" != "/" ]]; then
         [[ "${TMPDIR%/}" == /* ]] || TMPDIR="$(realpath "$TMPDIR")" || continue
-        SKUF_TMPDIR="${TMPDIR%/}/skuf_update.${RANDOM:-$fallback}"
+        temporary="${TMPDIR%/}/skuf_update.${RANDOM:-$fallback}"
         temporary_location="${TMPDIR%/}/skuf_update_tmpdir"
     else
-        SKUF_TMPDIR="/tmp/skuf_update.${RANDOM:-$fallback}"
+        temporary="/tmp/skuf_update.${RANDOM:-$fallback}"
         temporary_location="/tmp/skuf_update_tmpdir"
     fi
 
-    [[ -d "$SKUF_TMPDIR" ]] && continue
-    install -d -m 700 "$SKUF_TMPDIR" || die "Unable to create temporary directory"
-    _umask="$(umask)"; umask 0022
-    echo "$SKUF_TMPDIR" > "$temporary_location" || die "Unable to write the location of temporary directory to '$temporary_location'"
-    umask "$_umask"
-    echo "$SKUF_TMPDIR"
-    return 0
+    [[ -d "$temporary" ]] && continue
 
+    install -d -m 700 "$temporary" || die "Unable to create temporary directory"
+    _umask="$(umask)"; umask 0022
+    echo "$temporary" > "$temporary_location" || die "Unable to write the location of temporary directory to '$temporary_location'"
+    umask "$_umask"
+    return 0
+    ###########
     done
 }
 
@@ -1220,7 +1229,7 @@ mutate_opts
 do_action_opts
 check_opts_dups
 
-temporary="$(crtemp)"
+crtemp
 trap 'clean_up' EXIT
 
 curdir="$(pwd)"
