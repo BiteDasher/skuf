@@ -218,7 +218,7 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 
 
 ## Updating
-To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash`, `tmux` and a couple of basic utilities installed.
+To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed.
 
 Let's assume you have an SMB server mounted in `/samba`:
 ```
@@ -238,6 +238,9 @@ And so, you need to run the following command to update these 3 systems:
 
 > [!TIP]
 > To update **SKUF** and the system itself, put the package file somewhere and add `-p /path/to/skuf.pkg.tar` to script arguments.
+
+> [!NOTE]
+> To skip a specific system for update, create the `/etc/skuf_disable_external_update` file on the client system.
 
 ## Tips and Tricks
 - It is highly recommended to have an **individual folder** with a volume file in it for each user on the SMB server. With this setup, there will be fewer possible caching issues (e.g. `cache=singleclient`).

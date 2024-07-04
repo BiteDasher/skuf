@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-version=1.5.1
+version=2.0.0
 
+use_tmux="?"
 post_script=
 pre_script=
 pacman_cache_dir="/var/cache/pacman/pkg"
 store_pacman_cache=1
+do_report=0
+report_dest=
 ignore_fails=0
+ignore_user_wish=0
 mount_dir="/mnt"
 all_mount_opts="rw"
 pacman_packages=()
@@ -15,6 +19,8 @@ update_systems=1
 
 remote_systems=()
 temporary=
+
+umask 0077
 
 out() { echo "$@"; }
 error() { out "==> ERROR:" "$@" >&2; }
@@ -38,7 +44,12 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
                        package cache shared by remote systems will be
                        stored (default: /var/cache/pacman/pkg)
       -C              Do not use shared pacman package cache
+      -g              Generate the result of updates in CSV format
+                       and write it to stdout
+      -G <DEST>       Same as '-g', but write the result to a <DEST>
       -i              Ignore all errors during the update
+      -I              Ignore /etc/skuf_disable_external_update file
+                       on remote systems
       -m <MOUNT_DIR>  Path to directory where remote systems will be
                        mounted (default: /mnt)
       -o <MOUNT_OPTS> Mount options for all remote systems
@@ -49,6 +60,9 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
                        specified in '-p' for explicit (re)installation
       -r              Do not copy /etc/resolv.conf from host to
                        remote system during update
+      -t              Use tmux with graph drawing script to monitor
+                       update status of remote systems
+      -T              Do not use tmux
       -U              Do not update remote systems via 'pacman -Syu',
                        only update the package file(s) specified in
                        '-p' via 'pacman -U'
@@ -73,7 +87,7 @@ exit_if_empty() {
     fi
 }
 
-while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
+while getopts ':ha:b:c:CgG:iIm:o:p:PrtTU' __opt; do
     case $__opt in
         h) usage
            exit 0
@@ -90,7 +104,15 @@ while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
            ;;
         C) store_pacman_cache=0
            ;;
+        g) do_report=1
+           ;;
+        G) exit_if_empty "$OPTARG" "Path to report destination cannot be empty"
+           do_report=1
+           report_dest="$OPTARG"
+           ;;
         i) ignore_fails=1
+           ;;
+        I) ignore_user_wish=1
            ;;
         m) exit_if_empty "$OPTARG" "Path to mount directory cannot be empty"
            mount_dir="$OPTARG"
@@ -104,6 +126,10 @@ while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
            ;;
         r) copy_resolvconf=0
            ;;
+        t) use_tmux=1
+           ;;
+        T) use_tmux=0
+           ;;
         U) update_systems=0
            ;;
         :) die "option requires an argument -- '$OPTARG'"
@@ -114,7 +140,17 @@ while getopts ':ha:b:c:Cim:o:p:PUr' __opt; do
 done
 
 check_binaries() {
-    local text1 text2 binary binaries=(tmux realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
+    local text1 text2 binary binaries=(realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
+
+    if [[ "$use_tmux" == "?" ]]; then
+        if command -v tmux &>/dev/null; then
+            use_tmux=1
+        else
+            use_tmux=0
+        fi
+    elif (( use_tmux )); then
+        binaries+=(tmux)
+    fi
 
     for binary in "${binaries[@]}"; do
         command -v "$binary" &>/dev/null || notfound+=("$binary")
@@ -133,13 +169,13 @@ check_binaries() {
 }
 
 check_is_term() {
-    if [[ ! -t 0 ]]; then
-        die "Script should not be run through a pipe or with stdin closed!"
+    if (( use_tmux )) && [[ ! -t 0 ]]; then
+        die "Script running in tmux mode should not be executed through a pipe or with stdin closed!"
     fi
 }
 
 crtemp() {
-    local SKUF_TMPDIR fallback=0
+    local SKUF_TMPDIR _umask fallback=0
 
     while :; do
 
@@ -148,16 +184,41 @@ crtemp() {
     if [[ -n "${TMPDIR%/}" && "${TMPDIR%/}" != "/" ]]; then
         [[ "${TMPDIR%/}" == /* ]] || TMPDIR="$(realpath "$TMPDIR")" || continue
         SKUF_TMPDIR="${TMPDIR%/}/skuf_update.${RANDOM:-$fallback}"
+        temporary_location="${TMPDIR%/}/skuf_update_tmpdir"
     else
         SKUF_TMPDIR="/tmp/skuf_update.${RANDOM:-$fallback}"
+        temporary_location="/tmp/skuf_update_tmpdir"
     fi
 
     [[ -d "$SKUF_TMPDIR" ]] && continue
-    install -d -m 700 "$SKUF_TMPDIR" || return 1
+    install -d -m 700 "$SKUF_TMPDIR" || die "Unable to create temporary directory"
+    _umask="$(umask)"; umask 0022
+    echo "$SKUF_TMPDIR" > "$temporary_location" || die "Unable to write the location of temporary directory to '$temporary_location'"
+    umask "$_umask"
     echo "$SKUF_TMPDIR"
     return 0
 
     done
+}
+
+save_report() {
+    if [[ ! -f "$temporary/report" ]]; then
+        die "'$temporary/report' file does not exists, although it should"
+    fi
+
+    if [[ -n "$report_dest" ]]; then
+        [[ "$report_dest" == /* ]] || report_dest="$curdir/$report_dest"
+        install -D -m 644 "$temporary/report" "$report_dest" ||
+            die "Unable to write report to destination -- '$report_dest'"
+    else
+        cat "$temporary/report" ||
+            die "Unable to read report file -- '$temporary/report'"
+    fi
+}
+
+clean_up() {
+    rm -r -f "$temporary"
+    rm -f "$temporary_location"
 }
 
 tmux_config() {
@@ -202,7 +263,11 @@ tmux_setup() {
 }
 
 tmux_attach() {
-    tmux -L skuf_tmux attach-session -t skuf_update
+    if (( do_report )) && [[ -z "$report_dest" ]]; then
+        tmux -L skuf_tmux attach-session -t skuf_update >/dev/null
+    else
+        tmux -L skuf_tmux attach-session -t skuf_update
+    fi
 }
 
 mutate_opts() {
@@ -296,6 +361,12 @@ get_operation() {
     operation="$(<"$temporary/system.$1")"
     # idle, pre_script, update, post_script, done, problem
     case "$operation" in
+        skipped)
+            symcolor="$(echo -ne "\e[0;35m")"
+            op_symbol=">"
+            startsym="$(echo -ne "\e[1;35m[\e[0m")"
+            endsym="$(echo -ne "\e[1;35m]\e[0m")"
+            ;;
         pre_script)
             symcolor="$(echo -ne "\e[0;34m")"
             op_symbol="-"
@@ -479,7 +550,7 @@ for_sigusr2() {
 }
 
 for_sigwinch() {
-    [[ -d "$temporary" ]] || exit 0
+    [[ -f "$temporary/update_pid" ]] || exit 0
     DRAW_COUNTER=0
     draw_params
     draw_bars
@@ -505,7 +576,7 @@ for_exit() {
 
 not_initialized() {
     trap '' EXIT USR1 USR2 INT TERM HUP QUIT
-    rm -r -f "$temporary"
+    rm -f "$temporary/status_pid"
     tmux -L skuf_tmux kill-session -t skuf_update
 }
 
@@ -575,7 +646,7 @@ cat <<'EOF' > "$temporary/update"
 
 EOF
 
-declare -p post_script pre_script pacman_cache_dir store_pacman_cache ignore_fails mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf update_systems remote_systems temporary >> "$temporary/update"
+declare -p use_tmux post_script pre_script pacman_cache_dir store_pacman_cache do_report report_dest ignore_fails ignore_user_wish mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf update_systems remote_systems temporary >> "$temporary/update"
 declare -fp out error warning msg die >> "$temporary/update"
 
 cat <<'EOF' >> "$temporary/update"
@@ -797,50 +868,117 @@ restore_resolvconf() {
     fi
 }
 
+get_epoch() {
+    local printf
+
+    if [[ -n "$EPOCHSECONDS" ]]; then
+        echo "$EPOCHSECONDS"
+    elif printf="$(printf "%(%s)T" -1 2>/dev/null)"; then
+        echo "$printf"
+    else
+        date +"%s"
+    fi
+}
+
+generate_report_string() {
+    local status date_difference hours minutes seconds date_string
+
+    end_date="$(get_epoch)"
+
+    if (( update_success )); then
+        status="success"
+    else
+        status="failed"
+    fi
+
+    if (( end_date && start_date )); then
+        date_difference="$(( end_date - start_date ))"
+        hours="$((   date_difference / 60 / 60 ))"
+        minutes="$(( date_difference / 60 % 60 ))"
+        seconds="$(( date_difference % 60 % 60 ))"
+        date_string="${hours}h ${minutes}m ${seconds}s"
+    fi
+
+    echo "\"${index}\",\"${current_system//\"/\"\"}\",\"${status}\",\"${date_string}\"" > "$temporary/report.$index"
+}
+
+generate_report() {
+    local system
+
+    for system in "${!remote_systems[@]}"; do
+        cat "$temporary/report.$system" >> "$temporary/report"
+    done
+}
+
 on_fail() {
     restore_resolvconf
     chroot_teardown || chroot_teardown -l
     umount "$mount_dir" 2>/dev/null
+    if (( do_report )); then
+        generate_report_string
+    fi
 }
 
 for_exit() {
     local exit_code="$?"
     trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     (( exit_code )) && on_fail
-    rm -r -f "$temporary"
+    (( do_report )) && generate_report
+    rm -f "$temporary/update_pid"
 }
 
 not_initialized() {
     trap '' EXIT USR1 USR2 INT TERM HUP QUIT
-    rm -r -f "$temporary"
+    rm -f "$temporary/update_pid"
     tmux -L skuf_tmux kill-session -t skuf_update
 }
 
 cd /
 
+if (( use_tmux )); then
+#######################
 trap ':' USR1 USR2
 trap 'not_initialized' EXIT
 trap 'exit 1' INT TERM HUP QUIT
+#######################
+fi
 
 echo -ne "\e]0;Remote systems\a"
 
 echo "$$" > "$temporary/update_pid"
 
+if (( use_tmux )); then
+#######################
 until [[ -f "$temporary/status_pid" ]]; do
     :
 done
 status_pid="$(<"$temporary/status_pid")"
+#######################
+fi
+
+if (( do_report )); then
+    echo "\"System number\",\"System location\",\"Update result\",\"Time consumed\"" > "$temporary/report"
+fi
 
 for index in "${!remote_systems[@]}"; do
     echo "idle" > "$temporary/system.$index"
+    if (( do_report )); then
+        _repsys="${remote_systems[$index]}"
+        [[ "$_repsys" == *::* ]] && _repsys="${_repsys%::*}"
+        echo "\"${index}\",\"${_repsys//\"/\"\"}\",\"\",\"\"" > "$temporary/report.$index"
+    fi
     last_index="$index"
 done
 
+if (( use_tmux )); then
+#######################
 echo "1" > "$temporary/ready_first_draw"
 
 until [[ -f "$temporary/done_first_draw" ]]; do
     :
 done
+#######################
+fi
 
 trap '!' INT
 trap 'for_exit' EXIT
@@ -858,8 +996,15 @@ for index in "${!remote_systems[@]}"; do
         system_mount_opts="$all_mount_opts"
     fi
     echo -ne "\e]0;[${index}/${last_index}] ${current_system}\a"
+    msg "[${index}/${last_index}] ${current_system}"
     echo "$index" > "$temporary/system.current"
     send_usr 2
+
+    if (( do_report )); then
+        start_date=
+        end_date=
+        start_date="$(get_epoch)"
+    fi
 
     if [[ -d "$current_system" ]]; then
         mount --bind -o "$system_mount_opts" "$current_system" "$mount_dir" || {
@@ -871,6 +1016,18 @@ for index in "${!remote_systems[@]}"; do
             fail mount
             eval "$FAIL_ACTION"
         }
+    fi
+
+    if (( ! ignore_user_wish )); then
+        if [[ -f "$mount_dir/etc/skuf_disable_external_update" ]] ||
+           [[ -f "$mount_dir/etc/skuf_disable_external_updates" ]]; then
+            echo "skipped" > "$temporary/system.$index"
+            umount "$mount_dir" || {
+                fail umount
+                eval "$FAIL_ACTION"
+            }
+            continue
+        fi
     fi
 
     chroot_setup "$mount_dir" || {
@@ -949,12 +1106,19 @@ for index in "${!remote_systems[@]}"; do
     else
         echo "fail" > "$temporary/system.$index"
     fi
+
+    if (( do_report )); then
+        generate_report_string
+    fi
 done
 send_int
 
-echo ""
-msg "Done! Press any key to exit"
-read -s -r -n 1 unused
+if (( use_tmux && ! do_report )); then
+    echo ""
+    msg "Done! Press any key to exit"
+    read -s -r -n 1 unused
+fi
+
 exit 0
 EOF
 
@@ -1052,25 +1216,30 @@ if (( ! ${#remote_systems[@]} )); then
     die "No remote systems specified"
 fi
 
-umask 0077
-
 mutate_opts
 do_action_opts
 check_opts_dups
 
-temporary="$(crtemp)" || die "Unable to create temporary directory"
+temporary="$(crtemp)"
+trap 'clean_up' EXIT
 
+curdir="$(pwd)"
 cd /
 
-generate_status
+(( use_tmux )) && generate_status
 generate_update
 generate_update_script
 
-tmux_check
-stty_size || die "Unable to fetch terminal window size"
-tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
-tmux_attach || { tmux_kill; die "Unable to attach to tmux session"; }
-tmux_kill
+if (( use_tmux )); then
+    tmux_check
+    stty_size || die "Unable to fetch terminal window size"
+    tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
+    tmux_attach || error "'tmux attach' command executed with non-zero exit code"
+    tmux_kill
+else
+    "$temporary/update"
+fi
+(( do_report )) && save_report
 
 :
 # vim: set ft=sh ts=4 sw=4 et:
