@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=2.2.1
+version=2.2.2
 
 use_tmux="?"
 post_script=
@@ -371,16 +371,16 @@ get_operation() {
     # idle, pre_script, update, post_script, done, problem
     case "$operation" in
         skipped)
-            symcolor="$(echo -ne "\e[0;34m")"
+            symcolor="$(echo -ne "\e[0;35m")"
             op_symbol=">"
-            startsym="$(echo -ne "\e[1;34m[\e[0m")"
-            endsym="$(echo -ne "\e[1;34m]\e[0m")"
+            startsym="$(echo -ne "\e[1;35m[\e[0m")"
+            endsym="$(echo -ne "\e[1;35m]\e[0m")"
             ;;
         pre_script)
-            symcolor="$(echo -ne "\e[0;36m")"
+            symcolor="$(echo -ne "\e[0;34m")"
             op_symbol="-"
-            startsym="$(echo -ne "\e[1;36m[\e[0m")"
-            endsym="$(echo -ne "\e[1;36m]\e[0m")"
+            startsym="$(echo -ne "\e[1;34m[\e[0m")"
+            endsym="$(echo -ne "\e[1;34m]\e[0m")"
             ;;
         update)
             symcolor="$(echo -ne "\e[0m")"
