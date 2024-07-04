@@ -235,6 +235,10 @@ And so, you need to run the following command to update these 3 systems:
 ```sh
 ./update_remote_systems.sh /samba/*/arch.ext4
 ```
+<details>
+    <summary>Demonstration of the script in tmux mode</summary>
+    ![skuf_update_demo](git_extras/skuf_update_demo.png)
+</details>
 
 > [!TIP]
 > To update **SKUF** and the system itself, put the package file somewhere and add `-p /path/to/skuf.pkg.tar` to script arguments.
