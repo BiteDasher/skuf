@@ -219,6 +219,8 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 
 ## Updating
 To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed.
+![skuf_update_demo](git_extras/skuf_update_demo.png)
+*Demonstration of the script running in tmux mode*
 
 Let's assume you have an SMB server mounted in `/samba`:
 ```
@@ -235,10 +237,6 @@ And so, you need to run the following command to update these 3 systems:
 ```sh
 ./update_remote_systems.sh /samba/*/arch.ext4
 ```
-<details>
-    <summary>Demonstration of the script in tmux mode</summary>
-    ![skuf_update_demo](git_extras/skuf_update_demo.png)
-</details>
 
 > [!TIP]
 > To update **SKUF** and the system itself, put the package file somewhere and add `-p /path/to/skuf.pkg.tar` to script arguments.
