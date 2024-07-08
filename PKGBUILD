@@ -3,7 +3,7 @@
 pkgname=skuf
 __mkinitcpio_base=39.2
 pkgver="25.0+${__mkinitcpio_base}"
-pkgrel=1
+pkgrel=2
 pkgdesc="SKUF Network Boot System"
 arch=('any')
 url='https://github.com/BiteDasher/skuf'
@@ -62,7 +62,9 @@ package() {
     install -m644 mkinitcpio.conf "$pkgdir"/etc/mkinitcpio.conf
     install -m644 hook.preset "$pkgdir"/usr/share/mkinitcpio/hook.preset
     install -Dm644 skuf-dummy-network-trigger.service "$pkgdir"/usr/lib/systemd/system/skuf-dummy-network-trigger.service
-    [ -f ./10-skuf.systemd_preset ] && install -Dm644 10-skuf.systemd_preset "$pkgdir"/usr/lib/systemd/system-preset/10-skuf.preset
+    if [ -f ./10-skuf.systemd_preset ]; then
+        install -Dm644 10-skuf.systemd_preset "$pkgdir"/usr/lib/systemd/system-preset/10-skuf.preset
+    fi
 
     set +x
     popd
