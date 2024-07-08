@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=2.2.2
+version=3.0.0
 
 use_tmux="?"
 post_script=
@@ -143,6 +143,10 @@ done
 check_binaries() {
     local text1 text2 binary binaries=(realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
 
+    if (( update_systems && ${#pacman_packages[@]} && store_pacman_cache )); then
+        binaries+=(ln)
+    fi
+
     if [[ -n "$EPOCHSECONDS" ]]; then
         :
     elif printf "%(%s)T" -1 &>/dev/null; then
@@ -232,6 +236,7 @@ clean_up() {
 
 tmux_config() {
     cat <<EOF
+unbind-key d
 set -g mouse on
 set -g history-limit 100000
 set -g status on
@@ -701,7 +706,7 @@ chroot_setup() {
     chroot_add_mount proc "$1/proc" -t proc -o nosuid,noexec,nodev &&
     chroot_add_mount sys "$1/sys" -t sysfs -o nosuid,noexec,nodev,ro &&
     ignore_error chroot_maybe_add_mount "[[ -d '$1/sys/firmware/efi/efivars' ]]" \
-        efivarfs "$1/sys/firmware/efi/efivars" -t efivarfs -o nosuid,noexec,nodev &&
+        efivarfs "$1/sys/firmware/efi/efivars" -t efivarfs -o nosuid,noexec,nodev,ro &&
     chroot_add_mount udev "$1/dev" -t devtmpfs -o mode=0755,nosuid &&
     chroot_add_mount devpts "$1/dev/pts" -t devpts -o mode=0620,gid=5,nosuid,noexec &&
     chroot_add_mount shm "$1/dev/shm" -t tmpfs -o mode=1777,nosuid,nodev &&
@@ -754,6 +759,34 @@ mount_shared_cache_dir() {
         error "Failed to mount --bind directory '$pacman_cache_dir' for shared pacman package cache -- '$shared_cache_dir'"
         return 1
     }
+}
+
+create_pkg_symlinks() {
+    local pkg
+
+    for pkg in "${pacman_packages[@]}"; do
+        if [[ -L "${pacman_cache_dir}/${pkg##*/}" ]]; then
+            :
+        else
+            ln -s -f "/tmp/some_pacman_repo/${pkg##*/}" "${pacman_cache_dir}/${pkg##*/}"
+        fi
+    done
+}
+
+remove_pkg_symlinks() {
+    local pkg to_rm=()
+
+    for pkg in "${pacman_packages[@]}"; do
+        if [[ -L "${pacman_cache_dir}/${pkg##*/}" ]]; then
+            to_rm+=("${pacman_cache_dir}/${pkg##*/}")
+        else
+            :
+        fi
+    done
+
+    if (( ${#to_rm[@]} )); then
+        rm -f "${to_rm[@]}"
+    fi
 }
 
 flush_stdin() {
@@ -865,6 +898,7 @@ copy_resolvconf() {
             mv -f "$mount_dir/etc/resolv.conf" "$mount_dir/etc/.bkp.resolv.conf"
         fi
         cat /etc/resolv.conf > "$mount_dir/etc/resolv.conf"
+        chmod 644 "$mount_dir/etc/resolv.conf"
     fi
 }
 
@@ -931,6 +965,9 @@ on_fail() {
 for_exit() {
     local exit_code="$?"
     trap '' EXIT USR1 USR2 INT TERM HUP QUIT
+    if (( update_systems && ${#pacman_packages[@]} && store_pacman_cache )); then
+        remove_pkg_symlinks
+    fi
     (( exit_code )) && on_fail
     (( do_report )) && generate_report
     rm -f "$temporary/update_pid"
@@ -1008,6 +1045,10 @@ for index in "${!remote_systems[@]}"; do
     msg "[${index}/${last_index}] ${current_system}"
     echo "$index" > "$temporary/system.current"
     send_usr 2
+
+    if (( update_systems && ${#pacman_packages[@]} && store_pacman_cache )); then
+        create_pkg_symlinks
+    fi
 
     if (( do_report )); then
         start_date=
