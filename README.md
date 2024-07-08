@@ -31,7 +31,7 @@ Two computers in the same network:
 > **Server** — a computer with the `SMB` server running. <br>
 > **Client** — a computer that will boot the system from the `server` over the network using a cable <br>
 
-You have a USB flash drive/CD/DVD with an ISO image of `skuflinux` on it. You have two PCs in your room/college/office. First one is the one you will be sitting at. The other one is running SMB server with a directory that **you have write access to**. That directory contains filesystem image with the Arch Linux distribution and the `skuf` package installed.
+You have a USB flash drive/CD/DVD with an ISO image of `skuflinux` on it. You have two PCs in your room/college/office. First one is the one you will be sitting at. The other one is running SMB server with a directory that **you have write access to**. That directory contains filesystem image with the Arch Linux distribution and the `skuf` package installed on it.
 
 ### Step 1: Loading kernel and initramfs from SMB server
 After booting from USB drive with `skuflinux` you will be prompted to enter SMB server address and port, user credentials and path to filesystem image. Now SKUF script will do the following:
