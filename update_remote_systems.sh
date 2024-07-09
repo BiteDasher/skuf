@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=3.0.3
+version=3.1.0
 
 use_tmux="?"
 post_script=
@@ -1226,7 +1226,7 @@ pacman_command+=("--noconfirm")
 if (( update_systems )); then
     if (( install_on_sync && ${#pacman_packages[@]} )); then
         pacman_command+=("--")
-        mapfile -t -O ${#pacman_command[@]} pacman_command < <(bsdtar -xOqf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')
+        mapfile -t -O ${#pacman_command[@]} pacman_command < <(bsdtar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')
     fi
 else
     pacman_command+=("--")
