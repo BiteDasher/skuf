@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=3.0.2
+version=3.0.3
 
 use_tmux="?"
 post_script=
@@ -373,7 +373,7 @@ rst="$(echo -ne "\e[0m")"
 
 get_operation() {
     operation="$(<"$temporary/system.$1")"
-    # idle, pre_script, update, post_script, done, problem
+    # idle, pre_script, update, post_script, done, problem, skipped
     case "$operation" in
         skipped)
             symcolor="$(echo -ne "\e[0;35m")"
@@ -1226,7 +1226,7 @@ pacman_command+=("--noconfirm")
 if (( update_systems )); then
     if (( install_on_sync && ${#pacman_packages[@]} )); then
         pacman_command+=("--")
-        mapfile -t -O ${#pacman_command[@]} pacman_command < <(bsdtar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')
+        mapfile -t -O ${#pacman_command[@]} pacman_command < <(bsdtar -xOqf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')
     fi
 else
     pacman_command+=("--")
