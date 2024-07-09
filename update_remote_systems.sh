@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=3.0.0
+version=3.0.1
 
 use_tmux="?"
 post_script=
@@ -946,11 +946,12 @@ generate_report_string() {
 }
 
 generate_report() {
-    local system
+    local system to_cat=()
 
     for system in "${!remote_systems[@]}"; do
-        cat "$temporary/report.$system" >> "$temporary/report"
+        to_cat+=("$temporary/report.$system")
     done
+    cat "${to_cat[@]}" >> "$temporary/report"
 }
 
 on_fail() {
