@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=3.1.0
+version=4.0.0
 
 use_tmux="?"
 post_script=
@@ -141,7 +141,7 @@ while getopts ':ha:b:c:CgG:iIm:o:p:PrtTU' __opt; do
 done
 
 check_binaries() {
-    local text1 text2 binary binaries=(realpath install rm mv cat sed chmod stty kill mount umount chroot) notfound=()
+    local text1 text2 binary binaries=(realpath install rm mv cat sed chmod mount umount chroot) notfound=()
 
     if (( update_systems && ${#pacman_packages[@]} && store_pacman_cache )); then
         binaries+=(ln)
@@ -156,13 +156,15 @@ check_binaries() {
     fi
 
     if [[ "$use_tmux" == "?" ]]; then
-        if command -v tmux &>/dev/null; then
+        if command -v tmux &>/dev/null &&
+           command -v stty &>/dev/null &&
+           command -v kill &>/dev/null; then
             use_tmux=1
         else
             use_tmux=0
         fi
     elif (( use_tmux )); then
-        binaries+=(tmux)
+        binaries+=(tmux stty kill)
     fi
 
     for binary in "${binaries[@]}"; do
@@ -720,6 +722,17 @@ chroot_teardown() {
     fi
 }
 
+f_mount() {
+    SYSTEM_MOUNTED=0
+    mount "$@" && SYSTEM_MOUNTED=1
+}
+
+f_umount() {
+    if (( SYSTEM_MOUNTED )); then
+        umount "$@" && SYSTEM_MOUNTED=0
+    fi
+}
+
 mount_packages() {
     local pkg
 
@@ -801,7 +814,7 @@ drop_to_shell() {
     send_usr 1
 
     if (( ignore_fails )); then
-        FAIL_ACTION=:
+        FAIL_ACTION='!'
         return 0
     fi
 
@@ -825,7 +838,7 @@ drop_to_shell() {
         0) echo "$STATUS" > "$temporary/system.$index"
            send_usr 1
            [[ $STATUS == update ]] && update_success=1
-           FAIL_ACTION=:
+           FAIL_ACTION=':'
            ;;
         5) FAIL_ACTION='exit 5'
            ;;
@@ -924,6 +937,11 @@ get_epoch() {
 }
 
 generate_report_string() {
+    if [[ $1 == skipped ]]; then
+        echo "\"${index}\",\"${current_system//\"/\"\"}\",\"skipped\",\"\"" > "$temporary/report.$index"
+        return 0
+    fi
+
     local status date_difference hours minutes seconds date_string
 
     end_date="$(get_epoch)"
@@ -957,7 +975,7 @@ generate_report() {
 on_fail() {
     restore_resolvconf
     chroot_teardown || chroot_teardown -l
-    umount "$mount_dir" 2>/dev/null
+    f_umount "$mount_dir"
     if (( do_report )); then
         generate_report_string
     fi
@@ -1034,7 +1052,7 @@ trap 'SIGDONE=1' USR1
 
 for index in "${!remote_systems[@]}"; do
     update_success=0
-    FAIL_ACTION=:
+    FAIL_ACTION=':'
     current_system="${remote_systems[$index]}"
     if [[ "$current_system" == *::* ]]; then
         system_mount_opts="${current_system##*::}"
@@ -1058,12 +1076,12 @@ for index in "${!remote_systems[@]}"; do
     fi
 
     if [[ -d "$current_system" ]]; then
-        mount --bind -o "$system_mount_opts" "$current_system" "$mount_dir" || {
+        f_mount --bind -o "$system_mount_opts" "$current_system" "$mount_dir" || {
             fail mount
             eval "$FAIL_ACTION"
         }
     else
-        mount -t auto -o "$system_mount_opts" "$current_system" "$mount_dir" || {
+        f_mount -t auto -o "$system_mount_opts" "$current_system" "$mount_dir" || {
             fail mount
             eval "$FAIL_ACTION"
         }
@@ -1072,11 +1090,14 @@ for index in "${!remote_systems[@]}"; do
     if (( ! ignore_user_wish )); then
         if [[ -f "$mount_dir/etc/skuf_disable_external_update" ]] ||
            [[ -f "$mount_dir/etc/skuf_disable_external_updates" ]]; then
-            echo "skipped" > "$temporary/system.$index"
-            umount "$mount_dir" || {
+            f_umount "$mount_dir" || {
                 fail umount
                 eval "$FAIL_ACTION"
             }
+            echo "skipped" > "$temporary/system.$index"
+            if (( do_report )); then
+                generate_report_string skipped
+            fi
             continue
         fi
     fi
@@ -1147,7 +1168,7 @@ for index in "${!remote_systems[@]}"; do
         fail chroot_teardown
         eval "$FAIL_ACTION"
     }
-    umount "$mount_dir" || {
+    f_umount "$mount_dir" || {
         fail umount
         eval "$FAIL_ACTION"
     }
@@ -1292,5 +1313,5 @@ else
 fi
 (( do_report )) && save_report
 
-:
+exit 0
 # vim: set ft=sh ts=4 sw=4 et:
