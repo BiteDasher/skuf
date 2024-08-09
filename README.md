@@ -210,15 +210,16 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 > Unlike curly brackets, there's no escaping required.
 
 ---
-- In case you did not specify `skuf.skip` in the kernel parameters, but you did specify `{...}` or `[...]`, script will attempt to apply `skuf.skip=1`, but only if you have set (or have already set) the **7** mandatory variables listed above.
+- In case you did not specify `skuf.skip` in the kernel parameters, but used [brackets](#2-Set-presets-using-curly-or-square-brackets-at-the-end-of-kernel-parameters) or specified other [kernel variables](#1-Set-presets-using-variables), script will attempt to apply `skuf.skip=1`, but only if you have set (or have already set) the **7** mandatory variables listed above.
 
 - Setting `skuf.skip=1` will omit all variable checks.
 
-- The `skuf.skip` preset in the kernel parameters will have a higher priority than same `SKIP` preset set in the `defaults` file or `{...}`/`[...]`.
+- The `skuf.skip` preset in the kernel parameters will have a higher priority than same `SKIP` preset set in the `defaults` file.
 
 
 ## Updating
-To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed.
+To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed. <sub><sup>Short link: [gg.gg/updskuf](http://gg.gg/updskuf)</sup></sub>
+
 ![skuf_update_demo](git_extras/skuf_update_demo.png)
 *Demonstration of the script running in tmux mode*
 
