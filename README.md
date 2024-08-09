@@ -56,7 +56,7 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 
 ## Building
 
-<sub><sup>See also [Arch Wiki article](https://wiki.archlinux.org/title/Diskless_system#SKUF)</sup></sub>
+<sub><sup>See also: [Arch Wiki article](https://wiki.archlinux.org/title/Diskless_system#SKUF)</sup></sub>
 
 > [!CAUTION]
 > **The only supported distribution is Arch Linux™.** Other shitty systems like Debian, Ubuntu, Manjaro, Fedora, openSUSE, etc. are NOT supported and NEVER WILL BE.
