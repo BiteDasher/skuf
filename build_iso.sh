@@ -42,7 +42,7 @@ fi
 thispkgname="$(cat ./.pkgname)"
 
 if [ ! -f /tmp/repo/"$thispkgname" ]; then
-    echo "Error: package does not exists in /tmp/repo"
+    echo "Error: package does not exists in /tmp/repo" >&2
     exit 1
 fi
 

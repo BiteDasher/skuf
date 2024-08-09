@@ -27,7 +27,7 @@ fi
 thispkgname="$(cat ./.pkgname)"
 
 if [ ! -f ./"$thispkgname" ]; then
-    echo "Error: package does not exists"
+    echo "Error: package does not exists" >&2
     exit 1
 fi
 
