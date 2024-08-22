@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-version=4.0.0
+version=5.0.0
 
 use_tmux="?"
 post_script=
 pre_script=
 pacman_cache_dir="/var/cache/pacman/pkg"
 store_pacman_cache=1
+exec_binary=
 do_report=0
+stdout_report=0
 report_dest=
 ignore_fails=0
 ignore_user_wish=0
@@ -15,11 +17,14 @@ all_mount_opts="rw"
 pacman_packages=()
 install_on_sync=0
 copy_resolvconf=1
+sync_packages=()
 update_systems=1
+high_repo_priority=0
 
 remote_systems=()
 temporary=
 temporary_location=
+remove_temporary=1
 
 umask 0077
 
@@ -35,38 +40,43 @@ usage() {
 usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
 
     Options:
-      -a <SCRIPT>     Path to the script on host that will be copied
-                       to remote system and executed after update
-                       inside chroot
-      -b <SCRIPT>     Path to the script on host that will be copied
-                       to remote system and executed before update
-                       inside chroot
-      -c <CACHE_DIR>  Path to directory on the host where the pacman
-                       package cache shared by remote systems will be
-                       stored (default: /var/cache/pacman/pkg)
+      -a <SCRIPT>     Path to the script on host that will be copied to remote
+                        system and executed after update inside chroot
+      -b <SCRIPT>     Path to the script on host that will be copied to remote
+                        system and executed before update inside chroot
+      -c <CACHE_DIR>  Path to directory on the host where the pacman package
+                        cache shared by remote systems will be stored
+                        (default: /var/cache/pacman/pkg)
       -C              Do not use shared pacman package cache
-      -g              Generate the result of updates in CSV format
-                       and write it to stdout
+      -D              Do not remove temporary directory on host after update
+      -e <BINARY>     Execute <BINARY> instead of 'pacman' on update
+      -g              Generate the result of updates in CSV format and write it
+                        to stdout
       -G <DEST>       Same as '-g', but write the result to a <DEST>
       -i              Ignore all errors during the update
-      -I              Ignore /etc/skuf_disable_external_update file
-                       on remote systems
-      -m <MOUNT_DIR>  Path to directory where remote systems will be
-                       mounted (default: /mnt)
+      -I              Ignore /etc/skuf_disable_external_update on remote systems
+      -m <MOUNT_DIR>  Path to directory where remote systems will be mounted
+                        (default: /mnt)
       -o <MOUNT_OPTS> Mount options for all remote systems
-                       (default: rw)
+                        (default: rw)
       -p <PKG>        Path to local pacman package file
-                       (Can be specified multiple times)
-      -P              Provide 'pacman -Syu' with a list of packages
-                       specified in '-p' for explicit (re)installation
-      -r              Do not copy /etc/resolv.conf from host to
-                       remote system during update
-      -t              Use tmux with graph drawing script to monitor
-                       update status of remote systems
+                        (Can be specified multiple times)
+      -P              Provide 'pacman -Syu' with a list of packages specified in
+                        '-p' for explicit (re)installation
+      -r              Do not copy /etc/resolv.conf from host to remote system
+                        during update
+      -S <PKG1,PKG2>  Comma-separated list of additional packages that should be
+                        installed when updating via 'pacman -Syu'
+                        (Can be specified multiple times)
+      -t              Use tmux with graph drawing script to monitor update
+                        status of remote systems
       -T              Do not use tmux
-      -U              Do not update remote systems via 'pacman -Syu',
-                       only update the package file(s) specified in
-                       '-p' via 'pacman -U'
+      -U              Do not update remote systems via 'pacman -Syu', only
+                        update package file(s) specified in '-p' via
+                        'pacman -U'
+      -w              Prioritize packages specified in '-p' over packages from
+                        repositories when updating via 'pacman -Syu'
+                        (applies '-P')
 
       -h              Print this help message
 
@@ -88,7 +98,7 @@ exit_if_empty() {
     fi
 }
 
-while getopts ':ha:b:c:CgG:iIm:o:p:PrtTU' __opt; do
+while getopts ':ha:b:c:CDe:gG:iIm:o:p:PrS:tTUw' __opt; do
     case $__opt in
         h) usage
            exit 0
@@ -105,7 +115,13 @@ while getopts ':ha:b:c:CgG:iIm:o:p:PrtTU' __opt; do
            ;;
         C) store_pacman_cache=0
            ;;
+        D) remove_temporary=0
+           ;;
+        e) exit_if_empty "$OPTARG" "Name of executable binary cannot be empty"
+           exec_binary="$OPTARG"
+           ;;
         g) do_report=1
+           stdout_report=1
            ;;
         G) exit_if_empty "$OPTARG" "Path to report destination cannot be empty"
            do_report=1
@@ -127,11 +143,17 @@ while getopts ':ha:b:c:CgG:iIm:o:p:PrtTU' __opt; do
            ;;
         r) copy_resolvconf=0
            ;;
+        S) exit_if_empty "${OPTARG//,/}" "Names of pacman packages cannot be empty"
+           sync_packages+=("$OPTARG")
+           ;;
         t) use_tmux=1
            ;;
         T) use_tmux=0
            ;;
         U) update_systems=0
+           ;;
+        w) install_on_sync=1
+           high_repo_priority=1
            ;;
         :) die "option requires an argument -- '$OPTARG'"
            ;;
@@ -217,23 +239,37 @@ crtemp() {
 }
 
 save_report() {
+    local error=0
+
     if [[ ! -f "$temporary/report" ]]; then
         die "'$temporary/report' file does not exists, although it should"
     fi
 
+    if (( stdout_report )); then
+        cat "$temporary/report" || {
+            error "Unable to read report file -- '$temporary/report'"
+            error=1
+        }
+    fi
+
     if [[ -n "$report_dest" ]]; then
         [[ "$report_dest" == /* ]] || report_dest="$curdir/$report_dest"
-        install -D -m 644 "$temporary/report" "$report_dest" ||
-            die "Unable to write report to destination -- '$report_dest'"
-    else
-        cat "$temporary/report" ||
-            die "Unable to read report file -- '$temporary/report'"
+        install -D -m 644 "$temporary/report" "$report_dest" || {
+            error "Unable to write report to destination -- '$report_dest'"
+            error=1
+        }
+    fi
+
+    if (( error )); then
+        exit 1
     fi
 }
 
 clean_up() {
-    rm -r -f "$temporary"
-    rm -f "$temporary_location"
+    if (( remove_temporary )); then
+        rm -r -f "$temporary"
+        rm -f "$temporary_location"
+    fi
 }
 
 tmux_config() {
@@ -286,8 +322,19 @@ tmux_attach() {
     fi
 }
 
+mutate_sync_packages() {
+    local IFS="," parse
+
+    for pkg in "${sync_packages[@]}"; do
+        for parse in $pkg; do
+            mutation2+=("$parse")
+        done
+    done
+    sync_packages=("${mutation2[@]}")
+}
+
 mutate_opts() {
-    local _pkg pkg _resolvconf mutation=()
+    local _pkg pkg _resolvconf mutation=() mutation2=()
     # -a
     if [[ -n "$post_script" ]]; then
         post_script="$(echo "$post_script" | sed 's|/*$||')"
@@ -315,6 +362,8 @@ mutate_opts() {
         mutation+=("$pkg")
     done
     pacman_packages=("${mutation[@]}")
+    # -S
+    mutate_sync_packages
     # -r
     if (( copy_resolvconf )); then
         [[ -e "/etc/resolv.conf" ]] || die "Unable to find /etc/resolv.conf"
@@ -326,6 +375,8 @@ mutate_opts() {
     if (( ! update_systems )); then
         (( ${#pacman_packages[@]} )) ||
             die "'-U' flag was specified to update using only local packages, but local packages are not provided"
+        (( ! ${#sync_packages[@]} )) ||
+            die "'-U' flag was specified to update using only local packages, installing packages from remote repositories via '-S' is not supported in this mode"
     fi
 }
 
@@ -371,59 +422,59 @@ declare -p remote_systems temporary >> "$temporary/status"
 
 cat <<'EOF' >> "$temporary/status"
 
-rst="$(echo -ne "\e[0m")"
+rst=$'\033[0m'
 
 get_operation() {
     operation="$(<"$temporary/system.$1")"
     # idle, pre_script, update, post_script, done, problem, skipped
     case "$operation" in
         skipped)
-            symcolor="$(echo -ne "\e[0;35m")"
-            op_symbol=">"
-            startsym="$(echo -ne "\e[1;35m[\e[0m")"
-            endsym="$(echo -ne "\e[1;35m]\e[0m")"
+            symcolor=$'\033[0;35m'
+            op_symbol='>'
+            startsym=$'\033[1;35m[\033[0m'
+            endsym=$'\033[1;35m]\033[0m'
             ;;
         pre_script)
-            symcolor="$(echo -ne "\e[0;34m")"
-            op_symbol="-"
-            startsym="$(echo -ne "\e[1;34m[\e[0m")"
-            endsym="$(echo -ne "\e[1;34m]\e[0m")"
+            symcolor=$'\033[0;34m'
+            op_symbol='-'
+            startsym=$'\033[1;34m[\033[0m'
+            endsym=$'\033[1;34m]\033[0m'
             ;;
         update)
-            symcolor="$(echo -ne "\e[0m")"
-            op_symbol="."
-            startsym="$(echo -ne "\e[1m[\e[0m")"
-            endsym="$(echo -ne "\e[1m]\e[0m")"
+            symcolor=$'\033[0m'
+            op_symbol='.'
+            startsym=$'\033[1m[\033[0m'
+            endsym=$'\033[1m]\033[0m'
             ;;
         post_script)
-            symcolor="$(echo -ne "\e[0;36m")"
-            op_symbol="+"
-            startsym="$(echo -ne "\e[1;36m[\e[0m")"
-            endsym="$(echo -ne "\e[1;36m]\e[0m")"
+            symcolor=$'\033[0;36m'
+            op_symbol='+'
+            startsym=$'\033[1;36m[\033[0m'
+            endsym=$'\033[1;36m]\033[0m'
             ;;
         done)
-            symcolor="$(echo -ne "\e[0;32m")"
-            op_symbol="="
-            startsym="$(echo -ne "\e[1;32m[\e[0m")"
-            endsym="$(echo -ne "\e[1;32m]\e[0m")"
+            symcolor=$'\033[0;32m'
+            op_symbol='='
+            startsym=$'\033[1;32m[\033[0m'
+            endsym=$'\033[1;32m]\033[0m'
             ;;
         problem)
-            symcolor="$(echo -ne "\e[0;33m")"
-            op_symbol="?"
-            startsym="$(echo -ne "\e[1;33m[\e[0m")"
-            endsym="$(echo -ne "\e[1;33m]\e[0m")"
+            symcolor=$'\033[0;33m'
+            op_symbol='?'
+            startsym=$'\033[1;33m[\033[0m'
+            endsym=$'\033[1;33m]\033[0m'
             ;;
         fail)
-            symcolor="$(echo -ne "\e[0;31m")"
-            op_symbol="X"
-            startsym="$(echo -ne "\e[1;31m[\e[0m")"
-            endsym="$(echo -ne "\e[1;31m]\e[0m")"
+            symcolor=$'\033[0;31m'
+            op_symbol='X'
+            startsym=$'\033[1;31m[\033[0m'
+            endsym=$'\033[1;31m]\033[0m'
             ;;
         idle|*)
-            symcolor="$(echo -ne "\e[0m")"
-            op_symbol=" "
-            startsym="$(echo -ne "\e[1m[\e[0m")"
-            endsym="$(echo -ne "\e[1m]\e[0m")"
+            symcolor=$'\033[0m'
+            op_symbol=' '
+            startsym=$'\033[1m[\033[0m'
+            endsym=$'\033[1m]\033[0m'
             ;;
     esac
 }
@@ -662,7 +713,7 @@ cat <<'EOF' > "$temporary/update"
 
 EOF
 
-declare -p use_tmux post_script pre_script pacman_cache_dir store_pacman_cache do_report report_dest ignore_fails ignore_user_wish mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf update_systems remote_systems temporary >> "$temporary/update"
+declare -p use_tmux post_script pre_script pacman_cache_dir store_pacman_cache exec_binary do_report stdout_report report_dest ignore_fails ignore_user_wish mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf sync_packages update_systems high_repo_priority remote_systems temporary >> "$temporary/update"
 declare -fp out error warning msg die >> "$temporary/update"
 
 cat <<'EOF' >> "$temporary/update"
@@ -1203,28 +1254,35 @@ cat <<'EOF' > "$temporary/update_script"
 
 EOF
 
-declare -p store_pacman_cache pacman_packages install_on_sync update_systems >> "$temporary/update_script"
+declare -p store_pacman_cache exec_binary pacman_packages install_on_sync sync_packages update_systems high_repo_priority >> "$temporary/update_script"
 declare -fp out error warning msg die >> "$temporary/update_script"
     
 cat <<'EOF' >> "$temporary/update_script"
 
+set -o pipefail
+
 setup_repo() {
-    pushd /tmp/some_pacman_repo
-    repo-add some_pacman_repo.db.tar *
-    popd
+    pushd /tmp/some_pacman_repo >/dev/null || return 1
+    repo-add some_pacman_repo.db.tar *     || { popd >/dev/null; return 1; }
+    popd >/dev/null
 }
 
 create_pacman_config() {
     {
-        cat /etc/pacman.conf
-        echo ""
-        echo "[some_pacman_repo]"
-        echo "SigLevel = Optional"
+        cat /etc/pacman.conf                        &&
+        echo ""                                     &&
+        echo "[some_pacman_repo]"                   &&
+        echo "SigLevel = Optional"                  &&
         echo "Server = file:///tmp/some_pacman_repo"
     } > /tmp/mod_pacman.conf
 }
 
-pacman_command=("pacman")
+if [[ -z "$exec_binary" ]]; then
+    pacman_command=("pacman")
+else
+    pacman_command=("$exec_binary")
+fi
+
 if (( update_systems )); then
     pacman_command+=("-Syu")
     if (( ${#pacman_packages[@]} )); then
@@ -1245,15 +1303,22 @@ fi
 pacman_command+=("--noconfirm")
 
 if (( update_systems )); then
-    if (( install_on_sync && ${#pacman_packages[@]} )); then
+    if (( install_on_sync && ${#pacman_packages[@]} || ${#sync_packages[@]} )); then
         pacman_command+=("--")
-        mapfile -t -O ${#pacman_command[@]} pacman_command < <(bsdtar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')
+    fi
+    if (( install_on_sync && ${#pacman_packages[@]} )); then
+        pkglist="$(bsdtar -xOf /tmp/some_pacman_repo/some_pacman_repo.db.tar | sed '/^%NAME%$/,/^[[:space:]]*$/!d;/^%NAME%$/d;/^[[:space:]]*$/d')" || die "Failed to retrieve package names"
+        if (( high_repo_priority )); then
+            pkglist="$(echo "$pkglist" | sed 's/^/some_pacman_repo\//')" || die "Failed to format package names"
+        fi
+        mapfile -t -O ${#pacman_command[@]} pacman_command < <(echo "$pkglist") || die "Failed to map package names to array"
+    fi
+    if (( ${#sync_packages[@]} )); then
+        pacman_command+=("${sync_packages[@]}")
     fi
 else
     pacman_command+=("--")
-    for pkg in /tmp/some_pacman_repo/*; do
-        pacman_command+=("$pkg")
-    done
+    pacman_command+=(/tmp/some_pacman_repo/*)
 fi
 
 exec "${pacman_command[@]}"
