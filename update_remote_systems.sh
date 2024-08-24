@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=5.0.0
+version=6.0.0
 
 use_tmux="?"
 post_script=
@@ -405,10 +405,18 @@ do_action_opts() {
     fi  
 }
 
-check_opts_dups() {
-    if [[ "$pacman_cache_dir" == "$mount_dir" ]]; then
+check_opts_conflicts() {
+    local pkg
+    # -c, -m
+    if (( store_pacman_cache )) && [[ "$pacman_cache_dir" == "$mount_dir" ]]; then
         die "Pacman package cache directory and mount directory cannot be the same"
     fi
+    # -p
+    for pkg in "${pacman_packages[@]}"; do
+        if [[ "${pkg}" == "${mount_dir%/}/"* ]]; then
+            die "Pacman packages cannot be located in the mount directory -- '$mount_dir'"
+        fi
+    done
 }
 
 #####################################################################
@@ -829,6 +837,9 @@ create_pkg_symlinks() {
     local pkg
 
     for pkg in "${pacman_packages[@]}"; do
+        if [[ "${pkg%/*}" == "${pacman_cache_dir%/}" ]]; then
+            continue
+        fi
         if [[ -L "${pacman_cache_dir}/${pkg##*/}" ]]; then
             :
         else
@@ -841,6 +852,9 @@ remove_pkg_symlinks() {
     local pkg to_rm=()
 
     for pkg in "${pacman_packages[@]}"; do
+        if [[ "${pkg%/*}" == "${pacman_cache_dir%/}" ]]; then
+            continue
+        fi
         if [[ -L "${pacman_cache_dir}/${pkg##*/}" ]]; then
             to_rm+=("${pacman_cache_dir}/${pkg##*/}")
         else
@@ -1355,7 +1369,7 @@ fi
 
 mutate_opts
 do_action_opts
-check_opts_dups
+check_opts_conflicts
 
 crtemp
 trap 'clean_up' EXIT
