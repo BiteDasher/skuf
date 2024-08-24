@@ -19,7 +19,7 @@ Two computers in the same network:
 
 **Client**:
 - [x] Connected to network via Ethernet cable. Wireless is not supported.
-- [x] A USB stick/CD/DVD with the `skuflinux` image (you can also use [Ventoy](https://www.ventoy.net))
+- [x] A *temporary* USB stick/CD/DVD with the `skuflinux` image (you can also use [Ventoy](https://www.ventoy.net))
 - [x] Brain not poisoned with beer so you have enough brain cells to read this manual
 
 > [!CAUTION]
