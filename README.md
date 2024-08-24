@@ -34,7 +34,7 @@ Two computers in the same network:
 You have a USB flash drive/CD/DVD with an ISO image of `skuflinux` on it. You have two PCs in your room/college/office. First one is the one you will be sitting at. The other one is running SMB server with a directory that **you have write access to**. That directory contains filesystem image with the Arch Linux distribution and the `skuf` package installed on it.
 
 ### Step 1: Loading kernel and initramfs from SMB server
-After booting from USB drive with `skuflinux` you will be prompted to enter SMB server address and port, user credentials and path to filesystem image. You can unplug your USB flash drive at this point. Now SKUF script will do the following:
+After booting from USB drive with `skuflinux` you will be prompted to enter SMB server address and port, user credentials and path to filesystem image (you can unplug your USB flash drive at this point). Now SKUF script will do the following:
 
 - Obtain an IP address using `dhcpcd`
 - Mount the SMB directory (**read-only**)
