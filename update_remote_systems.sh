@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=6.0.0
+version=7.0.0
 
 use_tmux="?"
 post_script=
@@ -7,6 +7,7 @@ pre_script=
 pacman_cache_dir="/var/cache/pacman/pkg"
 store_pacman_cache=1
 exec_binary=
+exec_arguments=()
 do_report=0
 stdout_report=0
 report_dest=
@@ -25,6 +26,7 @@ remote_systems=()
 temporary=
 temporary_location=
 remove_temporary=1
+tmux_socket_name=
 
 umask 0077
 
@@ -44,12 +46,17 @@ usage: ${0##*/} [OPTIONS] [REMOTE SYSTEMS]::[MOUNT OPTS]
                         system and executed after update inside chroot
       -b <SCRIPT>     Path to the script on host that will be copied to remote
                         system and executed before update inside chroot
+                        (Remote system location is passed to '-a' and '-b'
+                         scripts via SYSTEM_PATH environment variable)
       -c <CACHE_DIR>  Path to directory on the host where the pacman package
                         cache shared by remote systems will be stored
                         (default: /var/cache/pacman/pkg)
       -C              Do not use shared pacman package cache
       -D              Do not remove temporary directory on host after update
       -e <BINARY>     Execute <BINARY> instead of 'pacman' on update
+      -E <ARGUMENTS>  Provide additional <ARGUMENTS> for 'pacman' command
+                        (Should be quoted string;
+                         Can be specified multiple times)
       -g              Generate the result of updates in CSV format and write it
                         to stdout
       -G <DEST>       Same as '-g', but write the result to a <DEST>
@@ -98,7 +105,7 @@ exit_if_empty() {
     fi
 }
 
-while getopts ':ha:b:c:CDe:gG:iIm:o:p:PrS:tTUw' __opt; do
+while getopts ':ha:b:c:CDe:E:gG:iIm:o:p:PrS:tTUw' __opt; do
     case $__opt in
         h) usage
            exit 0
@@ -119,6 +126,8 @@ while getopts ':ha:b:c:CDe:gG:iIm:o:p:PrS:tTUw' __opt; do
            ;;
         e) exit_if_empty "$OPTARG" "Name of executable binary cannot be empty"
            exec_binary="$OPTARG"
+           ;;
+        E) exec_arguments+=("$OPTARG")
            ;;
         g) do_report=1
            stdout_report=1
@@ -231,7 +240,7 @@ crtemp() {
 
     install -d -m 700 "$temporary" || die "Unable to create temporary directory"
     _umask="$(umask)"; umask 0022
-    echo "$temporary" > "$temporary_location" || die "Unable to write the location of temporary directory to '$temporary_location'"
+    echo "$temporary" >> "$temporary_location" || die "Unable to write the location of temporary directory to '$temporary_location'"
     umask "$_umask"
     return 0
     ###########
@@ -288,14 +297,21 @@ set -g pane-active-border-style bg=default,fg=green
 EOF
 }
 
-tmux_check() {
-    if tmux -L skuf_tmux has-session -t skuf_update &>/dev/null; then
-        die "tmux session 'skuf_update' on socket 'skuf_tmux' already exists! Check it. (use 'tmux -L' to specify socket)"
-    fi
+tmux_setup_socket() {
+    local tmux_socket_prefix="skuf_tmux" tmux_socket_nummin=0 tmux_socket_nummax=1000 tmux_socket_number
+    tmux_socket_number="$tmux_socket_nummin"
+
+    while tmux -L "${tmux_socket_prefix}${tmux_socket_number}" has-session -t skuf_update &>/dev/null; do
+        if (( tmux_socket_number >= tmux_socket_nummax )); then
+            die "tmux sockets '${tmux_socket_prefix}${tmux_socket_nummin}' to '${tmux_socket_prefix}${tmux_socket_nummax}' with session 'skuf_update' are busy! Check them. (use 'tmux -L' to specify socket)"
+        fi
+        ((tmux_socket_number++))
+    done
+    tmux_socket_name="${tmux_socket_prefix}${tmux_socket_number}"
 }
 
 tmux_kill() {
-    tmux -L skuf_tmux kill-session -t skuf_update &>/dev/null
+    tmux -L "$tmux_socket_name" kill-session -t skuf_update &>/dev/null
 }
 
 stty_size() {
@@ -307,18 +323,18 @@ stty_size() {
 }
 
 tmux_setup() {
-    tmux -L skuf_tmux -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
-    tmux -L skuf_tmux -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
-    tmux -L skuf_tmux resize-pane -t skuf_update:0.0 -x 14 &&
-    tmux -L skuf_tmux select-pane -t skuf_update:0.0 -d &&
-    tmux -L skuf_tmux select-pane -t skuf_update:0.1 -e
+    tmux -L "$tmux_socket_name" -f <(tmux_config) new-session -x "$tty_x" -y "$tty_y" -s skuf_update -d "$temporary/status" &&
+    tmux -L "$tmux_socket_name" -f <(tmux_config) split-window -t skuf_update -h "$temporary/update" &&
+    tmux -L "$tmux_socket_name" resize-pane -t skuf_update:0.0 -x 14 &&
+    tmux -L "$tmux_socket_name" select-pane -t skuf_update:0.0 -d &&
+    tmux -L "$tmux_socket_name" select-pane -t skuf_update:0.1 -e
 }
 
 tmux_attach() {
     if (( do_report )) && [[ -z "$report_dest" ]]; then
-        tmux -L skuf_tmux attach-session -t skuf_update >/dev/null
+        tmux -L "$tmux_socket_name" attach-session -t skuf_update >/dev/null
     else
-        tmux -L skuf_tmux attach-session -t skuf_update
+        tmux -L "$tmux_socket_name" attach-session -t skuf_update
     fi
 }
 
@@ -426,7 +442,7 @@ cat <<'EOF' > "$temporary/status"
 
 EOF
 
-declare -p remote_systems temporary >> "$temporary/status"
+declare -p remote_systems temporary tmux_socket_name >> "$temporary/status"
 
 cat <<'EOF' >> "$temporary/status"
 
@@ -652,7 +668,7 @@ for_exit() {
 not_initialized() {
     trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     rm -f "$temporary/status_pid"
-    tmux -L skuf_tmux kill-session -t skuf_update
+    tmux -L "$tmux_socket_name" kill-session -t skuf_update
 }
 
 cd /
@@ -665,10 +681,10 @@ echo -ne "\e]0;Status\a"
 
 tput civis 2>/dev/null || echo -ne "\e[?25l"
 
-until [[ "$(tmux -L skuf_tmux list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
+until [[ "$(tmux -L "$tmux_socket_name" list-sessions -F '#{session_attached}:#{session_name}' 2>/dev/null)" =~ (^|$'\n')1:skuf_update($|$'\n') ]]; do
     :
 done
-tmux -L skuf_tmux display-popup -t skuf_update -w 17 -h 3 -E "bash -c \"read -p 'Starting up...' -s -r -t 1\""
+tmux -L "$tmux_socket_name" display-popup -t skuf_update -w 17 -h 3 -E "bash -c \"read -p 'Starting up...' -s -r -t 1\""
 
 until [[ -f "$temporary/update_pid" ]]; do
     :
@@ -721,7 +737,8 @@ cat <<'EOF' > "$temporary/update"
 
 EOF
 
-declare -p use_tmux post_script pre_script pacman_cache_dir store_pacman_cache exec_binary do_report stdout_report report_dest ignore_fails ignore_user_wish mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf sync_packages update_systems high_repo_priority remote_systems temporary >> "$temporary/update"
+declare -p use_tmux post_script pre_script pacman_cache_dir store_pacman_cache exec_binary exec_arguments do_report stdout_report report_dest ignore_fails ignore_user_wish mount_dir all_mount_opts pacman_packages install_on_sync copy_resolvconf sync_packages update_systems high_repo_priority remote_systems temporary >> "$temporary/update"
+(( use_tmux )) && declare -p tmux_socket_name >> "$temporary/update"
 declare -fp out error warning msg die >> "$temporary/update"
 
 cat <<'EOF' >> "$temporary/update"
@@ -793,7 +810,7 @@ f_umount() {
 }
 
 mount_packages() {
-    local pkg
+    local pkg counter=0 error=0
 
     packages_dir="$mount_dir/tmp/some_pacman_repo"
     if [[ -d "$packages_dir" ]]; then
@@ -806,15 +823,23 @@ mount_packages() {
     }
 
     for pkg in "${pacman_packages[@]}"; do
-        : >"$packages_dir/${pkg##*/}" || {
-            error "Failed to create dummy file for mounting pacman package -- '$pkg'"
-            return 1
-        }
+        ((counter++))
+        if [[ ! -f "$packages_dir/${pkg##*/}" ]]; then
+            : >"$packages_dir/${pkg##*/}" || {
+                error "Failed to create dummy file for mounting pacman package ($counter/${#pacman_packages[@]}) -- '$pkg'"
+                error=1
+                continue
+            }
+        fi
         chroot_add_mount "$pkg" "$packages_dir/${pkg##*/}" --bind -o ro || {
-            error "Failed to mount --bind pacman package -- '$pkg'"
-            return 1
+            error "Failed to mount --bind pacman package ($counter/${#pacman_packages[@]}) -- '$pkg'"
+            error=1
         }
     done
+
+    if (( error )); then
+        return 1
+    fi
 }
 
 mount_shared_cache_dir() {
@@ -831,6 +856,39 @@ mount_shared_cache_dir() {
         error "Failed to mount --bind directory '$pacman_cache_dir' for shared pacman package cache -- '$shared_cache_dir'"
         return 1
     }
+}
+
+bad_mount_helper() {
+    case "$1" in
+        system)
+            SYSTEM_MOUNTED=1
+            ;;
+        usystem)
+            SYSTEM_MOUNTED=0
+            ;;
+        chroot_setup)
+            # /proc, /sys, /sys/firmware/efi/efivarfs
+            # /dev, /dev/pts, /dev/shm, /run, /tmp
+            # in reverse order
+            CHROOT_ACTIVE_MOUNTS=("$mount_dir"{/tmp,/run,/dev/shm,/dev/pts,/dev})
+            [[ -d "$mount_dir/sys/firmware/efi/efivars" ]] &&
+            CHROOT_ACTIVE_MOUNTS+=("$mount_dir/sys/firmware/efi/efivars")
+            CHROOT_ACTIVE_MOUNTS+=("$mount_dir"{/sys,/proc})
+            ;;
+        chroot_teardown)
+            CHROOT_ACTIVE_MOUNTS=()
+            ;;
+        shared_cache_dir)
+            CHROOT_ACTIVE_MOUNTS=("$shared_cache_dir" "${CHROOT_ACTIVE_MOUNTS[@]}")
+            ;;
+        packages)
+            local pkg
+            CHROOT_ACTIVE_MOUNTS=("${CHROOT_SAVED_MOUNTS[@]}")
+            for pkg in "${pacman_packages[@]}"; do
+                CHROOT_ACTIVE_MOUNTS=("$packages_dir/${pkg##*/}" "${CHROOT_ACTIVE_MOUNTS[@]}")
+            done
+            ;;
+    esac
 }
 
 create_pkg_symlinks() {
@@ -907,7 +965,7 @@ drop_to_shell() {
            ;;
         5) FAIL_ACTION='exit 5'
            ;;
-      1|*) FAIL_ACTION='on_fail; echo "fail" > "$temporary/system.$index"; continue'
+      1|*) FAIL_ACTION='on_fail; echo "fail" > "$temporary/system.$index"; continue; !'
            ;;
     esac
 }
@@ -932,11 +990,11 @@ fail() {
             drop_to_shell
             ;;
         mount_packages)
-            error "Failed to mount --bind packages for remote system -- '$current_system'"
+            error "Failed to mount --bind some packages to '$packages_dir' for remote system -- '$current_system'"
             drop_to_shell
             ;;
         install_pre_script)
-            error "Failed to install pre-install script to remote system -- '$current_system'"
+            error "Failed to install pre-install script to '$mount_dir/tmp/pre_script' for remote system -- '$current_system'"
             drop_to_shell
             ;;
         pre_script)
@@ -944,7 +1002,7 @@ fail() {
             drop_to_shell chroot
             ;;
         install_update_script)
-            error "Failed to install update script to remote system -- '$current_system'"
+            error "Failed to install update script to '$mount_dir/tmp/update_script' for remote system -- '$current_system'"
             drop_to_shell
             ;;
         update)
@@ -952,7 +1010,7 @@ fail() {
             drop_to_shell chroot
             ;;
         install_post_script)
-            error "Failed to install post-install script to remote system -- '$current_system'"
+            error "Failed to install post-install script to '$mount_dir/tmp/post_script' for remote system -- '$current_system'"
             drop_to_shell
             ;;
         post_script)
@@ -1060,7 +1118,7 @@ for_exit() {
 not_initialized() {
     trap '' EXIT USR1 USR2 INT TERM HUP QUIT
     rm -f "$temporary/update_pid"
-    tmux -L skuf_tmux kill-session -t skuf_update
+    tmux -L "$tmux_socket_name" kill-session -t skuf_update
 }
 
 cd /
@@ -1143,12 +1201,12 @@ for index in "${!remote_systems[@]}"; do
     if [[ -d "$current_system" ]]; then
         f_mount --bind -o "$system_mount_opts" "$current_system" "$mount_dir" || {
             fail mount
-            eval "$FAIL_ACTION"
+            eval "$FAIL_ACTION" && bad_mount_helper system
         }
     else
         f_mount -t auto -o "$system_mount_opts" "$current_system" "$mount_dir" || {
             fail mount
-            eval "$FAIL_ACTION"
+            eval "$FAIL_ACTION" && bad_mount_helper system
         }
     fi
 
@@ -1169,21 +1227,23 @@ for index in "${!remote_systems[@]}"; do
 
     chroot_setup "$mount_dir" || {
         fail chroot_setup
-        eval "$FAIL_ACTION"
+        eval "$FAIL_ACTION" && bad_mount_helper chroot_setup
     }
 
     if (( store_pacman_cache )); then
         mount_shared_cache_dir || {
             fail mount_shared_cache_dir
-            eval "$FAIL_ACTION"
+            eval "$FAIL_ACTION" && bad_mount_helper shared_cache_dir
         }
     fi
 
     if (( ${#pacman_packages[@]} )); then
+        CHROOT_SAVED_MOUNTS=("${CHROOT_ACTIVE_MOUNTS[@]}")
         mount_packages || {
             fail mount_packages
-            eval "$FAIL_ACTION"
+            eval "$FAIL_ACTION" && bad_mount_helper packages
         }
+        unset CHROOT_SAVED_MOUNTS
     fi
 
     copy_resolvconf
@@ -1195,7 +1255,7 @@ for index in "${!remote_systems[@]}"; do
         }
         echo "pre_script" > "$temporary/system.$index"
         send_usr 1
-        chroot "$mount_dir" /tmp/pre_script || {
+        SYSTEM_PATH="$current_system" chroot "$mount_dir" /tmp/pre_script || {
             fail pre_script
             eval "$FAIL_ACTION"
         }
@@ -1221,7 +1281,7 @@ for index in "${!remote_systems[@]}"; do
         }
         echo "post_script" > "$temporary/system.$index"
         send_usr 1
-        chroot "$mount_dir" /tmp/post_script || {
+        SYSTEM_PATH="$current_system" chroot "$mount_dir" /tmp/post_script || {
             fail post_script
             eval "$FAIL_ACTION"
         }
@@ -1231,11 +1291,11 @@ for index in "${!remote_systems[@]}"; do
 
     chroot_teardown || {
         fail chroot_teardown
-        eval "$FAIL_ACTION"
+        eval "$FAIL_ACTION" && bad_mount_helper chroot_teardown
     }
     f_umount "$mount_dir" || {
         fail umount
-        eval "$FAIL_ACTION"
+        eval "$FAIL_ACTION" && bad_mount_helper usystem
     }
 
     if (( update_success )); then
@@ -1268,7 +1328,7 @@ cat <<'EOF' > "$temporary/update_script"
 
 EOF
 
-declare -p store_pacman_cache exec_binary pacman_packages install_on_sync sync_packages update_systems high_repo_priority >> "$temporary/update_script"
+declare -p store_pacman_cache exec_binary exec_arguments pacman_packages install_on_sync sync_packages update_systems high_repo_priority >> "$temporary/update_script"
 declare -fp out error warning msg die >> "$temporary/update_script"
     
 cat <<'EOF' >> "$temporary/update_script"
@@ -1315,6 +1375,10 @@ if (( store_pacman_cache )); then
 fi
 
 pacman_command+=("--noconfirm")
+
+if (( ${#exec_arguments[@]} )); then
+    pacman_command+=(${exec_arguments[*]})
+fi
 
 if (( update_systems )); then
     if (( install_on_sync && ${#pacman_packages[@]} || ${#sync_packages[@]} )); then
@@ -1382,7 +1446,7 @@ generate_update
 generate_update_script
 
 if (( use_tmux )); then
-    tmux_check
+    tmux_setup_socket
     stty_size || die "Unable to fetch terminal window size"
     tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
     tmux_attach || error "'tmux attach' command executed with non-zero exit code"
