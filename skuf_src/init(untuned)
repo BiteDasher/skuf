@@ -353,6 +353,43 @@ quirk_vars() {
     return 0
 }
 
+quirk_post() {
+    local smb_left smb_right newroot_left newroot_right
+
+    case "$smbmountopts" in
+        *",,,|"*)
+            smbmountopts="${smbmountopts##*,,,|}"
+            ;;
+        *",,,"*)
+            smb_left="${smbmountopts%,,,*}"
+            smb_right="${smbmountopts##*,,,}"
+            if [ -n "$smb_left" ]; then
+                smbmountopts="${smb_left},${smb_right}"
+            else
+                smbmountopts="${smb_right}"
+            fi
+            ;;
+    esac
+
+    case "$newrootmountopts" in
+        *",,,|"*)
+            newrootmountopts="${newrootmountopts##*,,,|}"
+            ;;
+        *",,,"*)
+            newrootmountopts="${newrootmountopts%,,,*},${newrootmountopts##*,,,}"
+            newroot_left="${newrootmountopts%,,,*}"
+            newroot_right="${newrootmountopts##*,,,}"
+            if [ -n "$newroot_left" ]; then
+                newrootmountopts="${newroot_left},${newroot_right}"
+            else
+                newrootmountopts="${newroot_right}"
+            fi
+            ;;
+    esac
+
+    return 0
+}
+
 mount_samba() {
     local finalusername finalport finalversion finaldomain finalmountopts
 
@@ -611,6 +648,7 @@ renice_dhcpcd
 
 plymouth_show_msg "Quirking variables\n45%"
 quirk_vars
+quirk_post
 
 # honor the old behavior of break=y as a synonym for break=premount
 break="$(getarg break)"

@@ -889,6 +889,16 @@ quirk_vars() {
 }
 
 quirk_post() {
+    case "$smbmountopts" in
+        *",,,|"*) smbmountopts="${smbmountopts%,,,|*}" ;;
+        *",,,"*)  smbmountopts="${smbmountopts%,,,*}"  ;;
+    esac
+
+    case "$newrootmountopts" in
+        *",,,|"*) newrootmountopts="${newrootmountopts%,,,|*}" ;;
+        *",,,"*)  newrootmountopts="${newrootmountopts%,,,*}"  ;;
+    esac
+
     case "$newrootfsck" in
         1|Y|y|Yes|yes|True|true|Д|д|Да|да)
             newrootfsck="Yes"
