@@ -376,7 +376,6 @@ quirk_post() {
             newrootmountopts="${newrootmountopts##*,,,|}"
             ;;
         *",,,"*)
-            newrootmountopts="${newrootmountopts%,,,*},${newrootmountopts##*,,,}"
             newroot_left="${newrootmountopts%,,,*}"
             newroot_right="${newrootmountopts##*,,,}"
             if [ -n "$newroot_left" ]; then
