@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=7.0.0
+version=7.0.1
 
 use_tmux="?"
 post_script=
@@ -1441,12 +1441,12 @@ trap 'clean_up' EXIT
 curdir="$(pwd)"
 cd /
 
+(( use_tmux )) && tmux_setup_socket
 (( use_tmux )) && generate_status
 generate_update
 generate_update_script
 
 if (( use_tmux )); then
-    tmux_setup_socket
     stty_size || die "Unable to fetch terminal window size"
     tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
     tmux_attach || error "'tmux attach' command executed with non-zero exit code"
