@@ -1,4 +1,9 @@
 #!/bin/bash
+if [ "$(id -u)" -ne 0 ]; then
+    echo "You should execute this script as root" >&2
+    exit 1
+fi
+
 if pacman -Q base-devel &>/dev/null; then
     _CC=clang
 else
