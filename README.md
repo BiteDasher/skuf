@@ -88,7 +88,8 @@ cd skuf
 
 Install required packages:
 ```sh
-./install_deps.sh```
+./install_deps.sh
+```
 
 Tune encryption obfuscation and encryption password (see [Customization instructions](#Password-tuning)):
 ```sh
