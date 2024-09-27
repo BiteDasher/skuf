@@ -8,7 +8,8 @@ fi
 set -e
 set -x
 
-pacman -S --noconfirm \
+# $@ for possible ./install_deps.sh -y -u
+pacman -S --noconfirm "$@" \
         arch-install-scripts \
         archiso \
         base \
