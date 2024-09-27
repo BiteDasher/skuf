@@ -86,6 +86,10 @@ cd skuf
 ./switch-tag latest
 ```
 
+Install required packages:
+```sh
+./install_deps.sh```
+
 Tune encryption obfuscation and encryption password (see [Customization instructions](#Password-tuning)):
 ```sh
 vim tune.password
