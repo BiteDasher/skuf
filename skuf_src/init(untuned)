@@ -364,7 +364,7 @@ quirk_post() {
             smb_left="${smbmountopts%,,,*}"
             smb_right="${smbmountopts##*,,,}"
             if [ -n "$smb_left" ]; then
-                smbmountopts="${smb_left},${smb_right}"
+                smbmountopts="${smb_left}${smb_right:+,$smb_right}"
             else
                 smbmountopts="${smb_right}"
             fi
@@ -379,7 +379,7 @@ quirk_post() {
             newroot_left="${newrootmountopts%,,,*}"
             newroot_right="${newrootmountopts##*,,,}"
             if [ -n "$newroot_left" ]; then
-                newrootmountopts="${newroot_left},${newroot_right}"
+                newrootmountopts="${newroot_left}${newroot_right:+,$newroot_right}"
             else
                 newrootmountopts="${newroot_right}"
             fi
