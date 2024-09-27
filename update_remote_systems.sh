@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=7.0.1
+version=8.0.0
 
 use_tmux="?"
 post_script=
@@ -23,10 +23,11 @@ update_systems=1
 high_repo_priority=0
 
 remote_systems=()
+realpath_TMPDIR=
 temporary=
 temporary_location=
 remove_temporary=1
-tmux_socket_name=
+tmux_socket_name="skuf_tmux$$"
 
 umask 0077
 
@@ -172,7 +173,7 @@ while getopts ':ha:b:c:CDe:E:gG:iIm:o:p:PrS:tTUw' __opt; do
 done
 
 check_binaries() {
-    local text1 text2 binary binaries=(realpath install rm mv cat sed chmod mount umount chroot) notfound=()
+    local text1 text2 binary binaries=(realpath install rm mv cat chmod mount umount chroot) notfound=()
 
     if (( update_systems && ${#pacman_packages[@]} && store_pacman_cache )); then
         binaries+=(ln)
@@ -220,6 +221,25 @@ check_is_term() {
     fi
 }
 
+preptemp() {
+    local _TMPDIR
+
+    if [[ -n "${TMPDIR%/}" || "${TMPDIR}" == "/" ]]; then
+        _TMPDIR="$TMPDIR"
+    else
+        _TMPDIR="/tmp"
+    fi
+
+    if [[ ! -d "$_TMPDIR" ]]; then
+        if ! install -d -m 777 "$_TMPDIR"; then
+            die "Failed to create \$TMPDIR directory -- '$_TMPDIR'"
+        fi
+    fi
+
+    realpath_TMPDIR="$(realpath "$_TMPDIR")" ||
+        die "realpath failed for \$TMPDIR -- '$_TMPDIR'"
+}
+
 crtemp() {
     local _umask fallback=0
 
@@ -227,14 +247,8 @@ crtemp() {
     ###########
     ((fallback++))
 
-    if [[ -n "${TMPDIR%/}" && "${TMPDIR%/}" != "/" ]]; then
-        [[ "${TMPDIR%/}" == /* ]] || TMPDIR="$(realpath "$TMPDIR")" || continue
-        temporary="${TMPDIR%/}/skuf_update.${RANDOM:-$fallback}"
-        temporary_location="${TMPDIR%/}/skuf_update_tmpdir"
-    else
-        temporary="/tmp/skuf_update.${RANDOM:-$fallback}"
-        temporary_location="/tmp/skuf_update_tmpdir"
-    fi
+    temporary="${realpath_TMPDIR%/}/skuf_update.${RANDOM:-$fallback}"
+    temporary_location="${realpath_TMPDIR%/}/skuf_update_tmpdir"
 
     [[ -d "$temporary" ]] && continue
 
@@ -297,17 +311,10 @@ set -g pane-active-border-style bg=default,fg=green
 EOF
 }
 
-tmux_setup_socket() {
-    local tmux_socket_prefix="skuf_tmux" tmux_socket_nummin=0 tmux_socket_nummax=1000 tmux_socket_number
-    tmux_socket_number="$tmux_socket_nummin"
-
-    while tmux -L "${tmux_socket_prefix}${tmux_socket_number}" has-session -t skuf_update &>/dev/null; do
-        if (( tmux_socket_number >= tmux_socket_nummax )); then
-            die "tmux sockets '${tmux_socket_prefix}${tmux_socket_nummin}' to '${tmux_socket_prefix}${tmux_socket_nummax}' with session 'skuf_update' are busy! Check them. (use 'tmux -L' to specify socket)"
-        fi
-        ((tmux_socket_number++))
-    done
-    tmux_socket_name="${tmux_socket_prefix}${tmux_socket_number}"
+tmux_check() {
+    if tmux -L "$tmux_socket_name" has-session -t skuf_update &>/dev/null; then
+        die "tmux session 'skuf_update' on socket '$tmux_socket_name' already exists! Check it. (use 'tmux -L' to specify socket)"
+    fi
 }
 
 tmux_kill() {
@@ -353,7 +360,6 @@ mutate_opts() {
     local _pkg pkg _resolvconf mutation=() mutation2=()
     # -a
     if [[ -n "$post_script" ]]; then
-        post_script="$(echo "$post_script" | sed 's|/*$||')"
         post_script="$(realpath "$post_script")" ||
             die "realpath failed for post-install script"
         [[ -f "$post_script" ]] ||
@@ -361,7 +367,6 @@ mutate_opts() {
     fi
     # -b
     if [[ -n "$pre_script" ]]; then
-        pre_script="$(echo "$pre_script" | sed 's|/*$||')"
         pre_script="$(realpath "$pre_script")" ||
             die "realpath failed for pre-install script"
         [[ -f "$pre_script" ]] ||
@@ -369,12 +374,11 @@ mutate_opts() {
     fi
     # -p
     for pkg in "${pacman_packages[@]}"; do
-        pkg="$(echo "$pkg" | sed 's|/*$||')"
         _pkg="$(realpath "$pkg")" ||
-            die "realpath failed for pacman package -- '$pkg'"
+            die "realpath failed for pacman package file -- '$pkg'"
         pkg="$_pkg"
         [[ -f "$pkg" ]] ||
-            die "Unable to find pacman package -- '$pkg'"
+            die "Unable to find pacman package file -- '$pkg'"
         mutation+=("$pkg")
     done
     pacman_packages=("${mutation[@]}")
@@ -399,33 +403,34 @@ mutate_opts() {
 do_action_opts() {
     # -c
     if (( store_pacman_cache )); then
-        if [[ -d "$pacman_cache_dir" ]]; then
-            pacman_cache_dir="$(realpath "$pacman_cache_dir")" ||
-                die "realpath failed for shared pacman package cache directory"
-        else
+        if [[ ! -d "$pacman_cache_dir" ]]; then
             install -d -m 755 "$pacman_cache_dir" ||
                 die "Unable to create directory for shared pacman package cache -- '$pacman_cache_dir'"
-            pacman_cache_dir="$(realpath "$pacman_cache_dir")" ||
-                die "realpath failed for shared pacman package cache directory"
         fi
+        pacman_cache_dir="$(realpath "$pacman_cache_dir")" ||
+            die "realpath failed for shared pacman package cache directory"
     fi
     # -m
-    if [[ -d "$mount_dir" ]]; then
-        mount_dir="$(realpath "$mount_dir")" ||
-            die "realpath failed for mount directory"
-    else
+    if [[ ! -d "$mount_dir" ]]; then
         install -d -m 755 "$mount_dir" ||
             die "Unable to create mount directory -- '$mount_dir'"
-        mount_dir="$(realpath "$mount_dir")" ||
-            die "realpath failed for mount directory"
-    fi  
+    fi
+    mount_dir="$(realpath "$mount_dir")" ||
+        die "realpath failed for mount directory"
 }
 
 check_opts_conflicts() {
     local pkg
+    # -m
+    if [[ "$mount_dir" == "/" ]]; then
+        die "Mount directory cannot be '/'"
+    fi
+    if [[ "${realpath_TMPDIR%/}/" == "${mount_dir%/}/"* ]]; then
+        die "Mount directory '$mount_dir' cannot overlap \$TMPDIR -- '$realpath_TMPDIR'"
+    fi
     # -c, -m
-    if (( store_pacman_cache )) && [[ "$pacman_cache_dir" == "$mount_dir" ]]; then
-        die "Pacman package cache directory and mount directory cannot be the same"
+    if (( store_pacman_cache )) && [[ "${pacman_cache_dir%/}/" == "${mount_dir%/}/"* ]]; then
+        die "Pacman package cache directory '$pacman_cache_dir' cannot be located in the mount directory -- '$mount_dir'"
     fi
     # -p
     for pkg in "${pacman_packages[@]}"; do
@@ -1431,6 +1436,7 @@ if (( ! ${#remote_systems[@]} )); then
     die "No remote systems specified"
 fi
 
+preptemp
 mutate_opts
 do_action_opts
 check_opts_conflicts
@@ -1441,13 +1447,13 @@ trap 'clean_up' EXIT
 curdir="$(pwd)"
 cd /
 
-(( use_tmux )) && tmux_setup_socket
 (( use_tmux )) && generate_status
 generate_update
 generate_update_script
 
 if (( use_tmux )); then
     stty_size || die "Unable to fetch terminal window size"
+    tmux_check
     tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
     tmux_attach || error "'tmux attach' command executed with non-zero exit code"
     tmux_kill
