@@ -86,11 +86,6 @@ cd skuf
 ./switch-tag latest
 ```
 
-Install required packages:
-```sh
-./install_deps.sh
-```
-
 Tune encryption obfuscation and encryption password (see [Customization instructions](#Password-tuning)):
 ```sh
 vim tune.password
@@ -100,6 +95,11 @@ vim tune.crypt
 Setup defaults for `ISO` (optional):
 ```sh
 vim defaults
+```
+
+Install required packages:
+```sh
+./install_deps.sh
 ```
 
 Run configuraion sripts:
