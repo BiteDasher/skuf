@@ -59,7 +59,7 @@ Now when the kernel and initramfs of your Arch Linux were loaded from SMB server
 <sub><sup>See also: [Arch Wiki article](https://wiki.archlinux.org/title/Diskless_system#SKUF)</sup></sub>
 
 > [!CAUTION]
-> **The only supported distribution is Arch Linux™.** Other shitty systems like Debian, Ubuntu, Manjaro, Fedora, openSUSE, etc. are NOT supported and NEVER WILL BE. <br>
+> **The only supported distribution is Arch Linux™.** Other shitty systems like Debian, Ubuntu, Manjaro, Fedora, openSUSE, etc. are NOT supported and NEVER WILL BE. <br><br>
 > To build `SKUF` on a non-Arch-based system, run **Arch Linux**, for example, in a `docker` container: <br>
 > ```
 > docker run -it archlinux
