@@ -3,7 +3,7 @@
 pkgname=skuf
 __mkinitcpio_base=39.2
 pkgver="27.0+${__mkinitcpio_base}"
-pkgrel=2
+pkgrel=3
 pkgdesc="SKUF Network Boot System"
 arch=('any')
 url='https://github.com/BiteDasher/skuf'
@@ -12,7 +12,7 @@ depends=('awk' 'mkinitcpio-busybox>=1.19.4-2' 'kmod' 'util-linux>=2.23' 'libarch
         'bash' 'binutils' 'diffutils' 'findutils' 'grep' 'filesystem>=2011.10-1' 'zstd' 'systemd'
         'dhcpcd' 'iproute2' 'iputils' 'cifs-utils' 'procps-ng'
         'openssl' 'kbd' 'terminus-font' 'sed' 'tar')
-makedepends=('asciidoc')
+makedepends=('asciidoc' 'patch')
 optdepends=('gzip: Use gzip compression for the initramfs image'
             'xz: Use lzma or xz compression for the initramfs image'
             'bzip2: Use bzip2 compression for the initramfs image'
@@ -25,9 +25,17 @@ conflicts=('mkinitcpio')
 install=skuf.install
 backup=('etc/mkinitcpio.conf')
 source=("file:///tmp/mkinitcpio.tar"
-        "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.xz")
+        "https://sources.archlinux.org/other/mkinitcpio/mkinitcpio-$__mkinitcpio_base.tar.xz"
+        "0001-trigger.patch")
 sha512sums=('SKIP'
-            'e4ba9fe901da56bb116510ec0c6abeba5153e57d9545baccbc466932951b7f324aa75ef7cc3de87f966456b0365b17552f367411d62585d500e88dc5c815058b')
+            'e4ba9fe901da56bb116510ec0c6abeba5153e57d9545baccbc466932951b7f324aa75ef7cc3de87f966456b0365b17552f367411d62585d500e88dc5c815058b'
+            'b21e3961294e80bedd89a7e332ab11fc3b83eebfaf58d8f658e30f7d9caf2f84f4934224173c70f111932de8538fa327f5f6bfe9576b11bcbaf84d2d5ad8e85d')
+
+prepare() {
+    pushd "mkinitcpio-$__mkinitcpio_base"
+    patch -Np1 < ../0001-trigger.patch
+    popd
+}
 
 package() {
     # mkinitcpio
