@@ -22,7 +22,14 @@ pacman -S --noconfirm "$@" \
 if [ -n "$CC" ] && command -v "$CC" &>/dev/null; then
     :
 elif ! command -v gcc &>/dev/null && ! command -v clang; then
-    pacman -S clang
+    confirm="--noconfirm"
+    for _confirm in "$@"; do
+        if [ "$_confirm" == "--confirm" ]; then
+            confirm="--confirm"
+            break
+        fi
+    done
+    pacman -S "$confirm" clang
 fi
 
 echo "Done."
