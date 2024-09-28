@@ -80,7 +80,13 @@ if [ -n "$CC" ]; then
         echo "Error: command '$CC' not found" >&2
         exit 1
     fi
-    muslCC="$CC"
+    if [ -n "$muslCC" ] && command -v "$muslCC" &>/dev/null; then
+        :
+    elif command -v "musl-$CC" &>/dev/null; then
+        muslCC="musl-$CC"
+    else
+        muslCC="$CC"
+    fi
 elif command -v musl-clang &>/dev/null && command -v clang &>/dev/null; then
     CC=clang
     muslCC=musl-clang
