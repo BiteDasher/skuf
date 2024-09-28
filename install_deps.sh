@@ -4,12 +4,6 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-if pacman -Q base-devel &>/dev/null; then
-    _CC=clang
-else
-    _CC=gcc
-fi
-
 set -e
 set -x
 
@@ -20,11 +14,16 @@ pacman -S --noconfirm "$@" \
         base \
         base-devel \
         binutils \
-        $_CC \
         musl \
         linux-api-headers \
         kernel-headers-musl \
         patch
+
+if [ -n "$CC" ] && command -v "$CC" &>/dev/null; then
+    :
+elif ! command -v gcc &>/dev/null && ! command -v clang; then
+    pacman -S clang
+fi
 
 echo "Done."
 
