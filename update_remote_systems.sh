@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=8.0.0
+version=8.0.1
 
 use_tmux="?"
 post_script=
@@ -1452,8 +1452,8 @@ generate_update
 generate_update_script
 
 if (( use_tmux )); then
-    stty_size || die "Unable to fetch terminal window size"
     tmux_check
+    stty_size || die "Unable to fetch terminal window size"
     tmux_setup || { tmux_kill; die "Unable to setup tmux session"; }
     tmux_attach || error "'tmux attach' command executed with non-zero exit code"
     tmux_kill
