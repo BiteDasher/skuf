@@ -691,14 +691,15 @@ until [[ "$(tmux -L "$tmux_socket_name" list-sessions -F '#{session_attached}:#{
 done
 tmux -L "$tmux_socket_name" display-popup -t skuf_update -w 17 -h 3 -E "bash -c \"read -p 'Starting up...' -s -r -t 1\""
 
-until [[ -f "$temporary/update_pid" ]]; do
+until [[ -s "$temporary/update_pid" && -s "$temporary/.update_pid.marker" ]]; do
     :
 done
 update_pid="$(<"$temporary/update_pid")"
 
 echo "$$" > "$temporary/status_pid"
+echo "1"  > "$temporary/.status_pid.marker"
 
-until [[ -f "$temporary/ready_first_draw" ]]; do
+until [[ -s "$temporary/ready_first_draw" ]]; do
     :
 done
 
@@ -715,15 +716,14 @@ draw_bars
 move_cursor 8
 FIRST_DRAW=0
 
-echo "1" > "$temporary/done_first_draw"
-
-until [[ -f "$temporary/system.current" ]]; do
-    :
-done
-get_current_system
-
 DRAW_PROGRESS=1
 DRAW_COUNTER=1
+
+echo "1" > "$temporary/done_first_draw"
+
+until [[ -s "$temporary/system.current" ]]; do
+    :
+done
 
 while [[ -f "$temporary/update_pid" ]]; do
     draw_progress
@@ -1139,10 +1139,11 @@ fi
 echo -ne "\e]0;Remote systems\a"
 
 echo "$$" > "$temporary/update_pid"
+echo "1"  > "$temporary/.update_pid.marker"
 
 if (( use_tmux )); then
 #######################
-until [[ -f "$temporary/status_pid" ]]; do
+until [[ -s "$temporary/status_pid" && -s "$temporary/.status_pid.marker" ]]; do
     :
 done
 status_pid="$(<"$temporary/status_pid")"
@@ -1167,7 +1168,7 @@ if (( use_tmux )); then
 #######################
 echo "1" > "$temporary/ready_first_draw"
 
-until [[ -f "$temporary/done_first_draw" ]]; do
+until [[ -s "$temporary/done_first_draw" ]]; do
     :
 done
 #######################
