@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=8.0.1
+version=9.0.0
 
 use_tmux="?"
 post_script=
