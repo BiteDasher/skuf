@@ -233,7 +233,7 @@ The syntax corresponds to the order of the **main** variables from the [SKUF var
 
 
 ## Updating
-To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed. <sub><sup>Short links: [gg.gg/updskuf](http://gg.gg/updskuf) [t.ly/updskuf](http://t.ly/updskuf)</sup></sub>
+To update remote systems, use the `update_remote_systems.sh` script from this repository. It should work on **all linux systems** with `bash` and a couple of basic utilities installed. <sub><sup>Short links: [spoo.me/updskuf](http://spoo.me/updskuf) [yaso.su/updskuf](http://yaso.su/updskuf)</sup></sub>
 
 ![skuf_update_demo](git_extras/skuf_update_demo.png)
 *Demonstration of the script running in tmux mode*
