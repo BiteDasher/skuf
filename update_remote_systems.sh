@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=9.0.0
+version=10
 
 use_tmux="?"
 post_script=
@@ -345,19 +345,102 @@ tmux_attach() {
     fi
 }
 
+mutate_exec_arguments() {
+    local iter_arg to_arg char inside_single inside_double escape_next notspace emptystart i
+
+    for iter_arg in "${exec_arguments[@]}"; do
+        to_arg=
+        char=
+        inside_single=0
+        inside_double=0
+        escape_next=0
+        notspace=1
+        emptystart=1
+        for (( i=0; i < ${#iter_arg}; i++ )); do
+            char="${iter_arg:$i:1}"
+            if (( escape_next )); then
+                to_arg+="$char"
+                escape_next=0
+                continue
+            fi
+            case "$char" in
+                \\)
+                    (( ! emptystart )) || emptystart=0
+                    (( notspace ))     || notspace=1
+                    if (( inside_single )); then
+                        to_arg+="$char"
+                    else
+                        escape_next=1
+                    fi
+                    ;;
+                \')
+                    (( ! emptystart )) || emptystart=0
+                    (( notspace ))     || notspace=1
+                    if (( inside_single )); then
+                        inside_single=0
+                    elif (( ! inside_double )); then
+                        inside_single=1
+                    else
+                        to_arg+="$char"
+                    fi
+                    ;;
+                \")
+                    (( ! emptystart )) || emptystart=0
+                    (( notspace ))     || notspace=1
+                    if (( inside_double )); then
+                        inside_double=0
+                    elif (( ! inside_single )); then
+                        inside_double=1
+                    else
+                        to_arg+="$char"
+                    fi
+                    ;;
+                [[:space:]])
+                    if (( inside_single || inside_double )); then
+                        notspace=1
+                        to_arg+="$char"
+                    elif (( notspace && ! emptystart )); then
+                        notspace=0
+                        mutation2+=("$to_arg")
+                        to_arg=
+                    fi
+                    ;;
+                *)
+                    (( ! emptystart )) || emptystart=0
+                    (( notspace ))     || notspace=1
+                    to_arg+="$char"
+                    ;;
+            esac
+        done
+        if (( inside_single )); then
+            die "-E parser: unmatched single quote found"
+        elif (( inside_double )); then
+            die "-E parser: unmatched double quote found"
+        elif (( escape_next )); then
+            die "-E parser: unmatched backslash found"
+        fi
+        if (( notspace )); then
+            mutation2+=("$to_arg")
+        fi
+    done
+    exec_arguments=("${mutation2[@]}")
+}
+
 mutate_sync_packages() {
     local IFS="," parse
 
     for pkg in "${sync_packages[@]}"; do
         for parse in $pkg; do
-            mutation2+=("$parse")
+            if [[ -n "$parse" ]]; then
+                mutation3+=("$parse")
+            fi
         done
     done
-    sync_packages=("${mutation2[@]}")
+    sync_packages=("${mutation3[@]}")
 }
 
 mutate_opts() {
-    local _pkg pkg _resolvconf mutation=() mutation2=()
+    local _pkg pkg _resolvconf mutation=() mutation2=() mutation3=()
     # -a
     if [[ -n "$post_script" ]]; then
         post_script="$(realpath "$post_script")" ||
@@ -372,6 +455,8 @@ mutate_opts() {
         [[ -f "$pre_script" ]] ||
             die "Unable to find pre-install script -- '$pre_script'"
     fi
+    # -E
+    mutate_exec_arguments
     # -p
     for pkg in "${pacman_packages[@]}"; do
         _pkg="$(realpath "$pkg")" ||
@@ -1383,7 +1468,7 @@ fi
 pacman_command+=("--noconfirm")
 
 if (( ${#exec_arguments[@]} )); then
-    pacman_command+=(${exec_arguments[*]})
+    pacman_command+=("${exec_arguments[@]}")
 fi
 
 if (( update_systems )); then
