@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-version=10
+version=11
 
 use_tmux="?"
 post_script=
@@ -346,7 +346,7 @@ tmux_attach() {
 }
 
 mutate_exec_arguments() {
-    local iter_arg to_arg char inside_single inside_double escape_next notspace emptystart i
+    local iter_arg to_arg char inside_single inside_double escape_next notspace i
 
     for iter_arg in "${exec_arguments[@]}"; do
         to_arg=
@@ -354,8 +354,7 @@ mutate_exec_arguments() {
         inside_single=0
         inside_double=0
         escape_next=0
-        notspace=1
-        emptystart=1
+        notspace=0
         for (( i=0; i < ${#iter_arg}; i++ )); do
             char="${iter_arg:$i:1}"
             if (( escape_next )); then
@@ -365,8 +364,7 @@ mutate_exec_arguments() {
             fi
             case "$char" in
                 \\)
-                    (( ! emptystart )) || emptystart=0
-                    (( notspace ))     || notspace=1
+                    (( notspace )) || notspace=1
                     if (( inside_single )); then
                         to_arg+="$char"
                     else
@@ -374,8 +372,7 @@ mutate_exec_arguments() {
                     fi
                     ;;
                 \')
-                    (( ! emptystart )) || emptystart=0
-                    (( notspace ))     || notspace=1
+                    (( notspace )) || notspace=1
                     if (( inside_single )); then
                         inside_single=0
                     elif (( ! inside_double )); then
@@ -385,8 +382,7 @@ mutate_exec_arguments() {
                     fi
                     ;;
                 \")
-                    (( ! emptystart )) || emptystart=0
-                    (( notspace ))     || notspace=1
+                    (( notspace )) || notspace=1
                     if (( inside_double )); then
                         inside_double=0
                     elif (( ! inside_single )); then
@@ -397,17 +393,16 @@ mutate_exec_arguments() {
                     ;;
                 [[:space:]])
                     if (( inside_single || inside_double )); then
-                        notspace=1
+                        (( notspace )) || notspace=1
                         to_arg+="$char"
-                    elif (( notspace && ! emptystart )); then
+                    elif (( notspace )); then
                         notspace=0
                         mutation2+=("$to_arg")
                         to_arg=
                     fi
                     ;;
                 *)
-                    (( ! emptystart )) || emptystart=0
-                    (( notspace ))     || notspace=1
+                    (( notspace )) || notspace=1
                     to_arg+="$char"
                     ;;
             esac
