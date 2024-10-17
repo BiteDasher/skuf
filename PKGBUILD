@@ -2,8 +2,8 @@
 
 pkgname=skuf
 __mkinitcpio_base=39.2
-pkgver="27.0+${__mkinitcpio_base}"
-pkgrel=4
+pkgver="28.0+${__mkinitcpio_base}"
+pkgrel=1
 pkgdesc="SKUF Network Boot System"
 arch=('any')
 url='https://github.com/BiteDasher/skuf'
