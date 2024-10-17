@@ -8,17 +8,17 @@ pkgdesc="SKUF Network Boot System"
 arch=('any')
 url='https://github.com/BiteDasher/skuf'
 license=('custom:GPL AND NO LICENSE')
-depends=('awk' 'mkinitcpio-busybox>=1.19.4-2' 'kmod' 'util-linux>=2.23' 'libarchive' 'coreutils'
-        'bash' 'binutils' 'diffutils' 'findutils' 'grep' 'filesystem>=2011.10-1' 'zstd' 'systemd'
+depends=('awk' 'mkinitcpio-busybox' 'kmod' 'util-linux' 'libarchive' 'coreutils'
+        'bash' 'binutils' 'diffutils' 'findutils' 'grep' 'gzip' 'filesystem' 'zstd' 'systemd'
         'dhcpcd' 'iproute2' 'iputils' 'cifs-utils' 'procps-ng'
         'openssl' 'kbd' 'terminus-font' 'sed' 'tar')
 makedepends=('patch')
-optdepends=('gzip: Use gzip compression for the initramfs image'
-            'xz: Use lzma or xz compression for the initramfs image'
+optdepends=('xz: Use lzma or xz compression for the initramfs image'
             'bzip2: Use bzip2 compression for the initramfs image'
             'lzop: Use lzo compression for the initramfs image'
             'lz4: Use lz4 compression for the initramfs image'
-            'mkinitcpio-nfs-utils: Support for root filesystem on NFS')
+            'mkinitcpio-nfs-utils: Support for root filesystem on NFS'
+            'systemd-ukify: alternative UKI generator')
 provides=("initramfs" "skuf-rd=$pkgver" "skuf-nbs=$pkgver" "mkinitcpio=$__mkinitcpio_base")
 conflicts=('mkinitcpio')
 
